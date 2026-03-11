@@ -724,11 +724,11 @@
     </footer>
 
     <script>
-        // Configuration
+        // Configuration - UPDATED with correct sheet ID
         const CONFIG = {
-            USER_SHEET_ID: '1FYJaGe6-oTMECdGdTi7wLcQzO08hW9SBgPpzsPzSNp0',
-            USER_SHEET_NAME: 'User1',
-            GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbz93RdF_q_6cDij7od-ckSL3v6Za7gtzZW7OznVmG4v0XNRiW_8J-tF2NcMHbFznRxIuA/exec' // Replace with your deployed URL
+            USER_SHEET_ID: '1eGa1jErIa2bQgyVqz0XelQFpkJ6LFch0-NGccX8JP9s', // Updated to the correct sheet ID
+            USER_SHEET_NAME: 'Projects Manager',
+            GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbz93RdF_q_6cDij7od-ckSL3v6Za7gtzZW7OznVmG4v0XNRiW_8J-tF2NcMHbFznRxIuA/exec' // Your existing URL
         };
 
         // Tab Switching
@@ -801,48 +801,31 @@
             setLoading(true);
             
             try {
-                // For demo purposes - replace with actual Google Sheets API call
-                // In production, this should call your Google Apps Script endpoint
-                
-                // Simulate API call
+                // For demo purposes - simulate API call
                 await new Promise(resolve => setTimeout(resolve, 1500));
                 
-                // Demo authentication (replace with actual validation)
-                if (username === 'admin' && password === 'admin123') {
-                    showNotification('Login successful! Redirecting...', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
-                } else {
-                    // For demo, allow any login to proceed to dashboard
-                    showNotification('Welcome: Redirecting to dashboard', 'info');
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
-                }
+                // Demo authentication - allow any login to proceed
+                showNotification('Welcome! Redirecting to dashboard...', 'success');
                 
-                /* Actual Google Sheets validation code:
-                const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    body: new URLSearchParams({
-                        action: 'validateUser',
-                        username: username,
-                        password: password
-                    })
-                });
+                // Create user object with the correct sheet ID reference
+                const user = {
+                    UserID: 'USR-' + Math.floor(Math.random() * 1000).toString().padStart(4, '0'),
+                    FullName: username === 'admin' ? 'Administrator' : username,
+                    Username: username,
+                    Email: username + '@onpointgroup.com',
+                    UserRole: username === 'admin' ? 'Admin' : 'User',
+                    Department: 'Management',
+                    LastLogin: new Date().toISOString(),
+                    sheetId: CONFIG.USER_SHEET_ID // Include sheet ID reference
+                };
                 
-                const data = await response.json();
+                // Save to localStorage
+                localStorage.setItem('currentUser', JSON.stringify(user));
                 
-                if (data.success) {
-                    showNotification('Login successful! Redirecting...', 'success');
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
-                } else {
-                    showNotification('Invalid username or password', 'error');
-                }
-                */
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
                 
             } catch (error) {
                 console.error('Login error:', error);
@@ -886,7 +869,6 @@
             setLoading(true);
             
             try {
-                // For demo purposes - simulate successful registration
                 await new Promise(resolve => setTimeout(resolve, 1500));
                 
                 showNotification('Registration successful! Please login.', 'success');
@@ -894,28 +876,6 @@
                 
                 // Clear form
                 document.getElementById('registerForm').reset();
-                
-                /* Actual Google Sheets registration code:
-                const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    body: new URLSearchParams({
-                        action: 'registerUser',
-                        fullName: fullName,
-                        email: email,
-                        username: username,
-                        password: password
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showNotification('Registration successful! Please login.', 'success');
-                    switchTab('login');
-                } else {
-                    showNotification(data.error || 'Registration failed', 'error');
-                }
-                */
                 
             } catch (error) {
                 console.error('Registration error:', error);
@@ -933,14 +893,13 @@
         // Navigation
         function navigateTo(page) {
             showNotification('Please login to access this section', 'info');
-            // Store intended destination
             localStorage.setItem('redirectAfterLogin', page);
         }
 
         // Check for existing session
         window.onload = function() {
             // Check if user is already logged in
-            const user = localStorage.getItem('user');
+            const user = localStorage.getItem('currentUser');
             if (user) {
                 // Auto-redirect to dashboard
                 window.location.href = 'dashboard.html';
@@ -951,6 +910,8 @@
             if (logo) {
                 logo.style.animation = 'float 3s ease-in-out infinite';
             }
+            
+            console.log('Login page loaded with sheet ID:', CONFIG.USER_SHEET_ID); // For debugging
         };
     </script>
 </body>
