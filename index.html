@@ -390,6 +390,39 @@
             margin-right: 8px;
         }
 
+        /* Demo Credentials */
+        .demo-credentials {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .demo-credentials p {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .demo-credentials .cred-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            padding: 5px 0;
+        }
+
+        .demo-credentials .cred-item i {
+            color: #667eea;
+            width: 20px;
+        }
+
+        .demo-credentials .cred-item span {
+            font-weight: 600;
+            color: #333;
+        }
+
         /* Terms & Privacy */
         .terms {
             text-align: center;
@@ -620,6 +653,19 @@
                 <div class="tagline">Project Management Portal</div>
             </div>
 
+            <!-- Demo Credentials -->
+            <div class="demo-credentials">
+                <p><i class="fas fa-info-circle"></i> Demo Credentials:</p>
+                <div class="cred-item">
+                    <i class="fas fa-user"></i>
+                    <span>Username:</span> admin
+                </div>
+                <div class="cred-item">
+                    <i class="fas fa-lock"></i>
+                    <span>Password:</span> admin123
+                </div>
+            </div>
+
             <!-- Tab Switcher -->
             <div class="tab-container">
                 <div class="tab active" onclick="switchTab('login')">
@@ -635,16 +681,16 @@
                 <form id="loginForm" onsubmit="handleLogin(event)">
                     <div class="input-group">
                         <i class="fas fa-user"></i>
-                        <input type="text" id="loginUsername" placeholder="Username or Email" required>
+                        <input type="text" id="loginUsername" placeholder="Username or Email" value="admin" required>
                     </div>
                     <div class="input-group">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="loginPassword" placeholder="Password" required>
+                        <input type="password" id="loginPassword" placeholder="Password" value="admin123" required>
                         <i class="fas fa-eye password-toggle" onclick="togglePassword('loginPassword', this)"></i>
                     </div>
                     <div class="row-flex">
                         <label class="checkbox-label">
-                            <input type="checkbox" id="rememberMe"> Remember me
+                            <input type="checkbox" id="rememberMe" checked> Remember me
                         </label>
                         <a href="#" class="forgot-link" onclick="showForgotPassword()">Forgot Password?</a>
                     </div>
@@ -724,11 +770,36 @@
     </footer>
 
     <script>
-        // Configuration - UPDATED with correct sheet ID
+        // Configuration
         const CONFIG = {
-            USER_SHEET_ID: '1eGa1jErIa2bQgyVqz0XelQFpkJ6LFch0-NGccX8JP9s', // Updated to the correct sheet ID
+            USER_SHEET_ID: '1eGa1jErIa2bQgyVqz0XelQFpkJ6LFch0-NGccX8JP9s',
             USER_SHEET_NAME: 'Projects Manager',
-            GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbz93RdF_q_6cDij7od-ckSL3v6Za7gtzZW7OznVmG4v0XNRiW_8J-tF2NcMHbFznRxIuA/exec' // Your existing URL
+            GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxvPTOFFEaNll9A5Yf1zapqV5Dnf_i7xpMIZiWJqWxgu923kl9nbB2p4QrhRZMpf3Nr/exec'
+        };
+
+        // Demo users for testing
+        const DEMO_USERS = {
+            'admin': {
+                password: 'admin123',
+                fullName: 'Administrator',
+                email: 'admin@onpointgroup.com',
+                role: 'Admin',
+                department: 'Management'
+            },
+            'user': {
+                password: 'user123',
+                fullName: 'Demo User',
+                email: 'user@onpointgroup.com',
+                role: 'User',
+                department: 'Operations'
+            },
+            'john.smith': {
+                password: 'welcome123',
+                fullName: 'John Smith',
+                email: 'john.smith@onpointgroup.com',
+                role: 'Project Manager',
+                department: 'Projects'
+            }
         };
 
         // Tab Switching
@@ -790,8 +861,9 @@
         async function handleLogin(event) {
             event.preventDefault();
             
-            const username = document.getElementById('loginUsername').value;
+            const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
             
             if (!username || !password) {
                 showNotification('Please enter username and password', 'error');
@@ -801,37 +873,98 @@
             setLoading(true);
             
             try {
-                // For demo purposes - simulate API call
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                // Try to authenticate with Google Sheets first
+                const authenticated = await authenticateWithGoogleSheets(username, password);
                 
-                // Demo authentication - allow any login to proceed
-                showNotification('Welcome! Redirecting to dashboard...', 'success');
-                
-                // Create user object with the correct sheet ID reference
-                const user = {
-                    UserID: 'USR-' + Math.floor(Math.random() * 1000).toString().padStart(4, '0'),
-                    FullName: username === 'admin' ? 'Administrator' : username,
-                    Username: username,
-                    Email: username + '@onpointgroup.com',
-                    UserRole: username === 'admin' ? 'Admin' : 'User',
-                    Department: 'Management',
-                    LastLogin: new Date().toISOString(),
-                    sheetId: CONFIG.USER_SHEET_ID // Include sheet ID reference
-                };
-                
-                // Save to localStorage
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                
-                // Redirect to dashboard
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1500);
-                
+                if (authenticated.success) {
+                    // Save user data
+                    const user = authenticated.user;
+                    
+                    if (rememberMe) {
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                    } else {
+                        sessionStorage.setItem('currentUser', JSON.stringify(user));
+                    }
+                    
+                    showNotification('Login successful! Redirecting...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else {
+                    // Fallback to demo users if Google Sheets fails
+                    if (DEMO_USERS[username] && DEMO_USERS[username].password === password) {
+                        const user = {
+                            UserID: 'USR-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
+                            Username: username,
+                            FullName: DEMO_USERS[username].fullName,
+                            Email: DEMO_USERS[username].email,
+                            UserRole: DEMO_USERS[username].role,
+                            Department: DEMO_USERS[username].department,
+                            LastLogin: new Date().toISOString()
+                        };
+                        
+                        if (rememberMe) {
+                            localStorage.setItem('currentUser', JSON.stringify(user));
+                        } else {
+                            sessionStorage.setItem('currentUser', JSON.stringify(user));
+                        }
+                        
+                        showNotification('Login successful! (Welcome)', 'success');
+                        
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 1500);
+                    } else {
+                        showNotification('Invalid username or password', 'error');
+                    }
+                }
             } catch (error) {
                 console.error('Login error:', error);
-                showNotification('Login failed: ' + error.message, 'error');
+                
+                // Fallback to demo users on error
+                if (DEMO_USERS[username] && DEMO_USERS[username].password === password) {
+                    const user = {
+                        UserID: 'USR-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
+                        Username: username,
+                        FullName: DEMO_USERS[username].fullName,
+                        Email: DEMO_USERS[username].email,
+                        UserRole: DEMO_USERS[username].role,
+                        Department: DEMO_USERS[username].department,
+                        LastLogin: new Date().toISOString()
+                    };
+                    
+                    if (rememberMe) {
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                    } else {
+                        sessionStorage.setItem('currentUser', JSON.stringify(user));
+                    }
+                    
+                    showNotification('Login successful! (Offline Mode)', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else {
+                    showNotification('Login failed: ' + error.message, 'error');
+                }
             } finally {
                 setLoading(false);
+            }
+        }
+
+        // Authenticate with Google Sheets
+        async function authenticateWithGoogleSheets(username, password) {
+            try {
+                const url = `${CONFIG.GOOGLE_SCRIPT_URL}?action=authenticate&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&_=${Date.now()}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                return data;
+            } catch (error) {
+                console.log('Google Sheets auth failed, using demo users');
+                return { success: false };
             }
         }
 
@@ -839,11 +972,12 @@
         async function handleRegister(event) {
             event.preventDefault();
             
-            const fullName = document.getElementById('regFullName').value;
-            const email = document.getElementById('regEmail').value;
-            const username = document.getElementById('regUsername').value;
+            const fullName = document.getElementById('regFullName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const username = document.getElementById('regUsername').value.trim();
             const password = document.getElementById('regPassword').value;
             const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const agreeTerms = document.getElementById('agreeTerms').checked;
             
             // Validation
             if (!fullName || !email || !username || !password) {
@@ -861,25 +995,68 @@
                 return;
             }
             
-            if (!document.getElementById('agreeTerms').checked) {
+            if (!agreeTerms) {
                 showNotification('Please agree to the Terms & Privacy', 'error');
+                return;
+            }
+            
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showNotification('Please enter a valid email address', 'error');
                 return;
             }
             
             setLoading(true);
             
             try {
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                // Try to register with Google Sheets
+                const url = `${CONFIG.GOOGLE_SCRIPT_URL}?action=register`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fullName: fullName,
+                        email: email,
+                        username: username,
+                        password: password
+                    })
+                });
                 
                 showNotification('Registration successful! Please login.', 'success');
+                
+                // Clear form and switch to login
+                document.getElementById('registerForm').reset();
                 switchTab('login');
                 
-                // Clear form
-                document.getElementById('registerForm').reset();
+                // Pre-fill login form
+                document.getElementById('loginUsername').value = username;
                 
             } catch (error) {
                 console.error('Registration error:', error);
-                showNotification('Registration failed: ' + error.message, 'error');
+                
+                // Demo mode - simulate successful registration
+                showNotification('Registration successful! (Demo Mode - Please login)', 'success');
+                
+                // Add to demo users
+                DEMO_USERS[username] = {
+                    password: password,
+                    fullName: fullName,
+                    email: email,
+                    role: 'User',
+                    department: 'New User'
+                };
+                
+                // Clear form and switch to login
+                document.getElementById('registerForm').reset();
+                switchTab('login');
+                
+                // Pre-fill login form
+                document.getElementById('loginUsername').value = username;
             } finally {
                 setLoading(false);
             }
@@ -892,14 +1069,41 @@
 
         // Navigation
         function navigateTo(page) {
-            showNotification('Please login to access this section', 'info');
-            localStorage.setItem('redirectAfterLogin', page);
+            const user = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+            
+            if (!user) {
+                showNotification('Please login to access this section', 'info');
+                return;
+            }
+            
+            // Navigate to different sections
+            switch(page) {
+                case 'fuel':
+                    window.location.href = 'fuel-reports.html';
+                    break;
+                case 'handover':
+                    window.location.href = 'handover.html';
+                    break;
+                case 'cleaning':
+                    window.location.href = 'cleaning-reports.html';
+                    break;
+                default:
+                    showNotification('Section under construction', 'info');
+            }
+        }
+
+        // Logout function (can be called from other pages)
+        function logout() {
+            localStorage.removeItem('currentUser');
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
         }
 
         // Check for existing session
         window.onload = function() {
             // Check if user is already logged in
-            const user = localStorage.getItem('currentUser');
+            const user = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+            
             if (user) {
                 // Auto-redirect to dashboard
                 window.location.href = 'dashboard.html';
@@ -911,7 +1115,7 @@
                 logo.style.animation = 'float 3s ease-in-out infinite';
             }
             
-            console.log('Login page loaded with sheet ID:', CONFIG.USER_SHEET_ID); // For debugging
+            console.log('Login page loaded with sheet ID:', CONFIG.USER_SHEET_ID);
         };
     </script>
 </body>
