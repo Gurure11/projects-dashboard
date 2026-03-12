@@ -127,18 +127,6 @@
             margin-bottom: 15px;
         }
 
-        .logo-container img {
-            width: 60px;
-            height: 60px;
-            object-fit: contain;
-            animation: rotate 1s ease-out;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(-180deg) scale(0); }
-            to { transform: rotate(0) scale(1); }
-        }
-
         .logo-container h1 {
             font-size: 32px;
             font-weight: 800;
@@ -647,23 +635,9 @@
             <!-- Logo -->
             <div class="logo-section">
                 <div class="logo-container">
-                    <img src="logo.png" alt="Onpoint Group Logo" onerror="this.style.display='none'">
                     <h1>Onpoint Group</h1>
                 </div>
                 <div class="tagline">Project Management Portal</div>
-            </div>
-
-            <!-- Demo Credentials -->
-            <div class="demo-credentials">
-                <p><i class="fas fa-info-circle"></i> Demo Credentials:</p>
-                <div class="cred-item">
-                    <i class="fas fa-user"></i>
-                    <span>Username:</span> admin
-                </div>
-                <div class="cred-item">
-                    <i class="fas fa-lock"></i>
-                    <span>Password:</span> admin123
-                </div>
             </div>
 
             <!-- Tab Switcher -->
@@ -678,23 +652,23 @@
 
             <!-- Login Form -->
             <div class="form-section active" id="loginSection">
-                <form id="loginForm" onsubmit="handleLogin(event)">
+                <form id="loginForm">
                     <div class="input-group">
                         <i class="fas fa-user"></i>
-                        <input type="text" id="loginUsername" placeholder="Username or Email" value="admin" required>
+                        <input type="text" id="loginUsername" placeholder="Username or Email" required>
                     </div>
                     <div class="input-group">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="loginPassword" placeholder="Password" value="admin123" required>
+                        <input type="password" id="loginPassword" placeholder="Password" required>
                         <i class="fas fa-eye password-toggle" onclick="togglePassword('loginPassword', this)"></i>
                     </div>
                     <div class="row-flex">
                         <label class="checkbox-label">
-                            <input type="checkbox" id="rememberMe" checked> Remember me
+                            <input type="checkbox" id="rememberMe"> Remember me
                         </label>
                         <a href="#" class="forgot-link" onclick="showForgotPassword()">Forgot Password?</a>
                     </div>
-                    <button type="submit" class="submit-btn">
+                    <button type="button" class="submit-btn" onclick="handleLogin()">
                         <i class="fas fa-sign-in-alt"></i> Login to Dashboard
                     </button>
                 </form>
@@ -702,7 +676,7 @@
 
             <!-- Register Form -->
             <div class="form-section" id="registerSection">
-                <form id="registerForm" onsubmit="handleRegister(event)">
+                <form id="registerForm">
                     <div class="input-group">
                         <i class="fas fa-user"></i>
                         <input type="text" id="regFullName" placeholder="Full Name" required>
@@ -731,7 +705,7 @@
                         </label>
                         <a href="#" class="forgot-link">Terms & Privacy</a>
                     </div>
-                    <button type="submit" class="submit-btn">
+                    <button type="button" class="submit-btn" onclick="handleRegister()">
                         <i class="fas fa-user-plus"></i> Create Account
                     </button>
                 </form>
@@ -774,32 +748,7 @@
         const CONFIG = {
             USER_SHEET_ID: '1FYJaGe6-oTMECdGdTi7wLcQzO08hW9SBgPpzsPzSNp0',
             USER_SHEET_NAME: 'Users1',
-            GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbz2oVx01Ku1uT6yyRUalW0L6lTy6vroIo3yBduF9T64js1C5UFtLKGZBteDG_aoLznB/exec'
-        };
-
-        // Demo users for testing
-        const DEMO_USERS = {
-            'admin': {
-                password: 'admin123',
-                fullName: 'Administrator',
-                email: 'admin@onpointgroup.com',
-                role: 'Admin',
-                department: 'Management'
-            },
-            'user': {
-                password: 'user123',
-                fullName: 'Demo User',
-                email: 'user@onpointgroup.com',
-                role: 'User',
-                department: 'Operations'
-            },
-            'john.smith': {
-                password: 'welcome123',
-                fullName: 'John Smith',
-                email: 'john.smith@onpointgroup.com',
-                role: 'Project Manager',
-                department: 'Projects'
-            }
+            GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwJ-O3b1S_gcMyrnwvyoN6Y3LYLaOjDyfKA0eBvQXWuYXOZhmlCEP00w0rud6-z4DUV/exec'
         };
 
         // Tab Switching
@@ -858,9 +807,7 @@
         }
 
         // Handle Login
-        async function handleLogin(event) {
-            event.preventDefault();
-            
+        async function handleLogin() {
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
             const rememberMe = document.getElementById('rememberMe').checked;
@@ -873,17 +820,15 @@
             setLoading(true);
             
             try {
-                // Try to authenticate with Google Sheets first
-                const authenticated = await authenticateWithGoogleSheets(username, password);
+                const response = await fetch(`${CONFIG.GOOGLE_SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&timestamp=${Date.now()}`);
+                const data = await response.json();
                 
-                if (authenticated.success) {
+                if (data.success) {
                     // Save user data
-                    const user = authenticated.user;
-                    
                     if (rememberMe) {
-                        localStorage.setItem('currentUser', JSON.stringify(user));
+                        localStorage.setItem('currentUser', JSON.stringify(data.user));
                     } else {
-                        sessionStorage.setItem('currentUser', JSON.stringify(user));
+                        sessionStorage.setItem('currentUser', JSON.stringify(data.user));
                     }
                     
                     showNotification('Login successful! Redirecting...', 'success');
@@ -892,86 +837,18 @@
                         window.location.href = 'dashboard.html';
                     }, 1500);
                 } else {
-                    // Fallback to demo users if Google Sheets fails
-                    if (DEMO_USERS[username] && DEMO_USERS[username].password === password) {
-                        const user = {
-                            UserID: 'USR-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
-                            Username: username,
-                            FullName: DEMO_USERS[username].fullName,
-                            Email: DEMO_USERS[username].email,
-                            UserRole: DEMO_USERS[username].role,
-                            Department: DEMO_USERS[username].department,
-                            LastLogin: new Date().toISOString()
-                        };
-                        
-                        if (rememberMe) {
-                            localStorage.setItem('currentUser', JSON.stringify(user));
-                        } else {
-                            sessionStorage.setItem('currentUser', JSON.stringify(user));
-                        }
-                        
-                        showNotification('Login successful! (Welcome)', 'success');
-                        
-                        setTimeout(() => {
-                            window.location.href = 'dashboard.html';
-                        }, 1500);
-                    } else {
-                        showNotification('Invalid username or password', 'error');
-                    }
+                    showNotification(data.message || 'Invalid username or password', 'error');
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                
-                // Fallback to demo users on error
-                if (DEMO_USERS[username] && DEMO_USERS[username].password === password) {
-                    const user = {
-                        UserID: 'USR-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
-                        Username: username,
-                        FullName: DEMO_USERS[username].fullName,
-                        Email: DEMO_USERS[username].email,
-                        UserRole: DEMO_USERS[username].role,
-                        Department: DEMO_USERS[username].department,
-                        LastLogin: new Date().toISOString()
-                    };
-                    
-                    if (rememberMe) {
-                        localStorage.setItem('currentUser', JSON.stringify(user));
-                    } else {
-                        sessionStorage.setItem('currentUser', JSON.stringify(user));
-                    }
-                    
-                    showNotification('Login successful! (Offline Mode)', 'success');
-                    
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
-                } else {
-                    showNotification('Login failed: ' + error.message, 'error');
-                }
+                showNotification('Login failed. Please try again.', 'error');
             } finally {
                 setLoading(false);
             }
         }
 
-        // Authenticate with Google Sheets
-        async function authenticateWithGoogleSheets(username, password) {
-            try {
-                const url = `${CONFIG.GOOGLE_SCRIPT_URL}?action=authenticate&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&_=${Date.now()}`;
-                
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                return data;
-            } catch (error) {
-                console.log('Google Sheets auth failed, using demo users');
-                return { success: false };
-            }
-        }
-
         // Handle Register
-        async function handleRegister(event) {
-            event.preventDefault();
-            
+        async function handleRegister() {
             const fullName = document.getElementById('regFullName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
             const username = document.getElementById('regUsername').value.trim();
@@ -1010,16 +887,14 @@
             setLoading(true);
             
             try {
-                // Try to register with Google Sheets
-                const url = `${CONFIG.GOOGLE_SCRIPT_URL}?action=register`;
-                
-                const response = await fetch(url, {
+                const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: JSON.stringify({
+                    body: new URLSearchParams({
+                        action: 'register',
                         fullName: fullName,
                         email: email,
                         username: username,
@@ -1038,24 +913,11 @@
                 
             } catch (error) {
                 console.error('Registration error:', error);
-                
-                // Demo mode - simulate successful registration
-                showNotification('Registration successful! (Demo Mode - Please login)', 'success');
-                
-                // Add to demo users
-                DEMO_USERS[username] = {
-                    password: password,
-                    fullName: fullName,
-                    email: email,
-                    role: 'User',
-                    department: 'New User'
-                };
+                showNotification('Registration successful! Please login.', 'success');
                 
                 // Clear form and switch to login
                 document.getElementById('registerForm').reset();
                 switchTab('login');
-                
-                // Pre-fill login form
                 document.getElementById('loginUsername').value = username;
             } finally {
                 setLoading(false);
@@ -1092,7 +954,7 @@
             }
         }
 
-        // Logout function (can be called from other pages)
+        // Logout function
         function logout() {
             localStorage.removeItem('currentUser');
             sessionStorage.removeItem('currentUser');
@@ -1101,18 +963,10 @@
 
         // Check for existing session
         window.onload = function() {
-            // Check if user is already logged in
             const user = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
             
             if (user) {
-                // Auto-redirect to dashboard
                 window.location.href = 'dashboard.html';
-            }
-            
-            // Add floating animation to logo
-            const logo = document.querySelector('.logo-container img');
-            if (logo) {
-                logo.style.animation = 'float 3s ease-in-out infinite';
             }
             
             console.log('Login page loaded with sheet ID:', CONFIG.USER_SHEET_ID);
