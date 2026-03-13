@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Project Performance Dashboard</title>
+<title>Onpoint Group Project Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -12,20 +12,28 @@ body{
 font-family:Arial;
 background:#eef2f7;
 margin:0;
-padding:30px;
+}
+
+header{
+background:#0d2b52;
+color:white;
+padding:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+header h1{
+margin:0;
 }
 
 .container{
-max-width:1000px;
+padding:30px;
+max-width:1200px;
 margin:auto;
 }
 
-h1{
-text-align:center;
-margin-bottom:30px;
-}
-
-.dashboard{
+.cardGrid{
 display:grid;
 grid-template-columns:repeat(3,1fr);
 gap:20px;
@@ -36,31 +44,22 @@ margin-bottom:30px;
 background:white;
 padding:20px;
 border-radius:10px;
-box-shadow:0 3px 12px rgba(0,0,0,0.1);
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
 text-align:center;
-}
-
-.card h2{
-margin:0;
-font-size:28px;
-}
-
-.card p{
-margin:5px 0 0;
-color:#555;
 }
 
 .formBox{
 background:white;
 padding:25px;
 border-radius:10px;
-box-shadow:0 3px 12px rgba(0,0,0,0.1);
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+margin-bottom:30px;
 }
 
 label{
-display:block;
-margin-top:15px;
 font-weight:bold;
+display:block;
+margin-top:10px;
 }
 
 input,select,textarea{
@@ -72,46 +71,45 @@ border-radius:6px;
 }
 
 textarea{
-height:100px;
-resize:none;
+height:80px;
 }
 
 button{
-margin-top:25px;
-width:100%;
+margin-top:15px;
 padding:12px;
-background:#2b7cff;
+background:#1c6ef2;
 border:none;
 color:white;
-font-size:16px;
 border-radius:6px;
 cursor:pointer;
+width:100%;
 }
 
-button:hover{
-background:#1d5fd4;
-}
-
-.variance{
-background:#f1f5ff;
-padding:10px;
-border-radius:6px;
-margin-top:5px;
-font-weight:bold;
-}
-
-#status{
-margin-top:15px;
-text-align:center;
-font-weight:bold;
-}
-
-.chartBox{
-margin-top:40px;
+table{
+width:100%;
+border-collapse:collapse;
 background:white;
-padding:20px;
+margin-top:30px;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:10px;
+text-align:left;
+}
+
+th{
+background:#0d2b52;
+color:white;
+}
+
+.loginBox{
+max-width:400px;
+margin:100px auto;
+background:white;
+padding:30px;
 border-radius:10px;
-box-shadow:0 3px 12px rgba(0,0,0,0.1);
+box-shadow:0 3px 10px rgba(0,0,0,0.2);
 }
 
 </style>
@@ -119,46 +117,82 @@ box-shadow:0 3px 12px rgba(0,0,0,0.1);
 
 <body>
 
+<!-- LOGIN SCREEN -->
+
+<div id="loginScreen" class="loginBox">
+
+<h2>Onpoint Group Login</h2>
+
+<label>Email</label>
+<input type="email" id="loginEmail">
+
+<label>Password</label>
+<input type="password" id="loginPassword">
+
+<button onclick="login()">Login</button>
+
+<p id="loginStatus"></p>
+
+</div>
+
+
+<!-- MAIN DASHBOARD -->
+
+<div id="dashboard" style="display:none;">
+
+<header>
+
+<h1>Onpoint Group Project Dashboard</h1>
+
+<div>
+Logged in as: <b id="userEmail"></b>
+</div>
+
+</header>
+
 <div class="container">
 
-<h1>Daily Project Performance Dashboard</h1>
 
-<div class="dashboard">
+<!-- KPI CARDS -->
+
+<div class="cardGrid">
 
 <div class="card">
-<h2 id="kpiTarget">R0</h2>
+<h2 id="totalTarget">R0</h2>
 <p>Total Target</p>
 </div>
 
 <div class="card">
-<h2 id="kpiIncome">R0</h2>
+<h2 id="totalIncome">R0</h2>
 <p>Total Income</p>
 </div>
 
 <div class="card">
-<h2 id="kpiVariance">0%</h2>
-<p>Variance</p>
+<h2 id="totalVariance">0%</h2>
+<p>Overall Variance</p>
 </div>
 
 </div>
+
+
+<!-- FORM -->
 
 <div class="formBox">
 
-<form id="projectForm">
+<h3>Submit Daily Project Report</h3>
 
 <label>Date</label>
-<input type="date" id="date" required>
+<input type="date" id="date">
 
 <label>Project Manager</label>
-<input type="text" id="manager" required>
+<input type="text" id="manager">
 
 <label>Project Name</label>
-<input type="text" id="project" required>
+<input type="text" id="project">
 
 <label>Cost Center</label>
-<select id="costcenter" required>
+<select id="costcenter">
 
-<option value="">Select Cost Center</option>
 <option>Onpoint Group HQ</option>
 <option>DI Solutions</option>
 <option>Aqua Telecoms</option>
@@ -168,56 +202,110 @@ box-shadow:0 3px 12px rgba(0,0,0,0.1);
 </select>
 
 <label>Daily Target (R)</label>
-<input type="number" id="target" required>
+<input type="number" id="target">
 
 <label>Daily Income (R)</label>
-<input type="number" id="income" required oninput="calculateVariance()">
+<input type="number" id="income" oninput="calculateVariance()">
 
 <label>Variance (%)</label>
-<div class="variance" id="varianceDisplay">0%</div>
+<input type="text" id="variance" readonly>
 
 <label>Daily Summary</label>
 <textarea id="summary"></textarea>
 
 <label>Image Links</label>
-<input type="text" id="images" placeholder="comma separated links">
+<input type="text" id="images">
 
-<label>User Email</label>
-<input type="email" id="email">
+<button onclick="submitReport()">Submit Report</button>
 
-<button type="submit">Submit Report</button>
-
-</form>
-
-<div id="status"></div>
+<p id="status"></p>
 
 </div>
 
-<div class="chartBox">
-<canvas id="performanceChart"></canvas>
+
+<!-- PERFORMANCE FILTER -->
+
+<label>Performance Range</label>
+
+<select id="rangeFilter" onchange="loadPerformance()">
+<option value="daily">Daily</option>
+<option value="weekly">Weekly</option>
+<option value="monthly">Monthly</option>
+<option value="yearly">Yearly</option>
+</select>
+
+
+<!-- PERFORMANCE TABLE -->
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Project Manager</th>
+<th>Variance %</th>
+<th>Target</th>
+<th>Income</th>
+
+</tr>
+
+</thead>
+
+<tbody id="performanceTable"></tbody>
+
+</table>
+
+
+<!-- CHART -->
+
+<canvas id="chart" style="margin-top:40px"></canvas>
+
+
 </div>
 
 </div>
+
 
 <script>
 
-const scriptURL="YOUR_SCRIPT_URL"
 
-let totalTarget=0
-let totalIncome=0
+/* ================================
+CONFIGURATION
+================================ */
 
-const ctx=document.getElementById("performanceChart").getContext("2d")
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQHSAcsmsXiTe1e3AGRJQuOFCMp-r5upjqOemSx729jl4BE_qhKoFiOfQtFBZxeHVgfA/exec";
 
-const chart=new Chart(ctx,{
-type:"bar",
-data:{
-labels:["Target","Income"],
-datasets:[{
-label:"Daily Performance",
-data:[0,0]
-}]
+const SHEET_ID = "1ToKQ3MDSUZl3T-t-_tMFkH5LXUwlMgrgDFRfBeLqK0o";
+
+
+/* ================================
+LOGIN
+================================ */
+
+function login(){
+
+let email=document.getElementById("loginEmail").value
+
+if(email==""){
+
+document.getElementById("loginStatus").innerText="Enter email"
+
+return
+
 }
-})
+
+document.getElementById("loginScreen").style.display="none"
+document.getElementById("dashboard").style.display="block"
+
+document.getElementById("userEmail").innerText=email
+
+}
+
+
+/* ================================
+VARIANCE CALCULATION
+================================ */
 
 function calculateVariance(){
 
@@ -227,29 +315,21 @@ let income=parseFloat(document.getElementById("income").value)||0
 let variance=0
 
 if(target>0){
+
 variance=((income-target)/target)*100
-}
-
-variance=variance.toFixed(2)
-
-document.getElementById("varianceDisplay").innerText=variance+"%"
 
 }
 
-document.getElementById("projectForm").addEventListener("submit",function(e){
+document.getElementById("variance").value=variance.toFixed(2)
 
-e.preventDefault()
-
-let target=parseFloat(document.getElementById("target").value)||0
-let income=parseFloat(document.getElementById("income").value)||0
-
-let variance=0
-
-if(target>0){
-variance=((income-target)/target)*100
 }
 
-variance=variance.toFixed(2)
+
+/* ================================
+SUBMIT REPORT
+================================ */
+
+function submitReport(){
 
 let data={
 
@@ -261,11 +341,11 @@ ProjectName:document.getElementById("project").value,
 
 CostCenter:document.getElementById("costcenter").value,
 
-DailyTarget:target,
+DailyTarget:document.getElementById("target").value,
 
-DailyIncome:income,
+DailyIncome:document.getElementById("income").value,
 
-Variance:variance,
+Variance:document.getElementById("variance").value,
 
 DailySummary:document.getElementById("summary").value,
 
@@ -273,46 +353,78 @@ ImageLinks:document.getElementById("images").value,
 
 SubmissionTimestamp:new Date().toISOString(),
 
-UserEmail:document.getElementById("email").value
+UserEmail:document.getElementById("userEmail").innerText
 
 }
 
-fetch(scriptURL,{
+fetch(SCRIPT_URL,{
 method:"POST",
 body:JSON.stringify(data)
 })
-.then(res=>res.text())
-.then(response=>{
+.then(r=>r.text())
+.then(res=>{
 
 document.getElementById("status").innerText="Report Submitted Successfully"
 
-totalTarget+=target
-totalIncome+=income
+})
 
-let totalVariance=0
 
-if(totalTarget>0){
-totalVariance=((totalIncome-totalTarget)/totalTarget)*100
 }
 
-document.getElementById("kpiTarget").innerText="R"+totalTarget
-document.getElementById("kpiIncome").innerText="R"+totalIncome
-document.getElementById("kpiVariance").innerText=totalVariance.toFixed(2)+"%"
 
-chart.data.datasets[0].data=[target,income]
-chart.update()
+/* ================================
+LOAD PERFORMANCE
+================================ */
 
-document.getElementById("projectForm").reset()
-document.getElementById("varianceDisplay").innerText="0%"
+function loadPerformance(){
+
+let range=document.getElementById("rangeFilter").value
+
+fetch(SCRIPT_URL+"?action=getPerformance&range="+range)
+
+.then(r=>r.json())
+
+.then(data=>{
+
+let table=""
+
+data.forEach(row=>{
+
+table+=`
+<tr>
+<td>${row.manager}</td>
+<td>${row.variance}%</td>
+<td>R${row.target}</td>
+<td>R${row.income}</td>
+</tr>
+`
 
 })
-.catch(err=>{
 
-document.getElementById("status").innerText="Submission Failed"
-
-})
+document.getElementById("performanceTable").innerHTML=table
 
 })
+
+}
+
+
+/* ================================
+CHART
+================================ */
+
+const ctx=document.getElementById("chart").getContext("2d")
+
+new Chart(ctx,{
+type:"bar",
+data:{
+labels:["Target","Income"],
+datasets:[{
+label:"Performance",
+data:[0,0]
+}]
+}
+})
+
 
 </script>
 
