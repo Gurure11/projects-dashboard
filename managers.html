@@ -38,7 +38,6 @@
             background: #f3f4f6;
         }
         
-        /* Gradient backgrounds */
         .gradient-primary {
             background: linear-gradient(135deg, #1e4b8c 0%, #0a2f5a 100%);
         }
@@ -59,7 +58,6 @@
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         }
         
-        /* Cards */
         .stats-card {
             background: white;
             border-radius: 1rem;
@@ -74,7 +72,6 @@
             box-shadow: 0 20px 60px rgba(30, 75, 140, 0.15);
         }
         
-        /* Filter section */
         .filter-section {
             background: white;
             border-radius: 1rem;
@@ -83,7 +80,6 @@
             border: 1px solid rgba(0, 0, 0, 0.05);
         }
         
-        /* Custom select styling */
         .custom-select {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231e4b8c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
@@ -93,7 +89,6 @@
             padding-right: 2.5rem;
         }
         
-        /* Performance indicators */
         .performance-badge {
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
@@ -124,7 +119,6 @@
             color: #991b1b;
         }
         
-        /* Progress bars */
         .progress-bar {
             height: 0.5rem;
             border-radius: 9999px;
@@ -138,7 +132,6 @@
             transition: width 0.5s ease;
         }
         
-        /* Animations */
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -154,7 +147,6 @@
             animation: slideIn 0.5s ease forwards;
         }
         
-        /* Mobile optimizations */
         @media (max-width: 768px) {
             .stats-card {
                 padding: 1rem;
@@ -171,7 +163,6 @@
             }
         }
         
-        /* Connection status */
         .connection-status {
             display: inline-block;
             width: 10px;
@@ -199,7 +190,6 @@
             50% { opacity: 0.5; }
         }
         
-        /* DataTables custom styling */
         .dataTables_wrapper .dataTables_paginate .paginate_button.current {
             background: #1e4b8c !important;
             color: white !important;
@@ -219,7 +209,6 @@
             border-bottom: 2px solid #e2e8f0;
         }
         
-        /* Success/Error messages */
         .success-message {
             background-color: #10b981;
             color: white;
@@ -238,7 +227,6 @@
             animation: slideIn 0.3s ease;
         }
         
-        /* Button styles */
         .btn-outline-blue {
             border: 2px solid #1e4b8c;
             color: #1e4b8c;
@@ -253,7 +241,6 @@
             color: white;
         }
         
-        /* Card hover */
         .card-hover {
             transition: all 0.3s ease;
         }
@@ -322,7 +309,6 @@
 
         <!-- KPI Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-4 sm:mb-8">
-            <!-- Total Records Card -->
             <div class="stats-card animate-slide-in" style="animation-delay: 0.1s">
                 <div class="flex items-center justify-between mb-3">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 gradient-info rounded-lg flex items-center justify-center">
@@ -337,7 +323,6 @@
                 </div>
             </div>
 
-            <!-- Active Project Managers Card -->
             <div class="stats-card animate-slide-in" style="animation-delay: 0.2s">
                 <div class="flex items-center justify-between mb-3">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 gradient-success rounded-lg flex items-center justify-center">
@@ -352,7 +337,6 @@
                 </div>
             </div>
 
-            <!-- Average Performance Card -->
             <div class="stats-card animate-slide-in" style="animation-delay: 0.3s">
                 <div class="flex items-center justify-between mb-3">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 gradient-warning rounded-lg flex items-center justify-center">
@@ -369,7 +353,6 @@
                 </div>
             </div>
 
-            <!-- Total Income Card -->
             <div class="stats-card animate-slide-in" style="animation-delay: 0.4s">
                 <div class="flex items-center justify-between mb-3">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 gradient-primary rounded-lg flex items-center justify-center">
@@ -444,7 +427,6 @@
 
         <!-- Performance Charts -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-8">
-            <!-- Performance Trend Chart -->
             <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 card-hover animate-slide-in">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
                     <h3 class="text-base sm:text-lg font-semibold text-gray-800">Performance Trend</h3>
@@ -457,7 +439,6 @@
                 <div id="trendChart" style="height: 300px;"></div>
             </div>
 
-            <!-- Performance Distribution -->
             <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 card-hover animate-slide-in">
                 <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">Performance Distribution</h3>
                 <div id="distributionChart" style="height: 300px;"></div>
@@ -466,7 +447,6 @@
 
         <!-- Project Manager Performance Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-4 sm:mb-8">
-            <!-- Top Performer Card -->
             <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-sm p-4 sm:p-6 text-white animate-slide-in">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fa-solid fa-crown text-xl sm:text-2xl"></i>
@@ -479,7 +459,6 @@
                 </div>
             </div>
 
-            <!-- Most Consistent Card -->
             <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-sm p-4 sm:p-6 text-white animate-slide-in">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fa-solid fa-chart-simple text-xl sm:text-2xl"></i>
@@ -489,7 +468,6 @@
                 <p class="text-xs sm:text-sm opacity-90">Std Deviation: <span id="consistentDeviation">0%</span></p>
             </div>
 
-            <!-- Highest Income Card -->
             <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-sm p-4 sm:p-6 text-white animate-slide-in">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fa-solid fa-money-bill-trend-up text-xl sm:text-2xl"></i>
@@ -499,7 +477,6 @@
                 <p class="text-xs sm:text-sm opacity-90">Total: <span id="highestIncomeAmount">R 0</span></p>
             </div>
 
-            <!-- Most Improved Card -->
             <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-sm p-4 sm:p-6 text-white animate-slide-in">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fa-solid fa-arrow-trend-up text-xl sm:text-2xl"></i>
@@ -512,7 +489,6 @@
 
         <!-- Manager Performance Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-8">
-            <!-- Daily Performance by Manager -->
             <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 card-hover animate-slide-in">
                 <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">Daily Performance by Manager</h3>
                 <div class="space-y-3" id="dailyManagerPerformance">
@@ -520,7 +496,6 @@
                 </div>
             </div>
 
-            <!-- Weekly Performance by Manager -->
             <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 card-hover animate-slide-in">
                 <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">Weekly Performance by Manager</h3>
                 <div class="space-y-3" id="weeklyManagerPerformance">
@@ -563,7 +538,6 @@
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        <!-- Data will be inserted here -->
                     </tbody>
                 </table>
             </div>
@@ -597,49 +571,43 @@
         // ============================================
         // CONFIGURATION - REPLACE WITH YOUR APPS SCRIPT URL
         // ============================================
-        const CONFIG = {
-            SCRIPT_URL: 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE', // Replace with your deployed Apps Script URL
+        var CONFIG = {
+            SCRIPT_URL: 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE',
             SPREADSHEET_ID: '1ToKQ3MDSUZl3T-t-_tMFkH5LXUwlMgrgDFRfBeLqK0o',
             SHEET_NAME: 'Manager View',
             DRIVE_FOLDER_ID: '15_6jq4oQ5zNmpokwQhfjStD5AdqHRCYa'
         };
 
         // Global variables
-        let allData = [];
-        let filteredData = [];
-        let dataTable;
-        let trendChart;
-        let distributionChart;
-        let currentChartPeriod = 'monthly';
+        var allData = [];
+        var filteredData = [];
+        var dataTable;
+        var trendChart;
+        var distributionChart;
+        var currentChartPeriod = 'monthly';
 
         // ============================================
         // INITIALIZATION
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Dashboard initializing...');
-            console.log('Using Sheet ID:', CONFIG.SPREADSHEET_ID);
-            console.log('Using Sheet Name:', CONFIG.SHEET_NAME);
             
-            // Set default dates
-            const today = moment().format('YYYY-MM-DD');
-            const thirtyDaysAgo = moment().subtract(30, 'days').format('YYYY-MM-DD');
+            var today = moment().format('YYYY-MM-DD');
+            var thirtyDaysAgo = moment().subtract(30, 'days').format('YYYY-MM-DD');
             document.getElementById('startDate').value = thirtyDaysAgo;
             document.getElementById('endDate').value = today;
             
-            // Initialize DataTable
             initializeDataTable();
-            
-            // Load real data from Google Sheets
             loadDataFromSheet();
             
-            // Setup date range listener
             document.getElementById('filterDateRange').addEventListener('change', function(e) {
-                const dateInputs = document.querySelectorAll('#startDate, #endDate');
-                dateInputs.forEach(input => input.disabled = e.target.value !== 'custom');
+                var dateInputs = document.querySelectorAll('#startDate, #endDate');
+                for (var i = 0; i < dateInputs.length; i++) {
+                    dateInputs[i].disabled = e.target.value !== 'custom';
+                }
             });
         });
 
-        // Initialize DataTable
         function initializeDataTable() {
             dataTable = $('#performanceTable').DataTable({
                 responsive: true,
@@ -664,9 +632,9 @@
                         targets: 7,
                         render: function(data, type, row) {
                             if (type === 'display') {
-                                const variance = parseFloat(row[6]);
-                                let badgeClass = 'badge-average';
-                                let text = 'Average';
+                                var variance = parseFloat(row[6]);
+                                var badgeClass = 'badge-average';
+                                var text = 'Average';
                                 
                                 if (variance >= 20) {
                                     badgeClass = 'badge-excellent';
@@ -682,7 +650,7 @@
                                     text = 'Critical';
                                 }
                                 
-                                return `<span class="performance-badge ${badgeClass}">${text}</span>`;
+                                return '<span class="performance-badge ' + badgeClass + '">' + text + '</span>';
                             }
                             return data;
                         }
@@ -692,9 +660,7 @@
                         render: function(data, type, row) {
                             if (type === 'display') {
                                 if (data && data !== '-' && data !== '') {
-                                    return `<a href="${data}" target="_blank" class="text-[#1e4b8c] hover:underline">
-                                        <i class="fa-regular fa-image"></i> View
-                                    </a>`;
+                                    return '<a href="' + data + '" target="_blank" class="text-[#1e4b8c] hover:underline"><i class="fa-regular fa-image"></i> View</a>';
                                 }
                                 return '-';
                             }
@@ -705,24 +671,19 @@
             });
         }
 
-        // ============================================
-        // DATA LOADING FROM GOOGLE SHEETS - REAL DATA ONLY
-        // ============================================
         async function loadDataFromSheet() {
             showLoading();
             updateConnectionStatus('checking');
             
             try {
-                // Check if SCRIPT_URL is configured
                 if (CONFIG.SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbx-u2SDORutKkQk42u7OtYErtP9rgajK9Un80dSb2usdtjSZ6LJRwvdd8hh3Sk3cWty/exec') {
                     throw new Error('Please configure your Google Apps Script URL in the CONFIG section');
                 }
                 
-                // Test the connection first
-                const testUrl = `${CONFIG.SCRIPT_URL}?action=test&t=${new Date().getTime()}`;
+                var testUrl = CONFIG.SCRIPT_URL + '?action=test&t=' + new Date().getTime();
                 console.log('Testing connection to:', testUrl);
                 
-                const testResponse = await fetch(testUrl, {
+                var testResponse = await fetch(testUrl, {
                     method: 'GET',
                     mode: 'cors',
                     headers: {
@@ -730,21 +691,20 @@
                     }
                 });
                 
-                const testResult = await testResponse.json();
+                var testResult = await testResponse.json();
                 console.log('Test result:', testResult);
                 
                 if (!testResult.success) {
                     throw new Error(testResult.message || 'Connection test failed');
                 }
                 
-                document.getElementById('dataSourceInfo').textContent = `Connected to: ${testResult.data.spreadsheetName} - ${testResult.data.rowCount} records found`;
+                document.getElementById('dataSourceInfo').textContent = 'Connected to: ' + testResult.data.spreadsheetName + ' - ' + testResult.data.rowCount + ' records found';
                 updateConnectionStatus(true);
                 
-                // Fetch all records
-                const recordsUrl = `${CONFIG.SCRIPT_URL}?action=getRecords&t=${new Date().getTime()}`;
+                var recordsUrl = CONFIG.SCRIPT_URL + '?action=getRecords&t=' + new Date().getTime();
                 console.log('Fetching records from:', recordsUrl);
                 
-                const recordsResponse = await fetch(recordsUrl, {
+                var recordsResponse = await fetch(recordsUrl, {
                     method: 'GET',
                     mode: 'cors',
                     headers: {
@@ -752,7 +712,7 @@
                     }
                 });
                 
-                const recordsResult = await recordsResponse.json();
+                var recordsResult = await recordsResponse.json();
                 console.log('Records result:', recordsResult);
                 
                 if (!recordsResult.success) {
@@ -760,12 +720,11 @@
                 }
                 
                 allData = recordsResult.data || [];
-                console.log(`Loaded ${allData.length} records from Google Sheets`);
+                console.log('Loaded ' + allData.length + ' records from Google Sheets');
                 
                 if (allData.length === 0) {
                     showMessage('No data found in the Google Sheet. Please add some records first.', false);
                     
-                    // Clear all displays
                     document.getElementById('totalRecords').textContent = '0';
                     document.getElementById('activeManagers').textContent = '0';
                     document.getElementById('avgPerformance').textContent = '0%';
@@ -778,21 +737,36 @@
                         dataTable.clear().draw();
                     }
                 } else {
-                    showMessage(`Successfully loaded ${allData.length} records from Google Sheets`, true);
+                    showMessage('Successfully loaded ' + allData.length + ' records from Google Sheets', true);
                     
-                    // Extract unique values for filters
-                    const managers = [...new Set(allData.map(d => d.projectManager))].filter(Boolean).sort();
-                    const projects = [...new Set(allData.map(d => d.projectName))].filter(Boolean).sort();
-                    const centers = [...new Set(allData.map(d => d.costCenter))].filter(Boolean).sort();
+                    var managers = [];
+                    var projects = [];
+                    var centers = [];
+                    
+                    for (var i = 0; i < allData.length; i++) {
+                        var record = allData[i];
+                        if (record.projectManager && managers.indexOf(record.projectManager) === -1) {
+                            managers.push(record.projectManager);
+                        }
+                        if (record.projectName && projects.indexOf(record.projectName) === -1) {
+                            projects.push(record.projectName);
+                        }
+                        if (record.costCenter && centers.indexOf(record.costCenter) === -1) {
+                            centers.push(record.costCenter);
+                        }
+                    }
+                    
+                    managers.sort();
+                    projects.sort();
+                    centers.sort();
                     
                     updateSelectOptions('filterManager', managers);
                     updateSelectOptions('filterProject', projects);
                     updateSelectOptions('filterCostCenter', centers);
                     
-                    filteredData = [...allData];
+                    filteredData = allData.slice();
                     
-                    // Update UI
-                    applyFilters(); // This will update KPIs, charts, etc.
+                    applyFilters();
                     updateDataTable();
                 }
                 
@@ -801,11 +775,9 @@
                 showMessage('Error loading data: ' + error.message + '. Please check your connection and script URL.', false);
                 updateConnectionStatus(false);
                 
-                // Clear all data
                 allData = [];
                 filteredData = [];
                 
-                // Show empty state
                 document.getElementById('totalRecords').textContent = '0';
                 document.getElementById('activeManagers').textContent = '0';
                 document.getElementById('avgPerformance').textContent = '0%';
@@ -815,7 +787,6 @@
                 document.getElementById('incomeVsTarget').textContent = '0%';
                 document.getElementById('avgPerformanceBar').style.width = '0%';
                 
-                // Clear award cards
                 document.getElementById('topPerformer').textContent = '-';
                 document.getElementById('topPerformerVariance').textContent = '0%';
                 document.getElementById('mostConsistent').textContent = '-';
@@ -825,11 +796,9 @@
                 document.getElementById('mostImproved').textContent = '-';
                 document.getElementById('improvedGrowth').textContent = '0%';
                 
-                // Clear manager performance sections
                 document.getElementById('dailyManagerPerformance').innerHTML = '<p class="text-gray-500 text-center py-4">No data available</p>';
                 document.getElementById('weeklyManagerPerformance').innerHTML = '<p class="text-gray-500 text-center py-4">No data available</p>';
                 
-                // Clear table
                 if (dataTable) {
                     dataTable.clear().draw();
                 }
@@ -841,90 +810,83 @@
             }
         }
 
-        // Helper function to update select options
         function updateSelectOptions(selectId, options) {
-            const select = document.getElementById(selectId);
+            var select = document.getElementById(selectId);
             if (!select) return;
             
-            // Keep the "All" option
-            const currentValue = select.value;
+            var currentValue = select.value;
             
-            // Remove all options except the first one
             while (select.options.length > 1) {
                 select.remove(1);
             }
             
-            // Add new options
-            options.forEach(option => {
+            for (var i = 0; i < options.length; i++) {
+                var option = options[i];
                 if (option && option.trim()) {
-                    const opt = document.createElement('option');
+                    var opt = document.createElement('option');
                     opt.value = option;
                     opt.textContent = option;
                     select.appendChild(opt);
                 }
-            });
+            }
             
-            // Try to restore previous selection
-            if (currentValue !== 'all' && options.includes(currentValue)) {
+            if (currentValue !== 'all' && options.indexOf(currentValue) !== -1) {
                 select.value = currentValue;
             }
         }
 
-        // ============================================
-        // FILTER FUNCTIONS
-        // ============================================
         function applyFilters() {
             if (allData.length === 0) return;
             
-            const manager = document.getElementById('filterManager').value;
-            const costCenter = document.getElementById('filterCostCenter').value;
-            const project = document.getElementById('filterProject').value;
-            const dateRange = document.getElementById('filterDateRange').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
+            var manager = document.getElementById('filterManager').value;
+            var costCenter = document.getElementById('filterCostCenter').value;
+            var project = document.getElementById('filterProject').value;
+            var dateRange = document.getElementById('filterDateRange').value;
+            var startDate = document.getElementById('startDate').value;
+            var endDate = document.getElementById('endDate').value;
             
-            filteredData = allData.filter(record => {
-                // Apply manager filter
-                if (manager !== 'all' && record.projectManager !== manager) return false;
+            filteredData = [];
+            
+            for (var i = 0; i < allData.length; i++) {
+                var record = allData[i];
+                var include = true;
                 
-                // Apply cost center filter
-                if (costCenter !== 'all' && record.costCenter !== costCenter) return false;
+                if (manager !== 'all' && record.projectManager !== manager) include = false;
+                if (include && costCenter !== 'all' && record.costCenter !== costCenter) include = false;
+                if (include && project !== 'all' && record.projectName !== project) include = false;
                 
-                // Apply project filter
-                if (project !== 'all' && record.projectName !== project) return false;
-                
-                // Apply date range filter
-                if (dateRange !== 'all') {
-                    const recordDate = moment(record.date);
-                    const today = moment();
+                if (include && dateRange !== 'all') {
+                    var recordDate = moment(record.date);
+                    var today = moment();
                     
                     if (dateRange === 'today') {
-                        if (!recordDate.isSame(today, 'day')) return false;
+                        if (!recordDate.isSame(today, 'day')) include = false;
                     } else if (dateRange === 'week') {
-                        if (!recordDate.isSame(today, 'week')) return false;
+                        if (!recordDate.isSame(today, 'week')) include = false;
                     } else if (dateRange === 'month') {
-                        if (!recordDate.isSame(today, 'month')) return false;
+                        if (!recordDate.isSame(today, 'month')) include = false;
                     } else if (dateRange === 'quarter') {
-                        if (!recordDate.isSame(today, 'quarter')) return false;
+                        if (!recordDate.isSame(today, 'quarter')) include = false;
                     } else if (dateRange === 'year') {
-                        if (!recordDate.isSame(today, 'year')) return false;
+                        if (!recordDate.isSame(today, 'year')) include = false;
                     } else if (dateRange === 'custom') {
-                        if (startDate && moment(record.date).isBefore(startDate)) return false;
-                        if (endDate && moment(record.date).isAfter(endDate)) return false;
+                        if (startDate && moment(record.date).isBefore(startDate)) include = false;
+                        if (endDate && moment(record.date).isAfter(endDate)) include = false;
                     }
                 }
                 
-                return true;
-            });
+                if (include) {
+                    filteredData.push(record);
+                }
+            }
             
-            // Update all displays
             updateKPIs();
             updateCharts();
             updateManagerPerformance();
             updateAwardCards();
             updateDataTable();
             
-            showMessage(`Showing ${filteredData.length} records`, true);
+            showMessage('Showing ' + filteredData.length + ' records', true);
         }
 
         function resetFilters() {
@@ -933,20 +895,17 @@
             document.getElementById('filterProject').value = 'all';
             document.getElementById('filterDateRange').value = 'all';
             
-            const thirtyDaysAgo = moment().subtract(30, 'days').format('YYYY-MM-DD');
-            const today = moment().format('YYYY-MM-DD');
+            var thirtyDaysAgo = moment().subtract(30, 'days').format('YYYY-MM-DD');
+            var today = moment().format('YYYY-MM-DD');
             document.getElementById('startDate').value = thirtyDaysAgo;
             document.getElementById('endDate').value = today;
             document.getElementById('startDate').disabled = true;
             document.getElementById('endDate').disabled = true;
             
-            filteredData = [...allData];
+            filteredData = allData.slice();
             applyFilters();
         }
 
-        // ============================================
-        // KPI UPDATES
-        // ============================================
         function updateKPIs() {
             if (filteredData.length === 0) {
                 document.getElementById('totalRecords').textContent = '0';
@@ -960,31 +919,44 @@
                 return;
             }
             
-            // Total Records
             document.getElementById('totalRecords').textContent = filteredData.length;
             
-            // Last 30 days count
-            const thirtyDaysAgo = moment().subtract(30, 'days');
-            const last30Days = filteredData.filter(d => moment(d.date).isAfter(thirtyDaysAgo)).length;
+            var thirtyDaysAgo = moment().subtract(30, 'days');
+            var last30Days = 0;
+            var managerSet = {};
+            var totalIncome = 0;
+            var totalTarget = 0;
+            var totalVariance = 0;
+            
+            for (var i = 0; i < filteredData.length; i++) {
+                var record = filteredData[i];
+                
+                if (moment(record.date).isAfter(thirtyDaysAgo)) {
+                    last30Days++;
+                }
+                
+                if (record.projectManager) {
+                    managerSet[record.projectManager] = true;
+                }
+                
+                totalIncome += parseFloat(record.dailyIncome) || 0;
+                totalTarget += parseFloat(record.dailyTarget) || 0;
+                totalVariance += parseFloat(record.variance) || 0;
+            }
+            
+            var activeManagers = Object.keys(managerSet).length;
+            
             document.getElementById('last30DaysCount').textContent = last30Days;
+            document.getElementById('activeManagers').textContent = activeManagers;
+            document.getElementById('managersWithData').textContent = activeManagers;
             
-            // Active Managers
-            const activeManagers = [...new Set(filteredData.map(d => d.projectManager))].filter(Boolean);
-            document.getElementById('activeManagers').textContent = activeManagers.length;
-            document.getElementById('managersWithData').textContent = activeManagers.length;
-            
-            // Average Performance
-            const avgVariance = filteredData.reduce((sum, d) => sum + (parseFloat(d.variance) || 0), 0) / filteredData.length;
+            var avgVariance = totalVariance / filteredData.length;
             document.getElementById('avgPerformance').textContent = avgVariance.toFixed(1) + '%';
             document.getElementById('avgPerformanceBar').style.width = Math.min(Math.abs(avgVariance) + 50, 100) + '%';
             
-            // Total Income
-            const totalIncome = filteredData.reduce((sum, d) => sum + (parseFloat(d.dailyIncome) || 0), 0);
             document.getElementById('totalIncome').textContent = 'R ' + totalIncome.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             
-            // Income vs Target
-            const totalTarget = filteredData.reduce((sum, d) => sum + (parseFloat(d.dailyTarget) || 0), 0);
-            const incomeVsTarget = totalTarget > 0 ? (totalIncome / totalTarget * 100).toFixed(1) : 0;
+            var incomeVsTarget = totalTarget > 0 ? (totalIncome / totalTarget * 100).toFixed(1) : 0;
             document.getElementById('incomeVsTarget').textContent = incomeVsTarget + '%';
         }
 
@@ -1001,11 +973,12 @@
                 return;
             }
             
-            // Group by manager
-            const managerStats = {};
-            filteredData.forEach(record => {
-                const manager = record.projectManager;
-                if (!manager) return;
+            var managerStats = {};
+            
+            for (var i = 0; i < filteredData.length; i++) {
+                var record = filteredData[i];
+                var manager = record.projectManager;
+                if (!manager) continue;
                 
                 if (!managerStats[manager]) {
                     managerStats[manager] = {
@@ -1017,30 +990,38 @@
                 managerStats[manager].records.push(record);
                 managerStats[manager].totalIncome += parseFloat(record.dailyIncome) || 0;
                 managerStats[manager].variances.push(parseFloat(record.variance) || 0);
-            });
+            }
             
-            // Calculate stats for each manager
-            Object.keys(managerStats).forEach(manager => {
-                const stats = managerStats[manager];
-                stats.avgVariance = stats.variances.reduce((a, b) => a + b, 0) / stats.variances.length;
-                
-                // Calculate standard deviation for consistency
-                const mean = stats.avgVariance;
-                const squaredDiffs = stats.variances.map(v => Math.pow(v - mean, 2));
-                const avgSquaredDiff = squaredDiffs.reduce((a, b) => a + b, 0) / squaredDiffs.length;
-                stats.stdDeviation = Math.sqrt(avgSquaredDiff);
-            });
+            var managerList = Object.keys(managerStats);
             
-            // Top Performer (highest average variance)
-            let topPerformer = null;
-            let highestAvgVariance = -Infinity;
-            
-            Object.keys(managerStats).forEach(manager => {
-                if (managerStats[manager].avgVariance > highestAvgVariance) {
-                    highestAvgVariance = managerStats[manager].avgVariance;
-                    topPerformer = manager;
+            for (var j = 0; j < managerList.length; j++) {
+                var mgr = managerList[j];
+                var stats = managerStats[mgr];
+                var sum = 0;
+                for (var k = 0; k < stats.variances.length; k++) {
+                    sum += stats.variances[k];
                 }
-            });
+                stats.avgVariance = sum / stats.variances.length;
+                
+                var mean = stats.avgVariance;
+                var squaredSum = 0;
+                for (var k = 0; k < stats.variances.length; k++) {
+                    squaredSum += Math.pow(stats.variances[k] - mean, 2);
+                }
+                var avgSquaredDiff = squaredSum / stats.variances.length;
+                stats.stdDeviation = Math.sqrt(avgSquaredDiff);
+            }
+            
+            var topPerformer = null;
+            var highestAvgVariance = -Infinity;
+            
+            for (var j = 0; j < managerList.length; j++) {
+                var mgr = managerList[j];
+                if (managerStats[mgr].avgVariance > highestAvgVariance) {
+                    highestAvgVariance = managerStats[mgr].avgVariance;
+                    topPerformer = mgr;
+                }
+            }
             
             if (topPerformer) {
                 document.getElementById('topPerformer').textContent = topPerformer;
@@ -1048,58 +1029,71 @@
                 document.getElementById('topPerformerBar').style.width = Math.min(highestAvgVariance + 50, 100) + '%';
             }
             
-            // Most Consistent (lowest standard deviation)
-            let mostConsistent = null;
-            let lowestStdDev = Infinity;
+            var mostConsistent = null;
+            var lowestStdDev = Infinity;
             
-            Object.keys(managerStats).forEach(manager => {
-                if (managerStats[manager].stdDeviation < lowestStdDev) {
-                    lowestStdDev = managerStats[manager].stdDeviation;
-                    mostConsistent = manager;
+            for (var j = 0; j < managerList.length; j++) {
+                var mgr = managerList[j];
+                if (managerStats[mgr].stdDeviation < lowestStdDev) {
+                    lowestStdDev = managerStats[mgr].stdDeviation;
+                    mostConsistent = mgr;
                 }
-            });
+            }
             
             if (mostConsistent) {
                 document.getElementById('mostConsistent').textContent = mostConsistent;
                 document.getElementById('consistentDeviation').textContent = lowestStdDev.toFixed(1) + '%';
             }
             
-            // Highest Income
-            let highestIncome = null;
-            let maxIncome = -Infinity;
+            var highestIncome = null;
+            var maxIncome = -Infinity;
             
-            Object.keys(managerStats).forEach(manager => {
-                if (managerStats[manager].totalIncome > maxIncome) {
-                    maxIncome = managerStats[manager].totalIncome;
-                    highestIncome = manager;
+            for (var j = 0; j < managerList.length; j++) {
+                var mgr = managerList[j];
+                if (managerStats[mgr].totalIncome > maxIncome) {
+                    maxIncome = managerStats[mgr].totalIncome;
+                    highestIncome = mgr;
                 }
-            });
+            }
             
             if (highestIncome) {
                 document.getElementById('highestIncome').textContent = highestIncome;
                 document.getElementById('highestIncomeAmount').textContent = 'R ' + maxIncome.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             }
             
-            // Most Improved (compare first half vs second half)
-            let mostImproved = null;
-            let highestGrowth = -Infinity;
+            var mostImproved = null;
+            var highestGrowth = -Infinity;
             
-            Object.keys(managerStats).forEach(manager => {
-                const records = managerStats[manager].records.sort((a, b) => moment(a.date).diff(moment(b.date)));
+            for (var j = 0; j < managerList.length; j++) {
+                var mgr = managerList[j];
+                var records = managerStats[mgr].records.slice();
+                records.sort(function(a, b) {
+                    return moment(a.date).diff(moment(b.date));
+                });
+                
                 if (records.length >= 4) {
-                    const firstHalf = records.slice(0, Math.floor(records.length / 2));
-                    const secondHalf = records.slice(Math.floor(records.length / 2));
+                    var firstHalf = records.slice(0, Math.floor(records.length / 2));
+                    var secondHalf = records.slice(Math.floor(records.length / 2));
                     
-                    const firstAvg = firstHalf.reduce((sum, r) => sum + (parseFloat(r.variance) || 0), 0) / firstHalf.length;
-                    const secondAvg = secondHalf.reduce((sum, r) => sum + (parseFloat(r.variance) || 0), 0) / secondHalf.length;
+                    var firstSum = 0;
+                    for (var f = 0; f < firstHalf.length; f++) {
+                        firstSum += parseFloat(firstHalf[f].variance) || 0;
+                    }
+                    var firstAvg = firstSum / firstHalf.length;
                     
-                    const growth = secondAvg - firstAvg;
+                    var secondSum = 0;
+                    for (var s = 0; s < secondHalf.length; s++) {
+                        secondSum += parseFloat(secondHalf[s].variance) || 0;
+                    }
+                    var secondAvg = secondSum / secondHalf.length;
+                    
+                    var growth = secondAvg - firstAvg;
                     if (growth > highestGrowth) {
                         highestGrowth = growth;
-                        mostImproved = manager;
+                        mostImproved = mgr;
                     }
                 }
-            });
+            }
             
             if (mostImproved) {
                 document.getElementById('mostImproved').textContent = mostImproved;
@@ -1107,12 +1101,8 @@
             }
         }
 
-        // ============================================
-        // CHART FUNCTIONS
-        // ============================================
         function updateCharts() {
             if (filteredData.length === 0) {
-                // Show empty charts
                 if (trendChart) {
                     trendChart.updateSeries([{ data: [] }]);
                 }
@@ -1127,20 +1117,14 @@
         }
 
         function updateTrendChart() {
-            const chartData = prepareTrendData();
+            var chartData = prepareTrendData();
             
-            const options = {
+            var options = {
                 chart: {
                     type: 'line',
                     height: 300,
                     toolbar: {
-                        show: true,
-                        tools: {
-                            download: true,
-                            selection: true,
-                            zoom: true,
-                            pan: true,
-                        }
+                        show: true
                     },
                     animations: {
                         enabled: true,
@@ -1223,11 +1207,12 @@
                 return { labels: [], values: [] };
             }
             
-            const grouped = {};
+            var grouped = {};
             
-            filteredData.forEach(record => {
-                let key;
-                const date = moment(record.date);
+            for (var i = 0; i < filteredData.length; i++) {
+                var record = filteredData[i];
+                var date = moment(record.date);
+                var key;
                 
                 if (currentChartPeriod === 'daily') {
                     key = date.format('YYYY-MM-DD');
@@ -1246,23 +1231,28 @@
                 
                 grouped[key].total += parseFloat(record.variance) || 0;
                 grouped[key].count++;
-            });
+            }
             
-            const sortedKeys = Object.keys(grouped).sort((a, b) => {
+            var keys = Object.keys(grouped);
+            keys.sort(function(a, b) {
                 if (currentChartPeriod === 'daily') return moment(a).diff(moment(b));
                 if (currentChartPeriod === 'weekly') {
-                    const [weekA, yearA] = a.replace('Week ', '').split(', ');
-                    const [weekB, yearB] = b.replace('Week ', '').split(', ');
-                    if (yearA !== yearB) return parseInt(yearA) - parseInt(yearB);
-                    return parseInt(weekA) - parseInt(weekB);
+                    var aParts = a.replace('Week ', '').split(', ');
+                    var bParts = b.replace('Week ', '').split(', ');
+                    if (aParts[1] !== bParts[1]) return parseInt(aParts[1]) - parseInt(bParts[1]);
+                    return parseInt(aParts[0]) - parseInt(bParts[0]);
                 }
                 return moment(a, 'MMM YYYY').diff(moment(b, 'MMM YYYY'));
             });
             
-            const labels = sortedKeys;
-            const values = sortedKeys.map(key => grouped[key].total / grouped[key].count);
+            var labels = keys;
+            var values = [];
+            for (var j = 0; j < keys.length; j++) {
+                var key = keys[j];
+                values.push(grouped[key].total / grouped[key].count);
+            }
             
-            return { labels, values };
+            return { labels: labels, values: values };
         }
 
         function updateDistributionChart() {
@@ -1273,7 +1263,7 @@
                 return;
             }
             
-            const ranges = {
+            var ranges = {
                 'Excellent (>20%)': 0,
                 'Good (10-20%)': 0,
                 'Average (0-10%)': 0,
@@ -1281,16 +1271,16 @@
                 'Critical (<-10%)': 0
             };
             
-            filteredData.forEach(record => {
-                const variance = parseFloat(record.variance) || 0;
+            for (var i = 0; i < filteredData.length; i++) {
+                var variance = parseFloat(filteredData[i].variance) || 0;
                 if (variance > 20) ranges['Excellent (>20%)']++;
                 else if (variance > 10) ranges['Good (10-20%)']++;
                 else if (variance > 0) ranges['Average (0-10%)']++;
                 else if (variance > -10) ranges['Poor (-10-0%)']++;
                 else ranges['Critical (<-10%)']++;
-            });
+            }
             
-            const options = {
+            var options = {
                 chart: {
                     type: 'donut',
                     height: 300,
@@ -1298,8 +1288,8 @@
                         enabled: true
                     }
                 },
-                series: Object.values(ranges),
-                labels: Object.keys(ranges),
+                series: [ranges['Excellent (>20%)'], ranges['Good (10-20%)'], ranges['Average (0-10%)'], ranges['Poor (-10-0%)'], ranges['Critical (<-10%)']],
+                labels: ['Excellent (>20%)', 'Good (10-20%)', 'Average (0-10%)', 'Poor (-10-0%)', 'Critical (<-10%)'],
                 colors: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#7f1d1d'],
                 legend: {
                     position: 'bottom',
@@ -1357,9 +1347,10 @@
         function changeChartPeriod(period) {
             currentChartPeriod = period;
             
-            // Update button styles
-            ['daily', 'weekly', 'monthly'].forEach(p => {
-                const btn = document.getElementById(p + 'Btn');
+            var periods = ['daily', 'weekly', 'monthly'];
+            for (var i = 0; i < periods.length; i++) {
+                var p = periods[i];
+                var btn = document.getElementById(p + 'Btn');
                 if (btn) {
                     if (p === period) {
                         btn.classList.remove('bg-gray-100', 'hover:bg-[#1e4b8c]', 'hover:text-white');
@@ -1369,14 +1360,11 @@
                         btn.classList.add('bg-gray-100', 'hover:bg-[#1e4b8c]', 'hover:text-white');
                     }
                 }
-            });
+            }
             
             updateTrendChart();
         }
 
-        // ============================================
-        // MANAGER PERFORMANCE DISPLAY
-        // ============================================
         function updateManagerPerformance() {
             if (filteredData.length === 0) {
                 document.getElementById('dailyManagerPerformance').innerHTML = '<p class="text-gray-500 text-center py-4">No data available</p>';
@@ -1389,14 +1377,21 @@
         }
 
         function updateDailyManagerPerformance() {
-            const today = moment().format('YYYY-MM-DD');
-            const todayData = filteredData.filter(d => d.date === today);
+            var today = moment().format('YYYY-MM-DD');
+            var todayData = [];
             
-            // Group by manager
-            const managerToday = {};
-            todayData.forEach(record => {
-                const manager = record.projectManager;
-                if (!manager) return;
+            for (var i = 0; i < filteredData.length; i++) {
+                if (filteredData[i].date === today) {
+                    todayData.push(filteredData[i]);
+                }
+            }
+            
+            var managerToday = {};
+            
+            for (var i = 0; i < todayData.length; i++) {
+                var record = todayData[i];
+                var manager = record.projectManager;
+                if (!manager) continue;
                 
                 if (!managerToday[manager]) {
                     managerToday[manager] = {
@@ -1408,121 +1403,129 @@
                 managerToday[manager].totalIncome += parseFloat(record.dailyIncome) || 0;
                 managerToday[manager].totalTarget += parseFloat(record.dailyTarget) || 0;
                 managerToday[manager].count++;
-            });
+            }
             
-            const container = document.getElementById('dailyManagerPerformance');
+            var container = document.getElementById('dailyManagerPerformance');
             container.innerHTML = '';
             
-            if (Object.keys(managerToday).length === 0) {
+            var managers = Object.keys(managerToday);
+            
+            if (managers.length === 0) {
                 container.innerHTML = '<p class="text-gray-500 text-center py-4">No data for today</p>';
                 return;
             }
             
-            Object.keys(managerToday).sort().forEach(manager => {
-                const stats = managerToday[manager];
-                const avgIncome = stats.totalIncome / stats.count;
-                const avgTarget = stats.totalTarget / stats.count;
-                const variance = avgTarget > 0 ? ((avgIncome - avgTarget) / avgTarget * 100) : 0;
+            managers.sort();
+            
+            for (var j = 0; j < managers.length; j++) {
+                var manager = managers[j];
+                var stats = managerToday[manager];
+                var avgIncome = stats.totalIncome / stats.count;
+                var avgTarget = stats.totalTarget / stats.count;
+                var variance = avgTarget > 0 ? ((avgIncome - avgTarget) / avgTarget * 100) : 0;
                 
-                let badgeClass = 'badge-average';
+                var badgeClass = 'badge-average';
                 if (variance > 20) badgeClass = 'badge-excellent';
                 else if (variance > 10) badgeClass = 'badge-good';
                 else if (variance < -10) badgeClass = 'badge-poor';
                 
-                container.innerHTML += `
-                    <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 gradient-primary rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                ${manager.charAt(0)}
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">${manager}</p>
-                                <p class="text-xs text-gray-500">${stats.count} submission(s)</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm font-bold ${variance >= 0 ? 'text-green-600' : 'text-red-600'}">
-                                ${variance > 0 ? '+' : ''}${variance.toFixed(1)}%
-                            </p>
-                            <span class="performance-badge ${badgeClass} text-xs">R ${avgIncome.toFixed(0)}</span>
-                        </div>
-                    </div>
-                `;
-            });
+                container.innerHTML += '<div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">' +
+                    '<div class="flex items-center gap-2">' +
+                        '<div class="w-8 h-8 gradient-primary rounded-full flex items-center justify-center text-white text-xs font-bold">' +
+                            manager.charAt(0) +
+                        '</div>' +
+                        '<div>' +
+                            '<p class="text-sm font-medium text-gray-800">' + manager + '</p>' +
+                            '<p class="text-xs text-gray-500">' + stats.count + ' submission(s)</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="text-right">' +
+                        '<p class="text-sm font-bold ' + (variance >= 0 ? 'text-green-600' : 'text-red-600') + '">' +
+                            (variance > 0 ? '+' : '') + variance.toFixed(1) + '%' +
+                        '</p>' +
+                        '<span class="performance-badge ' + badgeClass + ' text-xs">R ' + avgIncome.toFixed(0) + '</span>' +
+                    '</div>' +
+                '</div>';
+            }
         }
 
         function updateWeeklyManagerPerformance() {
-            const weekStart = moment().startOf('week');
-            const weekEnd = moment().endOf('week');
+            var weekStart = moment().startOf('week');
+            var weekEnd = moment().endOf('week');
             
-            const weekData = filteredData.filter(d => 
-                moment(d.date).isBetween(weekStart, weekEnd, 'day', '[]')
-            );
+            var weekData = [];
             
-            // Group by manager
-            const managerWeek = {};
-            weekData.forEach(record => {
-                const manager = record.projectManager;
-                if (!manager) return;
+            for (var i = 0; i < filteredData.length; i++) {
+                var recordDate = moment(filteredData[i].date);
+                if (recordDate.isBetween(weekStart, weekEnd, 'day', '[]')) {
+                    weekData.push(filteredData[i]);
+                }
+            }
+            
+            var managerWeek = {};
+            
+            for (var i = 0; i < weekData.length; i++) {
+                var record = weekData[i];
+                var manager = record.projectManager;
+                if (!manager) continue;
                 
                 if (!managerWeek[manager]) {
                     managerWeek[manager] = {
                         totalIncome: 0,
                         totalTarget: 0,
                         count: 0,
-                        days: new Set()
+                        days: {}
                     };
                 }
                 managerWeek[manager].totalIncome += parseFloat(record.dailyIncome) || 0;
                 managerWeek[manager].totalTarget += parseFloat(record.dailyTarget) || 0;
                 managerWeek[manager].count++;
-                managerWeek[manager].days.add(record.date);
-            });
+                managerWeek[manager].days[record.date] = true;
+            }
             
-            const container = document.getElementById('weeklyManagerPerformance');
+            var container = document.getElementById('weeklyManagerPerformance');
             container.innerHTML = '';
             
-            if (Object.keys(managerWeek).length === 0) {
+            var managers = Object.keys(managerWeek);
+            
+            if (managers.length === 0) {
                 container.innerHTML = '<p class="text-gray-500 text-center py-4">No data for this week</p>';
                 return;
             }
             
-            Object.keys(managerWeek).sort().forEach(manager => {
-                const stats = managerWeek[manager];
-                const avgDailyIncome = stats.totalIncome / stats.days.size;
-                const avgDailyTarget = stats.totalTarget / stats.days.size;
-                const variance = avgDailyTarget > 0 ? ((avgDailyIncome - avgDailyTarget) / avgDailyTarget * 100) : 0;
-                const daysActive = stats.days.size;
+            managers.sort();
+            
+            for (var j = 0; j < managers.length; j++) {
+                var manager = managers[j];
+                var stats = managerWeek[manager];
+                var daysActive = Object.keys(stats.days).length;
+                var avgDailyIncome = stats.totalIncome / daysActive;
+                var avgDailyTarget = stats.totalTarget / daysActive;
+                var variance = avgDailyTarget > 0 ? ((avgDailyIncome - avgDailyTarget) / avgDailyTarget * 100) : 0;
                 
-                container.innerHTML += `
-                    <div class="p-3 border border-gray-100 rounded-lg">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 gradient-success rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                    ${manager.charAt(0)}
-                                </div>
-                                <span class="font-medium text-gray-800">${manager}</span>
-                            </div>
-                            <span class="text-xs text-gray-500">${daysActive}/7 days</span>
-                        </div>
-                        <div class="progress-bar mb-2">
-                            <div class="progress-fill ${variance >= 0 ? 'gradient-success' : 'gradient-danger'}" 
-                                 style="width: ${Math.min(Math.abs(variance) + 50, 100)}%"></div>
-                        </div>
-                        <div class="flex justify-between text-xs">
-                            <span class="text-gray-600">Weekly Avg: R ${(stats.totalIncome/7).toFixed(0)}</span>
-                            <span class="${variance >= 0 ? 'text-green-600' : 'text-red-600'} font-bold">
-                                ${variance > 0 ? '+' : ''}${variance.toFixed(1)}%
-                            </span>
-                        </div>
-                    </div>
-                `;
-            });
+                container.innerHTML += '<div class="p-3 border border-gray-100 rounded-lg">' +
+                    '<div class="flex justify-between items-center mb-2">' +
+                        '<div class="flex items-center gap-2">' +
+                            '<div class="w-8 h-8 gradient-success rounded-full flex items-center justify-center text-white text-xs font-bold">' +
+                                manager.charAt(0) +
+                            '</div>' +
+                            '<span class="font-medium text-gray-800">' + manager + '</span>' +
+                        '</div>' +
+                        '<span class="text-xs text-gray-500">' + daysActive + '/7 days</span>' +
+                    '</div>' +
+                    '<div class="progress-bar mb-2">' +
+                        '<div class="progress-fill ' + (variance >= 0 ? 'gradient-success' : 'gradient-danger') + '" style="width: ' + Math.min(Math.abs(variance) + 50, 100) + '%"></div>' +
+                    '</div>' +
+                    '<div class="flex justify-between text-xs">' +
+                        '<span class="text-gray-600">Weekly Avg: R ' + (stats.totalIncome/7).toFixed(0) + '</span>' +
+                        '<span class="' + (variance >= 0 ? 'text-green-600' : 'text-red-600') + ' font-bold">' +
+                            (variance > 0 ? '+' : '') + variance.toFixed(1) + '%' +
+                        '</span>' +
+                    '</div>' +
+                '</div>';
+            }
         }
 
-        // ============================================
-        // DATA TABLE FUNCTIONS
-        // ============================================
         function updateDataTable() {
             if (!dataTable) return;
             
@@ -1533,7 +1536,8 @@
                 return;
             }
             
-            filteredData.forEach(record => {
+            for (var i = 0; i < filteredData.length; i++) {
+                var record = filteredData[i];
                 dataTable.row.add([
                     record.date || '-',
                     record.projectManager || '-',
@@ -1547,14 +1551,11 @@
                     record.imageLinks || '-',
                     record.submissionTimestamp || '-'
                 ]);
-            });
+            }
             
             dataTable.draw();
         }
 
-        // ============================================
-        // UTILITY FUNCTIONS
-        // ============================================
         function showLoading() {
             document.getElementById('loadingOverlay').style.display = 'flex';
         }
@@ -1563,22 +1564,22 @@
             document.getElementById('loadingOverlay').style.display = 'none';
         }
 
-        function showMessage(message, isSuccess = true) {
-            const messageDiv = document.getElementById('messageContainer');
+        function showMessage(message, isSuccess) {
+            var messageDiv = document.getElementById('messageContainer');
             messageDiv.className = isSuccess ? 'success-message' : 'error-message';
-            messageDiv.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-regular ${isSuccess ? 'fa-circle-check' : 'fa-circle-exclamation'} text-xl"></i>
-                        <span>${message}</span>
-                    </div>
-                    <button onclick="this.parentElement.parentElement.classList.add('hidden')" class="text-white hover:text-gray-200">
-                        <i class="fa-regular fa-circle-xmark"></i>
-                    </button>
-                </div>
-            `;
+            messageDiv.innerHTML = '<div class="flex items-center justify-between">' +
+                '<div class="flex items-center gap-3">' +
+                    '<i class="fa-regular ' + (isSuccess ? 'fa-circle-check' : 'fa-circle-exclamation') + ' text-xl"></i>' +
+                    '<span>' + message + '</span>' +
+                '</div>' +
+                '<button onclick="this.parentElement.parentElement.classList.add(\'hidden\')" class="text-white hover:text-gray-200">' +
+                    '<i class="fa-regular fa-circle-xmark"></i>' +
+                '</button>' +
+            '</div>';
             messageDiv.classList.remove('hidden');
-            setTimeout(() => messageDiv.classList.add('hidden'), 5000);
+            setTimeout(function() {
+                messageDiv.classList.add('hidden');
+            }, 5000);
         }
 
         function showError(message) {
@@ -1591,8 +1592,8 @@
         }
 
         function updateConnectionStatus(connected) {
-            const statusDot = document.getElementById('connectionStatus');
-            const statusText = document.getElementById('connectionText');
+            var statusDot = document.getElementById('connectionStatus');
+            var statusText = document.getElementById('connectionText');
             
             if (connected === true) {
                 statusDot.className = 'connection-status status-connected';
@@ -1616,34 +1617,34 @@
                 return;
             }
             
-            // Convert filtered data to CSV
-            const headers = ['Date', 'Project Manager', 'Project Name', 'Cost Center', 'Daily Target (R)', 'Daily Income (R)', 'Variance (%)', 'Daily Summary', 'Submission Timestamp', 'User Email'];
-            const csvRows = [];
+            var headers = ['Date', 'Project Manager', 'Project Name', 'Cost Center', 'Daily Target (R)', 'Daily Income (R)', 'Variance (%)', 'Daily Summary', 'Submission Timestamp', 'User Email'];
+            var csvRows = [];
             
             csvRows.push(headers.join(','));
             
-            filteredData.forEach(record => {
-                const row = [
+            for (var i = 0; i < filteredData.length; i++) {
+                var record = filteredData[i];
+                var row = [
                     record.date,
                     record.projectManager,
-                    `"${record.projectName}"`,
+                    '"' + record.projectName + '"',
                     record.costCenter,
                     record.dailyTarget,
                     record.dailyIncome,
                     record.variance,
-                    `"${(record.dailySummary || '').replace(/"/g, '""')}"`,
+                    '"' + (record.dailySummary || '').replace(/"/g, '""') + '"',
                     record.submissionTimestamp,
                     record.userEmail
                 ];
                 csvRows.push(row.join(','));
-            });
+            }
             
-            const csvString = csvRows.join('\n');
-            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
+            var csvString = csvRows.join('\n');
+            var blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            var url = window.URL.createObjectURL(blob);
+            var a = document.createElement('a');
             a.href = url;
-            a.download = `performance_data_${moment().format('YYYY-MM-DD')}.csv`;
+            a.download = 'performance_data_' + moment().format('YYYY-MM-DD') + '.csv';
             a.click();
             window.URL.revokeObjectURL(url);
             
