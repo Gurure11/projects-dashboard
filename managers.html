@@ -572,7 +572,7 @@
         // CONFIGURATION - REPLACE WITH YOUR APPS SCRIPT URL
         // ============================================
         var CONFIG = {
-            SCRIPT_URL: 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE',
+            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbx-u2SDORutKkQk42u7OtYErtP9rgajK9Un80dSb2usdtjSZ6LJRwvdd8hh3Sk3cWty/exec',
             SPREADSHEET_ID: '1ToKQ3MDSUZl3T-t-_tMFkH5LXUwlMgrgDFRfBeLqK0o',
             SHEET_NAME: 'Manager View',
             DRIVE_FOLDER_ID: '15_6jq4oQ5zNmpokwQhfjStD5AdqHRCYa'
@@ -676,7 +676,7 @@
             updateConnectionStatus('checking');
             
             try {
-                if (CONFIG.SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbx-u2SDORutKkQk42u7OtYErtP9rgajK9Un80dSb2usdtjSZ6LJRwvdd8hh3Sk3cWty/exec') {
+                if (CONFIG.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
                     throw new Error('Please configure your Google Apps Script URL in the CONFIG section');
                 }
                 
