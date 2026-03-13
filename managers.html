@@ -10,26 +10,24 @@
 
 body{
 font-family:Arial;
+background:#eef2f7;
 margin:0;
-background:#f4f6f9;
-}
-
-header{
-background:#1f2937;
-color:white;
-padding:20px;
-text-align:center;
+padding:30px;
 }
 
 .container{
-max-width:1300px;
+max-width:1000px;
 margin:auto;
-padding:20px;
 }
 
-.cards{
+h1{
+text-align:center;
+margin-bottom:30px;
+}
+
+.dashboard{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+grid-template-columns:repeat(3,1fr);
 gap:20px;
 margin-bottom:30px;
 }
@@ -38,342 +36,283 @@ margin-bottom:30px;
 background:white;
 padding:20px;
 border-radius:10px;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
+box-shadow:0 3px 12px rgba(0,0,0,0.1);
+text-align:center;
 }
 
-.card h3{
+.card h2{
 margin:0;
+font-size:28px;
+}
+
+.card p{
+margin:5px 0 0;
 color:#555;
 }
 
-.card h1{
-margin-top:10px;
+.formBox{
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 3px 12px rgba(0,0,0,0.1);
 }
 
-.filters{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-bottom:20px;
+label{
+display:block;
+margin-top:15px;
+font-weight:bold;
 }
 
-select,input,button{
+input,select,textarea{
+width:100%;
 padding:10px;
-border-radius:6px;
+margin-top:5px;
 border:1px solid #ccc;
+border-radius:6px;
+}
+
+textarea{
+height:100px;
+resize:none;
 }
 
 button{
-background:#2563eb;
-color:white;
+margin-top:25px;
+width:100%;
+padding:12px;
+background:#2b7cff;
 border:none;
+color:white;
+font-size:16px;
+border-radius:6px;
 cursor:pointer;
 }
 
 button:hover{
-background:#1d4ed8;
+background:#1d5fd4;
 }
 
-table{
-width:100%;
-border-collapse:collapse;
-background:white;
-}
-
-th,td{
+.variance{
+background:#f1f5ff;
 padding:10px;
-border-bottom:1px solid #eee;
-text-align:left;
+border-radius:6px;
+margin-top:5px;
+font-weight:bold;
 }
 
-th{
-background:#f1f5f9;
+#status{
+margin-top:15px;
+text-align:center;
+font-weight:bold;
 }
 
-.form-box{
+.chartBox{
 margin-top:40px;
 background:white;
 padding:20px;
 border-radius:10px;
-}
-
-.form-box input{
-width:100%;
-margin-bottom:10px;
+box-shadow:0 3px 12px rgba(0,0,0,0.1);
 }
 
 </style>
-
 </head>
 
 <body>
 
-<header>
-<h1>Project Performance Dashboard</h1>
-</header>
-
 <div class="container">
 
-<div class="cards">
+<h1>Daily Project Performance Dashboard</h1>
+
+<div class="dashboard">
 
 <div class="card">
-<h3>Total Records</h3>
-<h1 id="totalRecords">0</h1>
-</div>
-
-<div class="card">
-<h3>Total Income</h3>
-<h1 id="totalIncome">0</h1>
+<h2 id="kpiTarget">R0</h2>
+<p>Total Target</p>
 </div>
 
 <div class="card">
-<h3>Total Target</h3>
-<h1 id="totalTarget">0</h1>
+<h2 id="kpiIncome">R0</h2>
+<p>Total Income</p>
 </div>
 
 <div class="card">
-<h3>Average Variance</h3>
-<h1 id="avgVariance">0%</h1>
+<h2 id="kpiVariance">0%</h2>
+<p>Variance</p>
 </div>
 
 </div>
 
+<div class="formBox">
 
-<div class="filters">
+<form id="projectForm">
 
-<select id="managerFilter">
-<option value="all">All Managers</option>
+<label>Date</label>
+<input type="date" id="date" required>
+
+<label>Project Manager</label>
+<input type="text" id="manager" required>
+
+<label>Project Name</label>
+<input type="text" id="project" required>
+
+<label>Cost Center</label>
+<select id="costcenter" required>
+
+<option value="">Select Cost Center</option>
+<option>Onpoint Group HQ</option>
+<option>DI Solutions</option>
+<option>Aqua Telecoms</option>
+<option>Nkanyezi Projects</option>
+<option>Onpoint Ontime Solutions</option>
+
 </select>
 
-<input type="date" id="startDate">
-<input type="date" id="endDate">
+<label>Daily Target (R)</label>
+<input type="number" id="target" required>
 
-<button onclick="loadRecords()">Apply Filters</button>
+<label>Daily Income (R)</label>
+<input type="number" id="income" required oninput="calculateVariance()">
 
-</div>
+<label>Variance (%)</label>
+<div class="variance" id="varianceDisplay">0%</div>
 
+<label>Daily Summary</label>
+<textarea id="summary"></textarea>
 
-<canvas id="incomeChart" height="90"></canvas>
+<label>Image Links</label>
+<input type="text" id="images" placeholder="comma separated links">
 
-<br><br>
+<label>User Email</label>
+<input type="email" id="email">
 
-<table>
+<button type="submit">Submit Report</button>
 
-<thead>
-<tr>
-<th>Date</th>
-<th>Manager</th>
-<th>Project</th>
-<th>Cost Center</th>
-<th>Target</th>
-<th>Income</th>
-<th>Variance</th>
-<th>Summary</th>
-<th>Images</th>
-</tr>
-</thead>
+</form>
 
-<tbody id="recordsTable"></tbody>
-
-</table>
-
-
-<div class="form-box">
-
-<h2>Submit Daily Report</h2>
-
-<input id="date" type="date">
-
-<input id="manager" placeholder="Project Manager">
-
-<input id="project" placeholder="Project Name">
-
-<input id="costcenter" placeholder="Cost Center">
-
-<input id="target" placeholder="Daily Target">
-
-<input id="income" placeholder="Daily Income">
-
-<input id="summary" placeholder="Daily Summary">
-
-<input id="images" placeholder="Image Link">
-
-<button onclick="submitRecord()">Submit Report</button>
+<div id="status"></div>
 
 </div>
 
+<div class="chartBox">
+<canvas id="performanceChart"></canvas>
 </div>
 
-
+</div>
 
 <script>
 
-const API="https://script.google.com/macros/s/AKfycbxQHSAcsmsXiTe1e3AGRJQuOFCMp-r5upjqOemSx729jl4BE_qhKoFiOfQtFBZxeHVgfA/exec";
+const scriptURL="YOUR_SCRIPT_URL"
 
-let chart;
+let totalTarget=0
+let totalIncome=0
 
+const ctx=document.getElementById("performanceChart").getContext("2d")
 
-// LOAD STATS
-
-async function loadStats(){
-
-const res = await fetch(API+"?action=getStats");
-const data = await res.json();
-
-document.getElementById("totalRecords").innerText=data.totalRecords;
-document.getElementById("totalIncome").innerText="R "+data.totalIncome;
-document.getElementById("totalTarget").innerText="R "+data.totalTarget;
-document.getElementById("avgVariance").innerText=data.averageVariance.toFixed(2)+"%";
-
-}
-
-
-
-// LOAD MANAGERS
-
-async function loadManagers(){
-
-const res = await fetch(API+"?action=getManagers");
-const data = await res.json();
-
-const select=document.getElementById("managerFilter");
-
-data.data.forEach(m=>{
-
-const opt=document.createElement("option");
-opt.value=m;
-opt.textContent=m;
-
-select.appendChild(opt);
-
-});
-
-}
-
-
-
-// LOAD RECORDS
-
-async function loadRecords(){
-
-let url=API+"?action=getRecords";
-
-const manager=document.getElementById("managerFilter").value;
-const start=document.getElementById("startDate").value;
-const end=document.getElementById("endDate").value;
-
-if(manager!="all") url+="&manager="+manager;
-if(start) url+="&startDate="+start;
-if(end) url+="&endDate="+end;
-
-const res=await fetch(url);
-const data=await res.json();
-
-const table=document.getElementById("recordsTable");
-
-table.innerHTML="";
-
-const labels=[];
-const income=[];
-
-data.data.forEach(r=>{
-
-labels.push(r.date);
-income.push(r.dailyIncome);
-
-const row=document.createElement("tr");
-
-row.innerHTML=`
-
-<td>${r.date}</td>
-<td>${r.projectManager}</td>
-<td>${r.projectName}</td>
-<td>${r.costCenter}</td>
-<td>R ${r.dailyTarget}</td>
-<td>R ${r.dailyIncome}</td>
-<td>${r.variance.toFixed(2)}%</td>
-<td>${r.summary}</td>
-<td><a href="${r.imageLinks}" target="_blank">View</a></td>
-
-`;
-
-table.appendChild(row);
-
-});
-
-drawChart(labels,income);
-
-}
-
-
-
-// DRAW CHART
-
-function drawChart(labels,data){
-
-if(chart) chart.destroy();
-
-const ctx=document.getElementById("incomeChart");
-
-chart=new Chart(ctx,{
-type:"line",
+const chart=new Chart(ctx,{
+type:"bar",
 data:{
-labels:labels,
+labels:["Target","Income"],
 datasets:[{
-label:"Daily Income",
-data:data,
-fill:false,
-tension:0.3
+label:"Daily Performance",
+data:[0,0]
 }]
 }
-});
+})
+
+function calculateVariance(){
+
+let target=parseFloat(document.getElementById("target").value)||0
+let income=parseFloat(document.getElementById("income").value)||0
+
+let variance=0
+
+if(target>0){
+variance=((income-target)/target)*100
+}
+
+variance=variance.toFixed(2)
+
+document.getElementById("varianceDisplay").innerText=variance+"%"
 
 }
 
+document.getElementById("projectForm").addEventListener("submit",function(e){
 
+e.preventDefault()
 
-// SUBMIT RECORD
+let target=parseFloat(document.getElementById("target").value)||0
+let income=parseFloat(document.getElementById("income").value)||0
 
-async function submitRecord(){
+let variance=0
 
-const date=document.getElementById("date").value;
-const manager=document.getElementById("manager").value;
-const project=document.getElementById("project").value;
-const costcenter=document.getElementById("costcenter").value;
-const target=document.getElementById("target").value;
-const income=document.getElementById("income").value;
-const summary=document.getElementById("summary").value;
-const images=document.getElementById("images").value;
+if(target>0){
+variance=((income-target)/target)*100
+}
 
-const url=
+variance=variance.toFixed(2)
 
-API+
-"?action=submit"+
-"&date="+encodeURIComponent(date)+
-"&manager="+encodeURIComponent(manager)+
-"&project="+encodeURIComponent(project)+
-"&costcenter="+encodeURIComponent(costcenter)+
-"&target="+target+
-"&income="+income+
-"&summary="+encodeURIComponent(summary)+
-"&images="+encodeURIComponent(images);
+let data={
 
-await fetch(url);
+Date:document.getElementById("date").value,
 
-alert("Report Submitted");
+ProjectManager:document.getElementById("manager").value,
 
-loadRecords();
-loadStats();
+ProjectName:document.getElementById("project").value,
+
+CostCenter:document.getElementById("costcenter").value,
+
+DailyTarget:target,
+
+DailyIncome:income,
+
+Variance:variance,
+
+DailySummary:document.getElementById("summary").value,
+
+ImageLinks:document.getElementById("images").value,
+
+SubmissionTimestamp:new Date().toISOString(),
+
+UserEmail:document.getElementById("email").value
 
 }
 
+fetch(scriptURL,{
+method:"POST",
+body:JSON.stringify(data)
+})
+.then(res=>res.text())
+.then(response=>{
 
+document.getElementById("status").innerText="Report Submitted Successfully"
 
-// INITIAL LOAD
+totalTarget+=target
+totalIncome+=income
 
-loadStats();
-loadManagers();
-loadRecords();
+let totalVariance=0
+
+if(totalTarget>0){
+totalVariance=((totalIncome-totalTarget)/totalTarget)*100
+}
+
+document.getElementById("kpiTarget").innerText="R"+totalTarget
+document.getElementById("kpiIncome").innerText="R"+totalIncome
+document.getElementById("kpiVariance").innerText=totalVariance.toFixed(2)+"%"
+
+chart.data.datasets[0].data=[target,income]
+chart.update()
+
+document.getElementById("projectForm").reset()
+document.getElementById("varianceDisplay").innerText="0%"
+
+})
+.catch(err=>{
+
+document.getElementById("status").innerText="Submission Failed"
+
+})
+
+})
 
 </script>
 
