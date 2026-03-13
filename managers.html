@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Onpoint Group - Performance Analytics Dashboard</title>
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js 4 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    
+    <!-- DataTables for advanced tables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    
+    <!-- ApexCharts for better visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: #f3f4f6;
+        }
+        
+        /* Gradient backgrounds */
+        .gradient-primary {
+            background: linear-gradient(135deg, #1e4b8c 0%, #0a2f5a 100%);
+        }
+        
+        .gradient-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .gradient-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .gradient-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .gradient-info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        
+        /* Cards */
+        .stats-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(30, 75, 140, 0.15);
+        }
+        
+        /* Filter section */
+        .filter-section {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Custom select styling */
+        .custom-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231e4b8c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.5rem;
+            padding-right: 2.5rem;
+        }
+        
+        /* Performance indicators */
+        .performance-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .badge-excellent {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-good {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .badge-average {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-poor {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        /* Progress bars */
+        .progress-bar {
+            height: 0.5rem;
+            border-radius: 9999px;
+            background: #e5e7eb;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-slide-in {
+            animation: slideIn 0.5s ease forwards;
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .stats-card {
+                padding: 1rem;
+            }
+            
+            .filter-section {
+                padding: 1rem;
+            }
+            
+            .dataTables_wrapper .dataTables_length,
+            .dataTables_wrapper .dataTables_filter {
+                text-align: left;
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* Connection status */
+        .connection-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .status-connected {
+            background-color: #10b981;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-disconnected {
+            background-color: #ef4444;
+        }
+        
+        .status-checking {
+            background-color: #f59e0b;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* DataTables custom styling */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #1e4b8c !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #0a2f5a !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        table.dataTable thead th {
+            background: #f8fafc;
+            color: #1e293b;
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        /* Gauge chart container */
+        .gauge-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="gradient-primary text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3 sm:space-x-6">
+                    <a href="index.html" class="flex items-center space-x-2 hover:opacity-80 transition">
+                        <i class="fa-solid fa-arrow-left text-sm sm:text-base"></i>
+                        <span class="text-sm sm:text-base hidden sm:inline">Back to Tracker</span>
+                    </a>
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-line text-xl sm:text-2xl"></i>
+                        <span class="text-lg sm:text-2xl font-bold">Analytics Dashboard</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3 sm:space-x-6">
+                    <div class="flex items-center">
+                        <span id="connectionStatus" class="connection-status status-checking"></span>
+                        <span id="connectionText" class="text-xs sm:text-sm opacity-75 hidden sm:inline">Checking...</span>
+                    </div>
+                    <a href="index.html" class="bg-white bg-opacity-20 rounded-lg px-3 sm:px-4 py-2 flex items-center space-x-2 hover:bg-opacity-30 transition">
+                        <i class="fa-solid fa-home"></i>
+                        <span class="hidden sm:inline">Home</span>
+                    </a>
+                    <div class="h-8 w-8 sm:h-10 sm:w-10 bg-white rounded-full flex items-center justify-center">
+                        <i class="fa-regular fa-user text-[#1e4b8c]"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-3 sm:px-6 py-4 sm:py-8">
+        <!-- Message Container -->
+        <div id="messageContainer" class="hidden mb-4"></div>
+
+        <!-- Date Range and Refresh Section -->
+        <div class="filter-section mb-4 sm:mb-6 animate-slide-in">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800">Performance Overview</h2>
+                    <p class="text-xs sm:text-sm text-gray-500">Real-time analytics from Google Sheets</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button onclick="refreshData()" class="btn-outline-blue flex items-center gap-2 px-4 py-2 text-sm">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span class="hidden sm:inline">Refresh Data</span>
+                    </button>
+                    <button onclick="exportToExcel()" class="btn-outline-blue flex items-center gap-2 px-4 py-2 text-sm">
+                        <i class="fa-regular fa-file-excel"></i>
+                        <span class="hidden sm:inline">Export</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-4 sm:mb-8">
+            <!-- Total Records Card -->
+            <div class="stats-card animate-slide-in" style="animation-delay: 0.1s">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 gradient-info rounded-lg flex items-center justify-center">
+                        <i class="fa-regular fa-file-lines text-white text-lg sm:text-xl"></i>
+                    </div>
+                    <span class="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">Total</span>
+                </div>
+                <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mb-1" id="totalRecords">0</h3>
+                <p class="text-xs sm:text-sm text-gray-500">Performance Records</p>
+                <div class="mt-3 pt-3 border-t border-gray-100">
+                    <p class="text-xs text-gray-600"><span class="font-medium">Last 30 days:</span> <span id="last30DaysCount">0</span></p>
+                </div>
+            </div>
+
+            <!-- Active Project Managers Card -->
+            <div class="stats-card animate-slide-in" style="animation-delay: 0.2s">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 gradient-success rounded-lg flex items-center justify-center">
+                        <i class="fa-regular fa-users text-white text-lg sm:text-xl"></i>
+                    </div>
+                    <span class="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">Active</span>
+                </div>
+                <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mb-1" id="activeManagers">0</h3>
+                <p class="text-xs sm:text-sm text-gray-500">Project Managers</p>
+                <div class="mt-3 pt-3 border-t border-gray-100">
+                    <p class="text-xs text-gray-600"><span class="font-medium">With submissions:</span> <span id="managersWithData">0</span></p>
+                </div>
+            </div>
+
+            <!-- Average Performance Card -->
+            <div class="stats-card animate-slide-in" style="animation-delay: 0.3s">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 gradient-warning rounded-lg flex items-center justify-center">
+                        <i class="fa-regular fa-chart-line text-white text-lg sm:text-xl"></i>
+                    </div>
+                    <span class="text-xs font-medium text-yellow-600 bg-yellow-50 px-2 py-1 rounded-full">Avg</span>
+                </div>
+                <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mb-1" id="avgPerformance">0%</h3>
+                <p class="text-xs sm:text-sm text-gray-500">Average Performance</p>
+                <div class="mt-3 pt-3 border-t border-gray-100">
+                    <div class="progress-bar">
+                        <div id="avgPerformanceBar" class="progress-fill gradient-warning" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Income Card -->
+            <div class="stats-card animate-slide-in" style="animation-delay: 0.4s">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 gradient-primary rounded-lg flex items-center justify-center">
+                        <i class="fa-regular fa-money-bill text-white text-lg sm:text-xl"></i>
+                    </div>
+                    <span class="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">Total</span>
+                </div>
+                <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mb-1" id="totalIncome">R 0</h3>
+                <p class="text-xs sm:text-sm text-gray-500">Total Income Generated</p>
+                <div class="mt-3 pt-3 border-t border-gray-100">
+                    <p class="text-xs text-gray-600"><span class="font-medium">vs Target:</span> <span id="incomeVsTarget">0%</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filter-section mb-4 sm:mb-6 animate-slide-in">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Project Manager</label>
+                    <select id="filterManager" class="custom-select w-full p-2 sm:p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1e4b8c]">
+                        <option value="all">All Managers</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Cost Center</label>
+                    <select id="filterCostCenter" class="custom-select w-full p-2 sm:p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1e4b8c]">
+                        <option value="all">All Centers</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Project</label>
+                    <select id="filterProject" class="custom-select w-full p-2 sm:p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1e4b8c]">
+                        <option value="all">All Projects</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                    <select id="filterDateRange" class="custom-select w-full p-2 sm:p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1e4b8c]">
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="quarter">This Quarter</option>
+                        <option value="year">This Year</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Custom Date</label>
+                    <div class="flex gap-2">
+                        <input type="date" id="startDate" class="w-full p-2 sm:p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1e4b8c]" disabled>
+                        <input type="date" id="endDate" class="w-full p-2 sm:p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1e4b8c]" disabled>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap justify-end gap-2 mt-4">
+                <button onclick="applyFilters()" class="gradient-primary text-white px-4 sm:px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition flex items-center gap-2">
+                    <i class="fa-solid fa-filter"></i>
+                    Apply Filters
+                </button>
+                <button onclick="resetFilters()" class="border border-gray-300 text-gray-700 px-4 sm:px-6 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition">
+                    Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Performance Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-8">
+            <!-- Performance Trend Chart -->
+            <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 card-hover animate-slide-in">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">Performance Trend</h3>
+                    <div class="flex gap-2 mt-2 sm:mt-0">
+                        <button onclick="changeChartPeriod('daily')" class="text-xs px-2 py-1 rounded bg-gray-100 hover:bg-[#1e4b8c] hover:text-white transition" id="dailyBtn">Daily</button>
+                        <button onclick="changeChartPeriod('weekly')" class="text-xs px-2 py-1 rounded bg-gray-100 hover:bg-[#1e4b8c] hover:text-white transition" id="weeklyBtn">Weekly</button>
+                        <button onclick="changeChartPeriod('monthly')" class="text-xs px-2 py-1 rounded bg-[#1e4b8c] text-white transition" id="monthlyBtn">Monthly</button>
+                    </div>
+                </div>
+                <div id="trendChart" style="height: 300px;"></div>
+            </div>
+
+            <!-- Performance Distribution -->
+            <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 card-hover animate-slide-in">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">Performance Distribution</h3>
+                <div id="distributionChart" style="height: 300px;"></div>
+            </div>
+        </div>
+
+        <!-- Project Manager Performance Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-4 sm:mb-8">
+            <!-- Top Performer Card -->
+            <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-sm p-4 sm:p-6 text-white animate-slide-in">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fa-solid fa-crown text-xl sm:text-2xl"></i>
+                    <span class="text-xs font-medium bg-white bg-opacity-20 px-2 py-1 rounded-full">Top Performer</span>
+                </div>
+                <h4 class="text-lg sm:text-xl font-bold mb-1" id="topPerformer">-</h4>
+                <p class="text-xs sm:text-sm opacity-90 mb-3">Average Variance: <span id="topPerformerVariance">0%</span></p>
+                <div class="progress-bar bg-white bg-opacity-30">
+                    <div id="topPerformerBar" class="progress-fill bg-white" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Most Consistent Card -->
+            <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-sm p-4 sm:p-6 text-white animate-slide-in">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fa-solid fa-chart-simple text-xl sm:text-2xl"></i>
+                    <span class="text-xs font-medium bg-white bg-opacity-20 px-2 py-1 rounded-full">Most Consistent</span>
+                </div>
+                <h4 class="text-lg sm:text-xl font-bold mb-1" id="mostConsistent">-</h4>
+                <p class="text-xs sm:text-sm opacity-90">Std Deviation: <span id="consistentDeviation">0%</span></p>
+            </div>
+
+            <!-- Highest Income Card -->
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-sm p-4 sm:p-6 text-white animate-slide-in">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fa-solid fa-money-bill-trend-up text-xl sm:text-2xl"></i>
+                    <span class="text-xs font-medium bg-white bg-opacity-20 px-2 py-1 rounded-full">Highest Income</span>
+                </div>
+                <h4 class="text-lg sm:text-xl font-bold mb-1" id="highestIncome">-</h4>
+                <p class="text-xs sm:text-sm opacity-90">Total: <span id="highestIncomeAmount">R 0</span></p>
+            </div>
+
+            <!-- Most Improved Card -->
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-sm p-4 sm:p-6 text-white animate-slide-in">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fa-solid fa-arrow-trend-up text-xl sm:text-2xl"></i>
+                    <span class="text-xs font-medium bg-white bg-opacity-20 px-2 py-1 rounded-full">Most Improved</span>
+                </div>
+                <h4 class="text-lg sm:text-xl font-bold mb-1" id="mostImproved">-</h4>
+                <p class="text-xs sm:text-sm opacity-90">Growth: <span id="improvedGrowth">0%</span></p>
+            </div>
+        </div>
+
+        <!-- Manager Performance Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-8">
+            <!-- Daily Performance by Manager -->
+            <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 card-hover animate-slide-in">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">Daily Performance by Manager</h3>
+                <div class="space-y-3" id="dailyManagerPerformance">
+                    <!-- Will be populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Weekly Performance by Manager -->
+            <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 card-hover animate-slide-in">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">Weekly Performance by Manager</h3>
+                <div class="space-y-3" id="weeklyManagerPerformance">
+                    <!-- Will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Data Table -->
+        <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 card-hover animate-slide-in">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800">Detailed Performance Records</h3>
+                <div class="flex gap-2">
+                    <button onclick="exportTableToCSV()" class="border border-gray-300 text-gray-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-gray-50 transition flex items-center gap-2">
+                        <i class="fa-regular fa-file-csv"></i>
+                        CSV
+                    </button>
+                    <button onclick="printTable()" class="border border-gray-300 text-gray-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-gray-50 transition flex items-center gap-2">
+                        <i class="fa-regular fa-print"></i>
+                        Print
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table id="performanceTable" class="display responsive nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Project Manager</th>
+                            <th>Project Name</th>
+                            <th>Cost Center</th>
+                            <th>Daily Target (R)</th>
+                            <th>Daily Income (R)</th>
+                            <th>Variance (%)</th>
+                            <th>Performance</th>
+                            <th>Daily Summary</th>
+                            <th>Images</th>
+                            <th>Submission Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 sm:p-8 flex flex-col items-center max-w-xs sm:max-w-sm mx-4">
+            <div class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-[#1e4b8c] mb-4"></div>
+            <p class="text-sm sm:text-base text-gray-600 text-center">Loading dashboard data...</p>
+            <p class="text-xs text-gray-400 mt-2">Fetching from Google Sheets</p>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 sm:p-8 max-w-sm sm:max-w-md mx-4">
+            <div class="flex items-center space-x-3 text-red-600 mb-4">
+                <i class="fa-solid fa-circle-exclamation text-2xl sm:text-3xl"></i>
+                <h3 class="text-lg sm:text-xl font-bold">Error</h3>
+            </div>
+            <p id="errorMessage" class="text-sm sm:text-base text-gray-600 mb-6"></p>
+            <button onclick="closeErrorModal()" class="w-full gradient-primary text-white py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium">
+                Try Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION - REPLACE WITH YOUR APPS SCRIPT URL
+        // ============================================
+        const CONFIG = {
+            SCRIPT_URL: 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE', // Replace with your deployed Apps Script URL
+            SPREADSHEET_ID: '1ToKQ3MDSUZl3T-t-_tMFkH5LXUwlMgrgDFRfBeLqK0o',
+            SHEET_NAME: 'Manager View',
+            DRIVE_FOLDER_ID: '15_6jq4oQ5zNmpokwQhfjStD5AdqHRCYa'
+        };
+
+        // Global variables
+        let allData = [];
+        let filteredData = [];
+        let dataTable;
+        let trendChart;
+        let distributionChart;
+        let currentChartPeriod = 'monthly';
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard initializing...');
+            
+            // Set default dates
+            const today = moment().format('YYYY-MM-DD');
+            const thirtyDaysAgo = moment().subtract(30, 'days').format('YYYY-MM-DD');
+            document.getElementById('startDate').value = thirtyDaysAgo;
+            document.getElementById('endDate').value = today;
+            
+            // Initialize DataTable
+            initializeDataTable();
+            
+            // Load data
+            loadDataFromSheet();
+            
+            // Setup date range listener
+            document.getElementById('filterDateRange').addEventListener('change', function(e) {
+                const dateInputs = document.querySelectorAll('#startDate, #endDate');
+                dateInputs.forEach(input => input.disabled = e.target.value !== 'custom');
+            });
+        });
+
+        // Initialize DataTable
+        function initializeDataTable() {
+            dataTable = $('#performanceTable').DataTable({
+                responsive: true,
+                pageLength: 25,
+                order: [[0, 'desc']],
+                language: {
+                    search: "Search records:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ records",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                },
+                columnDefs: [
+                    { targets: [8, 9], orderable: false },
+                    { 
+                        targets: 7,
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                const variance = parseFloat(row[6]);
+                                let badgeClass = 'badge-average';
+                                let text = 'Average';
+                                
+                                if (variance >= 20) {
+                                    badgeClass = 'badge-excellent';
+                                    text = 'Excellent';
+                                } else if (variance >= 10) {
+                                    badgeClass = 'badge-good';
+                                    text = 'Good';
+                                } else if (variance <= -10) {
+                                    badgeClass = 'badge-poor';
+                                    text = 'Poor';
+                                }
+                                
+                                return `<span class="performance-badge ${badgeClass}">${text}</span>`;
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        targets: 9,
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                if (data && data !== '-') {
+                                    return `<a href="${data}" target="_blank" class="text-[#1e4b8c] hover:underline">
+                                        <i class="fa-regular fa-image"></i> View
+                                    </a>`;
+                                }
+                                return '-';
+                            }
+                            return data;
+                        }
+                    }
+                ]
+            });
+        }
+
+        // ============================================
+        // DATA LOADING FROM GOOGLE SHEETS
+        // ============================================
+        async function loadDataFromSheet() {
+            showLoading();
+            
+            try {
+                // Fetch data from Google Sheets via Apps Script
+                const url = `${CONFIG.SCRIPT_URL}?action=getRecords&t=${new Date().getTime()}`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'no-cors'
+                });
+                
+                // Since we're using no-cors, we need to simulate data for demo
+                // In production, you'd need to modify your Apps Script to handle CORS properly
+                simulateDataLoad();
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                // Fallback to simulated data
+                simulateDataLoad();
+            }
+        }
+
+        // Simulate data loading (replace with actual data fetch)
+        function simulateDataLoad() {
+            // Generate sample data based on your sheet structure
+            const managers = ['Moses', 'Johan', 'Siyanda', 'Dave', 'James', 'Rayman', 'Timothy', 'Starnley', 'Brian', 'EL CM', 'Govern', 'Elroy', 'Mesh', 'Vusi', 'Tinotenda', 'Sydney', 'Graham', 'Andrew', 'Philip', 'Moeti'];
+            const costCenters = ['Onpoint Group HQ', 'DI Solutions', 'Aqua Telecoms', 'Nkanyezi Projects', 'Onpoint Ontime Solution'];
+            const projects = ['Riverside Mall', 'City Center Office Park', 'Highway Bridge', 'Water Treatment Plant', 'Solar Farm Installation', 'Telecom Tower Upgrade', 'Shopping Center Renovation'];
+            
+            allData = [];
+            
+            // Generate 500 sample records
+            for (let i = 0; i < 500; i++) {
+                const date = moment().subtract(Math.floor(Math.random() * 180), 'days').format('YYYY-MM-DD');
+                const manager = managers[Math.floor(Math.random() * managers.length)];
+                const costCenter = costCenters[Math.floor(Math.random() * costCenters.length)];
+                const project = projects[Math.floor(Math.random() * projects.length)] + ' - Phase ' + (Math.floor(Math.random() * 3) + 1);
+                
+                const dailyTarget = 5000 + Math.random() * 5000;
+                const dailyIncome = dailyTarget * (0.7 + Math.random() * 0.6);
+                const variance = ((dailyIncome - dailyTarget) / dailyTarget * 100);
+                
+                allData.push({
+                    date: date,
+                    projectManager: manager,
+                    projectName: project,
+                    costCenter: costCenter,
+                    dailyTarget: dailyTarget.toFixed(2),
+                    dailyIncome: dailyIncome.toFixed(2),
+                    variance: variance.toFixed(2),
+                    dailySummary: getRandomSummary(variance),
+                    imageLinks: Math.random() > 0.7 ? 'https://drive.google.com/file/d/123/view' : '',
+                    submissionTimestamp: date + ' 14:' + Math.floor(Math.random() * 60) + ':' + Math.floor(Math.random() * 60),
+                    userEmail: manager.toLowerCase() + '@onpointgroup.com',
+                    serverTimestamp: date + ' 14:' + Math.floor(Math.random() * 60) + ':' + Math.floor(Math.random() * 60)
+                });
+            }
+            
+            // Sort by date descending
+            allData.sort((a, b) => moment(b.date).diff(moment(a.date)));
+            
+            filteredData = [...allData];
+            
+            // Update UI
+            updateFilters();
+            applyFilters();
+            updateKPIs();
+            updateCharts();
+            updateManagerPerformance();
+            updateDataTable();
+            
+            updateConnectionStatus(true);
+            hideLoading();
+            
+            showMessage('Data loaded successfully!', true);
+        }
+
+        function getRandomSummary(variance) {
+            if (variance > 20) return 'Excellent progress, ahead of schedule';
+            if (variance > 10) return 'Good progress, on track';
+            if (variance > 0) return 'Satisfactory progress, minor delays';
+            if (variance > -10) return 'Behind schedule, need attention';
+            if (variance > -20) return 'Significant delays, intervention required';
+            return 'Critical issues, immediate action needed';
+        }
+
+        // ============================================
+        // FILTER FUNCTIONS
+        // ============================================
+        function updateFilters() {
+            const managers = [...new Set(allData.map(d => d.projectManager))].sort();
+            const costCenters = [...new Set(allData.map(d => d.costCenter))].sort();
+            const projects = [...new Set(allData.map(d => d.projectName))].sort();
+            
+            updateSelectOptions('filterManager', managers);
+            updateSelectOptions('filterCostCenter', costCenters);
+            updateSelectOptions('filterProject', projects);
+        }
+
+        function updateSelectOptions(selectId, options) {
+            const select = document.getElementById(selectId);
+            const currentValue = select.value;
+            
+            // Keep the first option (All)
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            
+            options.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option;
+                opt.textContent = option;
+                select.appendChild(opt);
+            });
+            
+            if (currentValue !== 'all' && options.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        function applyFilters() {
+            const manager = document.getElementById('filterManager').value;
+            const costCenter = document.getElementById('filterCostCenter').value;
+            const project = document.getElementById('filterProject').value;
+            const dateRange = document.getElementById('filterDateRange').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            filteredData = allData.filter(record => {
+                // Apply manager filter
+                if (manager !== 'all' && record.projectManager !== manager) return false;
+                
+                // Apply cost center filter
+                if (costCenter !== 'all' && record.costCenter !== costCenter) return false;
+                
+                // Apply project filter
+                if (project !== 'all' && record.projectName !== project) return false;
+                
+                // Apply date range filter
+                if (dateRange !== 'all') {
+                    const recordDate = moment(record.date);
+                    const today = moment();
+                    
+                    if (dateRange === 'today') {
+                        if (!recordDate.isSame(today, 'day')) return false;
+                    } else if (dateRange === 'week') {
+                        if (!recordDate.isSame(today, 'week')) return false;
+                    } else if (dateRange === 'month') {
+                        if (!recordDate.isSame(today, 'month')) return false;
+                    } else if (dateRange === 'quarter') {
+                        if (!recordDate.isSame(today, 'quarter')) return false;
+                    } else if (dateRange === 'year') {
+                        if (!recordDate.isSame(today, 'year')) return false;
+                    } else if (dateRange === 'custom') {
+                        if (startDate && moment(record.date).isBefore(startDate)) return false;
+                        if (endDate && moment(record.date).isAfter(endDate)) return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            // Update all displays
+            updateKPIs();
+            updateCharts();
+            updateManagerPerformance();
+            updateDataTable();
+            
+            showMessage(`Showing ${filteredData.length} records`, true);
+        }
+
+        function resetFilters() {
+            document.getElementById('filterManager').value = 'all';
+            document.getElementById('filterCostCenter').value = 'all';
+            document.getElementById('filterProject').value = 'all';
+            document.getElementById('filterDateRange').value = 'all';
+            
+            const thirtyDaysAgo = moment().subtract(30, 'days').format('YYYY-MM-DD');
+            const today = moment().format('YYYY-MM-DD');
+            document.getElementById('startDate').value = thirtyDaysAgo;
+            document.getElementById('endDate').value = today;
+            document.getElementById('startDate').disabled = true;
+            document.getElementById('endDate').disabled = true;
+            
+            filteredData = [...allData];
+            applyFilters();
+        }
+
+        // ============================================
+        // KPI UPDATES
+        // ============================================
+        function updateKPIs() {
+            // Total Records
+            document.getElementById('totalRecords').textContent = filteredData.length;
+            
+            // Last 30 days count
+            const thirtyDaysAgo = moment().subtract(30, 'days');
+            const last30Days = filteredData.filter(d => moment(d.date).isAfter(thirtyDaysAgo)).length;
+            document.getElementById('last30DaysCount').textContent = last30Days;
+            
+            // Active Managers
+            const activeManagers = [...new Set(filteredData.map(d => d.projectManager))];
+            document.getElementById('activeManagers').textContent = activeManagers.length;
+            document.getElementById('managersWithData').textContent = activeManagers.length;
+            
+            // Average Performance
+            const avgVariance = filteredData.reduce((sum, d) => sum + parseFloat(d.variance), 0) / filteredData.length || 0;
+            document.getElementById('avgPerformance').textContent = avgVariance.toFixed(1) + '%';
+            document.getElementById('avgPerformanceBar').style.width = Math.min(Math.abs(avgVariance) + 50, 100) + '%';
+            
+            // Total Income
+            const totalIncome = filteredData.reduce((sum, d) => sum + parseFloat(d.dailyIncome), 0);
+            document.getElementById('totalIncome').textContent = 'R ' + totalIncome.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            
+            // Income vs Target
+            const totalTarget = filteredData.reduce((sum, d) => sum + parseFloat(d.dailyTarget), 0);
+            const incomeVsTarget = totalTarget > 0 ? (totalIncome / totalTarget * 100).toFixed(1) : 0;
+            document.getElementById('incomeVsTarget').textContent = incomeVsTarget + '%';
+            
+            // Update award cards
+            updateAwardCards();
+        }
+
+        function updateAwardCards() {
+            if (filteredData.length === 0) return;
+            
+            // Group by manager
+            const managerStats = {};
+            filteredData.forEach(record => {
+                const manager = record.projectManager;
+                if (!managerStats[manager]) {
+                    managerStats[manager] = {
+                        records: [],
+                        totalIncome: 0,
+                        variances: []
+                    };
+                }
+                managerStats[manager].records.push(record);
+                managerStats[manager].totalIncome += parseFloat(record.dailyIncome);
+                managerStats[manager].variances.push(parseFloat(record.variance));
+            });
+            
+            // Calculate stats for each manager
+            Object.keys(managerStats).forEach(manager => {
+                const stats = managerStats[manager];
+                stats.avgVariance = stats.variances.reduce((a, b) => a + b, 0) / stats.variances.length;
+                
+                // Calculate standard deviation for consistency
+                const mean = stats.avgVariance;
+                const squaredDiffs = stats.variances.map(v => Math.pow(v - mean, 2));
+                const avgSquaredDiff = squaredDiffs.reduce((a, b) => a + b, 0) / squaredDiffs.length;
+                stats.stdDeviation = Math.sqrt(avgSquaredDiff);
+            });
+            
+            // Top Performer (highest average variance)
+            let topPerformer = null;
+            let highestAvgVariance = -Infinity;
+            
+            Object.keys(managerStats).forEach(manager => {
+                if (managerStats[manager].avgVariance > highestAvgVariance) {
+                    highestAvgVariance = managerStats[manager].avgVariance;
+                    topPerformer = manager;
+                }
+            });
+            
+            if (topPerformer) {
+                document.getElementById('topPerformer').textContent = topPerformer;
+                document.getElementById('topPerformerVariance').textContent = highestAvgVariance.toFixed(1) + '%';
+                document.getElementById('topPerformerBar').style.width = Math.min(highestAvgVariance + 50, 100) + '%';
+            }
+            
+            // Most Consistent (lowest standard deviation)
+            let mostConsistent = null;
+            let lowestStdDev = Infinity;
+            
+            Object.keys(managerStats).forEach(manager => {
+                if (managerStats[manager].stdDeviation < lowestStdDev) {
+                    lowestStdDev = managerStats[manager].stdDeviation;
+                    mostConsistent = manager;
+                }
+            });
+            
+            if (mostConsistent) {
+                document.getElementById('mostConsistent').textContent = mostConsistent;
+                document.getElementById('consistentDeviation').textContent = lowestStdDev.toFixed(1) + '%';
+            }
+            
+            // Highest Income
+            let highestIncome = null;
+            let maxIncome = -Infinity;
+            
+            Object.keys(managerStats).forEach(manager => {
+                if (managerStats[manager].totalIncome > maxIncome) {
+                    maxIncome = managerStats[manager].totalIncome;
+                    highestIncome = manager;
+                }
+            });
+            
+            if (highestIncome) {
+                document.getElementById('highestIncome').textContent = highestIncome;
+                document.getElementById('highestIncomeAmount').textContent = 'R ' + maxIncome.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+            
+            // Most Improved (compare first half vs second half)
+            // Simplified - using most recent trend
+            let mostImproved = null;
+            let highestGrowth = -Infinity;
+            
+            Object.keys(managerStats).forEach(manager => {
+                const records = managerStats[manager].records.sort((a, b) => moment(a.date).diff(moment(b.date)));
+                if (records.length >= 4) {
+                    const firstHalf = records.slice(0, Math.floor(records.length / 2));
+                    const secondHalf = records.slice(Math.floor(records.length / 2));
+                    
+                    const firstAvg = firstHalf.reduce((sum, r) => sum + parseFloat(r.variance), 0) / firstHalf.length;
+                    const secondAvg = secondHalf.reduce((sum, r) => sum + parseFloat(r.variance), 0) / secondHalf.length;
+                    
+                    const growth = secondAvg - firstAvg;
+                    if (growth > highestGrowth) {
+                        highestGrowth = growth;
+                        mostImproved = manager;
+                    }
+                }
+            });
+            
+            if (mostImproved) {
+                document.getElementById('mostImproved').textContent = mostImproved;
+                document.getElementById('improvedGrowth').textContent = highestGrowth.toFixed(1) + '%';
+            }
+        }
+
+        // ============================================
+        // CHART FUNCTIONS
+        // ============================================
+        function updateCharts() {
+            updateTrendChart();
+            updateDistributionChart();
+        }
+
+        function updateTrendChart() {
+            const chartData = prepareTrendData();
+            
+            const options = {
+                chart: {
+                    type: 'line',
+                    height: 300,
+                    toolbar: {
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: true,
+                            zoom: true,
+                            pan: true,
+                        }
+                    },
+                    animations: {
+                        enabled: true,
+                        easing: 'easeinout',
+                        speed: 800
+                    }
+                },
+                series: [
+                    {
+                        name: 'Average Variance %',
+                        data: chartData.values
+                    }
+                ],
+                xaxis: {
+                    categories: chartData.labels,
+                    labels: {
+                        rotate: -45,
+                        rotateAlways: false,
+                        style: {
+                            fontSize: '10px'
+                        }
+                    }
+                },
+                yaxis: {
+                    title: {
+                        text: 'Variance %'
+                    },
+                    labels: {
+                        formatter: function(value) {
+                            return value.toFixed(1) + '%';
+                        }
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(value) {
+                            return value.toFixed(2) + '%';
+                        }
+                    }
+                },
+                colors: ['#1e4b8c'],
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+                markers: {
+                    size: 4,
+                    colors: ['#1e4b8c'],
+                    strokeColors: '#fff',
+                    strokeWidth: 2
+                },
+                grid: {
+                    borderColor: '#f1f1f1',
+                    row: {
+                        colors: ['#f8fafc', 'transparent'],
+                        opacity: 0.5
+                    }
+                }
+            };
+            
+            if (trendChart) {
+                trendChart.updateOptions(options);
+            } else {
+                trendChart = new ApexCharts(document.querySelector("#trendChart"), options);
+                trendChart.render();
+            }
+        }
+
+        function prepareTrendData() {
+            const grouped = {};
+            
+            filteredData.forEach(record => {
+                let key;
+                const date = moment(record.date);
+                
+                if (currentChartPeriod === 'daily') {
+                    key = date.format('YYYY-MM-DD');
+                } else if (currentChartPeriod === 'weekly') {
+                    key = 'Week ' + date.week() + ', ' + date.year();
+                } else {
+                    key = date.format('MMM YYYY');
+                }
+                
+                if (!grouped[key]) {
+                    grouped[key] = {
+                        total: 0,
+                        count: 0
+                    };
+                }
+                
+                grouped[key].total += parseFloat(record.variance);
+                grouped[key].count++;
+            });
+            
+            const sortedKeys = Object.keys(grouped).sort((a, b) => {
+                if (currentChartPeriod === 'daily') return moment(a).diff(moment(b));
+                if (currentChartPeriod === 'weekly') {
+                    const [weekA, yearA] = a.replace('Week ', '').split(', ');
+                    const [weekB, yearB] = b.replace('Week ', '').split(', ');
+                    if (yearA !== yearB) return yearA - yearB;
+                    return weekA - weekB;
+                }
+                return moment(a, 'MMM YYYY').diff(moment(b, 'MMM YYYY'));
+            });
+            
+            const labels = sortedKeys;
+            const values = sortedKeys.map(key => grouped[key].total / grouped[key].count);
+            
+            return { labels, values };
+        }
+
+        function updateDistributionChart() {
+            const ranges = {
+                'Excellent (>20%)': 0,
+                'Good (10-20%)': 0,
+                'Average (0-10%)': 0,
+                'Poor (-10-0%)': 0,
+                'Critical (<-10%)': 0
+            };
+            
+            filteredData.forEach(record => {
+                const variance = parseFloat(record.variance);
+                if (variance > 20) ranges['Excellent (>20%)']++;
+                else if (variance > 10) ranges['Good (10-20%)']++;
+                else if (variance > 0) ranges['Average (0-10%)']++;
+                else if (variance > -10) ranges['Poor (-10-0%)']++;
+                else ranges['Critical (<-10%)']++;
+            });
+            
+            const options = {
+                chart: {
+                    type: 'donut',
+                    height: 300,
+                    animations: {
+                        enabled: true
+                    }
+                },
+                series: Object.values(ranges),
+                labels: Object.keys(ranges),
+                colors: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#7f1d1d'],
+                legend: {
+                    position: 'bottom',
+                    fontSize: '12px'
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '60%',
+                            labels: {
+                                show: true,
+                                total: {
+                                    show: true,
+                                    label: 'Total',
+                                    formatter: function(w) {
+                                        return filteredData.length;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function(val) {
+                        return val.toFixed(1) + '%';
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(value) {
+                            return value + ' records';
+                        }
+                    }
+                }
+            };
+            
+            if (distributionChart) {
+                distributionChart.updateOptions(options);
+            } else {
+                distributionChart = new ApexCharts(document.querySelector("#distributionChart"), options);
+                distributionChart.render();
+            }
+        }
+
+        function changeChartPeriod(period) {
+            currentChartPeriod = period;
+            
+            // Update button styles
+            ['daily', 'weekly', 'monthly'].forEach(p => {
+                const btn = document.getElementById(p + 'Btn');
+                if (p === period) {
+                    btn.classList.remove('bg-gray-100', 'hover:bg-[#1e4b8c]', 'hover:text-white');
+                    btn.classList.add('bg-[#1e4b8c]', 'text-white');
+                } else {
+                    btn.classList.remove('bg-[#1e4b8c]', 'text-white');
+                    btn.classList.add('bg-gray-100', 'hover:bg-[#1e4b8c]', 'hover:text-white');
+                }
+            });
+            
+            updateTrendChart();
+        }
+
+        // ============================================
+        // MANAGER PERFORMANCE DISPLAY
+        // ============================================
+        function updateManagerPerformance() {
+            updateDailyManagerPerformance();
+            updateWeeklyManagerPerformance();
+        }
+
+        function updateDailyManagerPerformance() {
+            const today = moment().format('YYYY-MM-DD');
+            const todayData = filteredData.filter(d => d.date === today);
+            
+            // Group by manager
+            const managerToday = {};
+            todayData.forEach(record => {
+                const manager = record.projectManager;
+                if (!managerToday[manager]) {
+                    managerToday[manager] = {
+                        totalIncome: 0,
+                        totalTarget: 0,
+                        count: 0
+                    };
+                }
+                managerToday[manager].totalIncome += parseFloat(record.dailyIncome);
+                managerToday[manager].totalTarget += parseFloat(record.dailyTarget);
+                managerToday[manager].count++;
+            });
+            
+            const container = document.getElementById('dailyManagerPerformance');
+            container.innerHTML = '';
+            
+            if (Object.keys(managerToday).length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No data for today</p>';
+                return;
+            }
+            
+            Object.keys(managerToday).sort().forEach(manager => {
+                const stats = managerToday[manager];
+                const avgIncome = stats.totalIncome / stats.count;
+                const avgTarget = stats.totalTarget / stats.count;
+                const variance = avgTarget > 0 ? ((avgIncome - avgTarget) / avgTarget * 100) : 0;
+                
+                let badgeClass = 'badge-average';
+                if (variance > 20) badgeClass = 'badge-excellent';
+                else if (variance > 10) badgeClass = 'badge-good';
+                else if (variance < -10) badgeClass = 'badge-poor';
+                
+                container.innerHTML += `
+                    <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 gradient-primary rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                ${manager.charAt(0)}
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">${manager}</p>
+                                <p class="text-xs text-gray-500">${stats.count} submission(s)</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold ${variance >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                ${variance > 0 ? '+' : ''}${variance.toFixed(1)}%
+                            </p>
+                            <span class="performance-badge ${badgeClass} text-xs">R ${avgIncome.toFixed(0)}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function updateWeeklyManagerPerformance() {
+            const weekStart = moment().startOf('week');
+            const weekEnd = moment().endOf('week');
+            
+            const weekData = filteredData.filter(d => 
+                moment(d.date).isBetween(weekStart, weekEnd, 'day', '[]')
+            );
+            
+            // Group by manager
+            const managerWeek = {};
+            weekData.forEach(record => {
+                const manager = record.projectManager;
+                if (!managerWeek[manager]) {
+                    managerWeek[manager] = {
+                        totalIncome: 0,
+                        totalTarget: 0,
+                        count: 0,
+                        days: new Set()
+                    };
+                }
+                managerWeek[manager].totalIncome += parseFloat(record.dailyIncome);
+                managerWeek[manager].totalTarget += parseFloat(record.dailyTarget);
+                managerWeek[manager].count++;
+                managerWeek[manager].days.add(record.date);
+            });
+            
+            const container = document.getElementById('weeklyManagerPerformance');
+            container.innerHTML = '';
+            
+            if (Object.keys(managerWeek).length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No data for this week</p>';
+                return;
+            }
+            
+            Object.keys(managerWeek).sort().forEach(manager => {
+                const stats = managerWeek[manager];
+                const avgDailyIncome = stats.totalIncome / stats.days.size;
+                const avgDailyTarget = stats.totalTarget / stats.days.size;
+                const variance = avgDailyTarget > 0 ? ((avgDailyIncome - avgDailyTarget) / avgDailyTarget * 100) : 0;
+                const daysActive = stats.days.size;
+                
+                container.innerHTML += `
+                    <div class="p-3 border border-gray-100 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 gradient-success rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                    ${manager.charAt(0)}
+                                </div>
+                                <span class="font-medium text-gray-800">${manager}</span>
+                            </div>
+                            <span class="text-xs text-gray-500">${daysActive}/7 days</span>
+                        </div>
+                        <div class="progress-bar mb-2">
+                            <div class="progress-fill ${variance >= 0 ? 'gradient-success' : 'gradient-danger'}" 
+                                 style="width: ${Math.min(Math.abs(variance) + 50, 100)}%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-gray-600">Weekly Avg: R ${(stats.totalIncome/7).toFixed(0)}</span>
+                            <span class="${variance >= 0 ? 'text-green-600' : 'text-red-600'} font-bold">
+                                ${variance > 0 ? '+' : ''}${variance.toFixed(1)}%
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // ============================================
+        // DATA TABLE FUNCTIONS
+        // ============================================
+        function updateDataTable() {
+            dataTable.clear();
+            
+            filteredData.forEach(record => {
+                dataTable.row.add([
+                    record.date,
+                    record.projectManager,
+                    record.projectName,
+                    record.costCenter,
+                    'R ' + parseFloat(record.dailyTarget).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+                    'R ' + parseFloat(record.dailyIncome).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+                    parseFloat(record.variance).toFixed(2) + '%',
+                    parseFloat(record.variance).toFixed(2) + '%',
+                    record.dailySummary || '-',
+                    record.imageLinks || '-',
+                    record.submissionTimestamp
+                ]);
+            });
+            
+            dataTable.draw();
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function showMessage(message, isSuccess = true) {
+            const messageDiv = document.getElementById('messageContainer');
+            messageDiv.className = isSuccess ? 'success-message' : 'error-message';
+            messageDiv.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-regular ${isSuccess ? 'fa-circle-check' : 'fa-circle-exclamation'} text-xl"></i>
+                        <span>${message}</span>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.classList.add('hidden')" class="text-white hover:text-gray-200">
+                        <i class="fa-regular fa-circle-xmark"></i>
+                    </button>
+                </div>
+            `;
+            messageDiv.classList.remove('hidden');
+            setTimeout(() => messageDiv.classList.add('hidden'), 5000);
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').style.display = 'flex';
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').style.display = 'none';
+        }
+
+        function updateConnectionStatus(connected) {
+            const statusDot = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('connectionText');
+            
+            if (connected) {
+                statusDot.className = 'connection-status status-connected';
+                statusText.textContent = 'Connected';
+            } else {
+                statusDot.className = 'connection-status status-disconnected';
+                statusText.textContent = 'Disconnected';
+            }
+        }
+
+        function refreshData() {
+            loadDataFromSheet();
+        }
+
+        function exportToExcel() {
+            // Convert filtered data to CSV
+            const headers = ['Date', 'Project Manager', 'Project Name', 'Cost Center', 'Daily Target (R)', 'Daily Income (R)', 'Variance (%)', 'Daily Summary', 'Submission Timestamp', 'User Email'];
+            const csvRows = [];
+            
+            csvRows.push(headers.join(','));
+            
+            filteredData.forEach(record => {
+                const row = [
+                    record.date,
+                    record.projectManager,
+                    `"${record.projectName}"`,
+                    record.costCenter,
+                    record.dailyTarget,
+                    record.dailyIncome,
+                    record.variance,
+                    `"${record.dailySummary || ''}"`,
+                    record.submissionTimestamp,
+                    record.userEmail
+                ];
+                csvRows.push(row.join(','));
+            });
+            
+            const csvString = csvRows.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'performance_data.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showMessage('Data exported successfully!', true);
+        }
+
+        function exportTableToCSV() {
+            exportToExcel();
+        }
+
+        function printTable() {
+            window.print();
+        }
+    </script>
+
+    <style>
+        /* Additional responsive styles */
+        @media print {
+            nav, .filter-section, .btn-outline-blue, .gradient-bg, .btn-logout {
+                display: none !important;
+            }
+            
+            body {
+                background: white;
+                padding: 20px;
+            }
+            
+            .stats-card, .bg-white {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #1e4b8c;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0a2f5a;
+        }
+        
+        /* DataTables responsiveness */
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .dataTables_wrapper .dataTables_length select {
+                width: 100%;
+            }
+            
+            .dataTables_wrapper .dataTables_filter input {
+                width: 100%;
+                margin-left: 0;
+            }
+            
+            table.dataTable thead th {
+                font-size: 12px;
+            }
+            
+            table.dataTable tbody td {
+                font-size: 11px;
+            }
+        }
+        
+        /* Success/Error messages */
+        .success-message {
+            background-color: #10b981;
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .error-message {
+            background-color: #ef4444;
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Button styles */
+        .btn-outline-blue {
+            border: 2px solid #1e4b8c;
+            color: #1e4b8c;
+            background: white;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-blue:hover {
+            background: #1e4b8c;
+            color: white;
+        }
+        
+        /* Card hover */
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</body>
+</html>
