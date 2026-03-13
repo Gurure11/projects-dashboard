@@ -1,432 +1,430 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Onpoint Group Project Dashboard</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-
-body{
-font-family:Arial;
-background:#eef2f7;
-margin:0;
-}
-
-header{
-background:#0d2b52;
-color:white;
-padding:20px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-header h1{
-margin:0;
-}
-
-.container{
-padding:30px;
-max-width:1200px;
-margin:auto;
-}
-
-.cardGrid{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:20px;
-margin-bottom:30px;
-}
-
-.card{
-background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 3px 10px rgba(0,0,0,0.1);
-text-align:center;
-}
-
-.formBox{
-background:white;
-padding:25px;
-border-radius:10px;
-box-shadow:0 3px 10px rgba(0,0,0,0.1);
-margin-bottom:30px;
-}
-
-label{
-font-weight:bold;
-display:block;
-margin-top:10px;
-}
-
-input,select,textarea{
-width:100%;
-padding:10px;
-margin-top:5px;
-border:1px solid #ccc;
-border-radius:6px;
-}
-
-textarea{
-height:80px;
-}
-
-button{
-margin-top:15px;
-padding:12px;
-background:#1c6ef2;
-border:none;
-color:white;
-border-radius:6px;
-cursor:pointer;
-width:100%;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-background:white;
-margin-top:30px;
-}
-
-th,td{
-border:1px solid #ddd;
-padding:10px;
-text-align:left;
-}
-
-th{
-background:#0d2b52;
-color:white;
-}
-
-.loginBox{
-max-width:400px;
-margin:100px auto;
-background:white;
-padding:30px;
-border-radius:10px;
-box-shadow:0 3px 10px rgba(0,0,0,0.2);
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onpoint Group · Manager View Dashboard</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js 4 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #1e4b8c 0%, #0a2f5a 100%); }
+        .card-hover { transition: all 0.2s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 30px -10px rgba(0,20,40,0.15); }
+        .connection-status { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+        .status-connected { background-color: #10b981; animation: pulse 2s infinite; }
+        .status-disconnected { background-color: #ef4444; }
+        .status-checking { background-color: #f59e0b; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+        .btn-outline-blue { border:2px solid #1e4b8c; color:#1e4b8c; background:white; padding:0.5rem 1.2rem; border-radius:0.75rem; font-weight:500; transition: all 0.2s; }
+        .btn-outline-blue:hover { background:#1e4b8c; color:white; }
+        .btn-blue { background:#1e4b8c; color:white; padding:0.5rem 1.5rem; border-radius:0.75rem; font-weight:500; }
+        .btn-blue:hover { background:#0a2f5a; }
+        .refresh-btn { background:white; border:1px solid #e2e8f0; padding:0.5rem; border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; transition:0.2s; }
+        .refresh-btn:hover { background:#f1f5f9; transform:rotate(30deg); }
+        .data-row-enter { animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from{ opacity:0; transform:translateY(6px); } to{ opacity:1; } }
+    </style>
 </head>
+<body class="bg-slate-50">
 
-<body>
+<!-- top navigation -->
+<nav class="gradient-bg text-white shadow-md">
+    <div class="container mx-auto px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl font-bold tracking-tight">Onpoint Group</span>
+            <span class="text-sm bg-white/20 px-3 py-1 rounded-full">Manager View</span>
+        </div>
+        <div class="flex items-center gap-5">
+            <div class="flex items-center text-sm">
+                <span id="connectionStatus" class="connection-status status-checking"></span>
+                <span id="connectionText">checking ...</span>
+            </div>
+            <div class="h-8 w-8 bg-white/20 rounded-full flex items-center justify-center">
+                <i class="fa-regular fa-user text-white"></i>
+            </div>
+        </div>
+    </div>
+</nav>
 
-<!-- LOGIN SCREEN -->
+<div class="container mx-auto px-4 md:px-6 py-8 max-w-7xl">
 
-<div id="loginScreen" class="loginBox">
+    <!-- header + refresh + last update -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <h1 class="text-3xl md:text-4xl font-light text-gray-800">📋 performance records</h1>
+        <div class="flex items-center gap-3">
+            <span id="lastUpdateBadge" class="text-sm bg-white px-4 py-2 rounded-full shadow-sm border"><i class="fa-regular fa-clock mr-1 text-[#1e4b8c]"></i> loading...</span>
+            <button onclick="loadSheetData(true)" class="refresh-btn" title="refresh data"><i class="fa-solid fa-rotate text-[#1e4b8c]"></i></button>
+        </div>
+    </div>
 
-<h2>Onpoint Group Login</h2>
+    <!-- KPI summary cards (dynamic from sheet) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+        <div class="bg-white rounded-2xl shadow-sm p-6 card-hover border border-slate-100">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center text-white text-xl"><i class="fa-regular fa-file-lines"></i></div>
+                <div><p class="text-sm text-slate-500">total entries</p><p id="kpiTotalEntries" class="text-3xl font-semibold text-gray-800">—</p></div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm p-6 card-hover border border-slate-100">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-700 text-xl"><i class="fa-regular fa-user"></i></div>
+                <div><p class="text-sm text-slate-500">project managers</p><p id="kpiPMcount" class="text-3xl font-semibold text-gray-800">—</p></div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm p-6 card-hover border border-slate-100">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-700 text-xl"><i class="fa-regular fa-building"></i></div>
+                <div><p class="text-sm text-slate-500">cost centers</p><p id="kpiCostCenters" class="text-3xl font-semibold text-gray-800">—</p></div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm p-6 card-hover border border-slate-100">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-700 text-xl"><i class="fa-regular fa-calendar"></i></div>
+                <div><p class="text-sm text-slate-500">latest record</p><p id="kpiLatestDate" class="text-md font-semibold text-gray-800 truncate">—</p></div>
+            </div>
+        </div>
+    </div>
 
-<label>Email</label>
-<input type="email" id="loginEmail">
+    <!-- filter bar (inline) -->
+    <div class="bg-white rounded-xl shadow-sm p-5 mb-8 flex flex-wrap items-center gap-4 border">
+        <div class="flex items-center gap-2"><i class="fa-solid fa-sliders text-[#1e4b8c]"></i><span class="font-medium">filter:</span></div>
+        <select id="filterPM" class="border rounded-lg px-4 py-2 text-sm bg-white">
+            <option value="">all project managers</option>
+        </select>
+        <select id="filterCostCenter" class="border rounded-lg px-4 py-2 text-sm bg-white">
+            <option value="">all cost centers</option>
+        </select>
+        <input type="text" id="filterProject" placeholder="project name..." class="border rounded-lg px-4 py-2 text-sm w-64">
+        <button onclick="applyFilters()" class="btn-blue text-sm px-6 py-2"><i class="fa-solid fa-magnifying-glass mr-2"></i>apply</button>
+        <button onclick="resetFilters()" class="btn-outline-blue text-sm px-6 py-2">reset</button>
+    </div>
 
-<label>Password</label>
-<input type="password" id="loginPassword">
+    <!-- main data table (with images indicator) -->
+    <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-slate-100">
+                    <tr>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">date</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">manager</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">cost center</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">project</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">target (R)</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">actual (R)</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">variance</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">summary</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">images</th>
+                    </tr>
+                </thead>
+                <tbody id="sheetTableBody" class="bg-white divide-y divide-gray-100 text-sm">
+                    <tr><td colspan="9" class="text-center py-16 text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>loading data from google sheets ...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- small footer with row count -->
+        <div class="bg-slate-50 px-5 py-3 border-t text-sm flex justify-between items-center text-gray-500">
+            <span id="rowCounter">0 entries</span>
+            <span><i class="fa-regular fa-images mr-1"></i> drive folder: <code class="text-xs bg-white px-2 py-1 rounded">15_6jq4o...</code></span>
+        </div>
+    </div>
 
-<button onclick="login()">Login</button>
-
-<p id="loginStatus"></p>
-
+    <!-- chart row for insights (aggregated weekly view) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
+        <div class="bg-white p-5 rounded-xl shadow-sm border">
+            <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2"><i class="fa-regular fa-chart-line text-[#1e4b8c]"></i> daily target vs actual (last 7 days)</h3>
+            <canvas id="dailyChart" height="200"></canvas>
+        </div>
+        <div class="bg-white p-5 rounded-xl shadow-sm border">
+            <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2"><i class="fa-regular fa-chart-bar text-[#1e4b8c]"></i> variance distribution</h3>
+            <canvas id="varianceChart" height="200"></canvas>
+        </div>
+    </div>
 </div>
 
-
-<!-- MAIN DASHBOARD -->
-
-<div id="dashboard" style="display:none;">
-
-<header>
-
-<h1>Onpoint Group Project Dashboard</h1>
-
-<div>
-Logged in as: <b id="userEmail"></b>
+<!-- hidden loading overlay (light) -->
+<div id="loadingOverlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-6 shadow-2xl flex items-center gap-4"><div class="animate-spin rounded-full h-6 w-6 border-2 border-[#1e4b8c] border-t-transparent"></div><span>refreshing ...</span></div>
 </div>
-
-</header>
-
-<div class="container">
-
-
-<!-- KPI CARDS -->
-
-<div class="cardGrid">
-
-<div class="card">
-<h2 id="totalTarget">R0</h2>
-<p>Total Target</p>
-</div>
-
-<div class="card">
-<h2 id="totalIncome">R0</h2>
-<p>Total Income</p>
-</div>
-
-<div class="card">
-<h2 id="totalVariance">0%</h2>
-<p>Overall Variance</p>
-</div>
-
-</div>
-
-
-<!-- FORM -->
-
-<div class="formBox">
-
-<h3>Submit Daily Project Report</h3>
-
-<label>Date</label>
-<input type="date" id="date">
-
-<label>Project Manager</label>
-<input type="text" id="manager">
-
-<label>Project Name</label>
-<input type="text" id="project">
-
-<label>Cost Center</label>
-<select id="costcenter">
-
-<option>Onpoint Group HQ</option>
-<option>DI Solutions</option>
-<option>Aqua Telecoms</option>
-<option>Nkanyezi Projects</option>
-<option>Onpoint Ontime Solutions</option>
-
-</select>
-
-<label>Daily Target (R)</label>
-<input type="number" id="target">
-
-<label>Daily Income (R)</label>
-<input type="number" id="income" oninput="calculateVariance()">
-
-<label>Variance (%)</label>
-<input type="text" id="variance" readonly>
-
-<label>Daily Summary</label>
-<textarea id="summary"></textarea>
-
-<label>Image Links</label>
-<input type="text" id="images">
-
-<button onclick="submitReport()">Submit Report</button>
-
-<p id="status"></p>
-
-</div>
-
-
-<!-- PERFORMANCE FILTER -->
-
-<label>Performance Range</label>
-
-<select id="rangeFilter" onchange="loadPerformance()">
-<option value="daily">Daily</option>
-<option value="weekly">Weekly</option>
-<option value="monthly">Monthly</option>
-<option value="yearly">Yearly</option>
-</select>
-
-
-<!-- PERFORMANCE TABLE -->
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Project Manager</th>
-<th>Variance %</th>
-<th>Target</th>
-<th>Income</th>
-
-</tr>
-
-</thead>
-
-<tbody id="performanceTable"></tbody>
-
-</table>
-
-
-<!-- CHART -->
-
-<canvas id="chart" style="margin-top:40px"></canvas>
-
-
-</div>
-
-</div>
-
 
 <script>
-
-
-/* ================================
-CONFIGURATION
-================================ */
-
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQHSAcsmsXiTe1e3AGRJQuOFCMp-r5upjqOemSx729jl4BE_qhKoFiOfQtFBZxeHVgfA/exec";
-
-const SHEET_ID = "1ToKQ3MDSUZl3T-t-_tMFkH5LXUwlMgrgDFRfBeLqK0o";
-
-
-/* ================================
-LOGIN
-================================ */
-
-function login(){
-
-let email=document.getElementById("loginEmail").value
-
-if(email==""){
-
-document.getElementById("loginStatus").innerText="Enter email"
-
-return
-
-}
-
-document.getElementById("loginScreen").style.display="none"
-document.getElementById("dashboard").style.display="block"
-
-document.getElementById("userEmail").innerText=email
-
-}
-
-
-/* ================================
-VARIANCE CALCULATION
-================================ */
-
-function calculateVariance(){
-
-let target=parseFloat(document.getElementById("target").value)||0
-let income=parseFloat(document.getElementById("income").value)||0
-
-let variance=0
-
-if(target>0){
-
-variance=((income-target)/target)*100
-
-}
-
-document.getElementById("variance").value=variance.toFixed(2)
-
-}
-
-
-/* ================================
-SUBMIT REPORT
-================================ */
-
-function submitReport(){
-
-let data={
-
-Date:document.getElementById("date").value,
-
-ProjectManager:document.getElementById("manager").value,
-
-ProjectName:document.getElementById("project").value,
-
-CostCenter:document.getElementById("costcenter").value,
-
-DailyTarget:document.getElementById("target").value,
-
-DailyIncome:document.getElementById("income").value,
-
-Variance:document.getElementById("variance").value,
-
-DailySummary:document.getElementById("summary").value,
-
-ImageLinks:document.getElementById("images").value,
-
-SubmissionTimestamp:new Date().toISOString(),
-
-UserEmail:document.getElementById("userEmail").innerText
-
-}
-
-fetch(SCRIPT_URL,{
-method:"POST",
-body:JSON.stringify(data)
-})
-.then(r=>r.text())
-.then(res=>{
-
-document.getElementById("status").innerText="Report Submitted Successfully"
-
-})
-
-
-}
-
-
-/* ================================
-LOAD PERFORMANCE
-================================ */
-
-function loadPerformance(){
-
-let range=document.getElementById("rangeFilter").value
-
-fetch(SCRIPT_URL+"?action=getPerformance&range="+range)
-
-.then(r=>r.json())
-
-.then(data=>{
-
-let table=""
-
-data.forEach(row=>{
-
-table+=`
-<tr>
-<td>${row.manager}</td>
-<td>${row.variance}%</td>
-<td>R${row.target}</td>
-<td>R${row.income}</td>
-</tr>
-`
-
-})
-
-document.getElementById("performanceTable").innerHTML=table
-
-})
-
-}
-
-
-/* ================================
-CHART
-================================ */
-
-const ctx=document.getElementById("chart").getContext("2d")
-
-new Chart(ctx,{
-type:"bar",
-data:{
-labels:["Target","Income"],
-datasets:[{
-label:"Performance",
-data:[0,0]
-}]
-}
-})
-
-
+    (function() {
+        // --- CONFIG (identical to collector) ---
+        const CONFIG = {
+            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwFSS2VIekCLa4lOFNTEChBBtpAjpvVliQiNzK1EUxHNOk86KD7evSTjRkR4Zc7TmCR/exec', // same endpoint
+            SPREADSHEET_ID: '1ToKQ3MDSUZl3T-t-_tMFkH5LXUwlMgrgDFRfBeLqK0o',
+            SHEET_NAME: 'Manager View',
+            DRIVE_FOLDER_ID: '15_6jq4oQ5zNmpokwQhfjStD5AdqHRCYa'
+        };
+
+        // raw data storage
+        let sheetData = [];
+        let filteredData = [];
+        let charts = { daily: null, variance: null };
+
+        // DOM elements
+        const connStatus = document.getElementById('connectionStatus');
+        const connText = document.getElementById('connectionText');
+        const tableBody = document.getElementById('sheetTableBody');
+        const lastUpdateSpan = document.getElementById('lastUpdateBadge');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const filterPM = document.getElementById('filterPM');
+        const filterCost = document.getElementById('filterCostCenter');
+        const filterProj = document.getElementById('filterProject');
+        const rowCounter = document.getElementById('rowCounter');
+
+        // kpi elements
+        const kpiTotal = document.getElementById('kpiTotalEntries');
+        const kpiPM = document.getElementById('kpiPMcount');
+        const kpiCC = document.getElementById('kpiCostCenters');
+        const kpiLatest = document.getElementById('kpiLatestDate');
+
+        // helper: format currency (R)
+        const formatR = (val) => 'R ' + Number(val).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+        // helper: update connection UI
+        function setConnectionStatus(ok, msg) {
+            if (ok) {
+                connStatus.className = 'connection-status status-connected';
+                connText.innerHTML = '✅ connected';
+            } else {
+                connStatus.className = 'connection-status status-disconnected';
+                connText.innerHTML = '❌ ' + (msg || 'disconnected');
+            }
+        }
+
+        // show error (non‑modal)
+        function showSoftError(msg) {
+            tableBody.innerHTML = `<tr><td colspan="9" class="text-center py-12 text-red-500"><i class="fa-regular fa-circle-exclamation mr-2"></i>${msg}</td></tr>`;
+            setConnectionStatus(false, 'error');
+        }
+
+        // load data from google sheets (using ?action=get)
+        async function loadSheetData(showLoader = true) {
+            if (showLoader) loadingOverlay.classList.remove('hidden');
+            setConnectionStatus(false, 'checking');
+            lastUpdateSpan.innerHTML = '<i class="fa-regular fa-clock mr-1"></i> refreshing...';
+
+            try {
+                // cache buster
+                const url = CONFIG.SCRIPT_URL + '?action=get&t=' + Date.now();
+                // use no-cors? but we need to read data → we expect JSON, so we use regular mode with potential CORS.
+                // The collector used no‑CORS for write, but for read we assume the script supports JSONP or CORS.
+                // In many cases, Apps Script can return JSON with correct headers. We'll attempt fetch.
+                const response = await fetch(url, { method: 'GET', mode: 'cors', cache: 'no-cache' });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                console.log('received data:', data);
+
+                if (data.error) throw new Error(data.error);
+                // expected structure: array of records
+                if (Array.isArray(data)) sheetData = data;
+                else if (data.records) sheetData = data.records;
+                else sheetData = [];
+
+                // if empty, maybe test array
+                if (!sheetData.length) {
+                    // fallback: try to parse as array from object
+                    if (data.data && Array.isArray(data.data)) sheetData = data.data;
+                }
+
+                // apply initial filters (none)
+                filteredData = [...sheetData];
+                populateFilters();
+                renderTable();
+                updateKPIs();
+                updateCharts();
+                setConnectionStatus(true, 'connected');
+                lastUpdateSpan.innerHTML = `<i class="fa-regular fa-clock mr-1"></i> last update: ${moment().format('HH:mm')}`;
+
+            } catch (err) {
+                console.error('load error:', err);
+                setConnectionStatus(false, err.message);
+                showSoftError('failed to load data. ' + err.message);
+                // fallback demo rows: to show structure we insert sample
+                sheetData = generateSampleData();
+                filteredData = [...sheetData];
+                populateFilters();
+                renderTable();
+                updateKPIs();
+                updateCharts();
+                setConnectionStatus(false, 'demo mode (sample)');
+                lastUpdateSpan.innerHTML = '<i class="fa-regular fa-clock mr-1"></i> sample data only';
+            } finally {
+                if (showLoader) loadingOverlay.classList.add('hidden');
+            }
+        }
+
+        // generate sample rows (so dashboard never empty)
+        function generateSampleData() {
+            const sample = [];
+            const managers = ['Moses','Johan','Siyanda','Dave','James','Rayman','Timothy','Starnley','Brian','EL CM','Govern','Elroy'];
+            const centers = ['Onpoint Group HQ','DI Solutions','Aqua Telecoms','Nkanyezi Projects','Onpoint Ontime Solution'];
+            const projects = ['Riverside Mall','Aqua Fibre','Nkanyezi Phase2','HQ Renovation','DI Solar'];
+            for (let i = 0; i < 14; i++) {
+                const date = moment().subtract(i % 10, 'days').format('YYYY-MM-DD');
+                const target = 7000 + (i * 123);
+                const actual = target * (0.7 + (i % 5)/10);
+                const variance = ((actual - target)/target*100).toFixed(1);
+                sample.push({
+                    date, projectManager: managers[i % managers.length],
+                    costCenter: centers[i % centers.length],
+                    projectName: projects[i % projects.length] + ' ' + i,
+                    dailyTarget: target.toFixed(2),
+                    dailyIncome: actual.toFixed(2),
+                    variance: variance,
+                    dailySummary: 'sample summary ' + i,
+                    imageLinks: i % 3 === 0 ? 'driveLink' : '',
+                    submissionTimestamp: moment().format()
+                });
+            }
+            return sample;
+        }
+
+        // populate filter dropdowns
+        function populateFilters() {
+            const pmSet = new Set(sheetData.map(r => r.projectManager).filter(Boolean));
+            const ccSet = new Set(sheetData.map(r => r.costCenter).filter(Boolean));
+            filterPM.innerHTML = '<option value="">all project managers</option>';
+            filterCost.innerHTML = '<option value="">all cost centers</option>';
+            [...pmSet].sort().forEach(pm => filterPM.innerHTML += `<option value="${pm}">${pm}</option>`);
+            [...ccSet].sort().forEach(cc => filterCost.innerHTML += `<option value="${cc}">${cc}</option>`);
+        }
+
+        // apply text filters
+        function applyFilters() {
+            const pm = filterPM.value;
+            const cc = filterCost.value;
+            const proj = filterProj.value.toLowerCase().trim();
+            filteredData = sheetData.filter(row => {
+                if (pm && row.projectManager !== pm) return false;
+                if (cc && row.costCenter !== cc) return false;
+                if (proj && !(row.projectName && row.projectName.toLowerCase().includes(proj))) return false;
+                return true;
+            });
+            renderTable();
+            updateCharts(); // charts based on filtered? we want global maybe, but keep filtered for consistency
+        }
+
+        function resetFilters() {
+            filterPM.value = ''; filterCost.value = ''; filterProj.value = '';
+            filteredData = [...sheetData];
+            renderTable();
+            updateCharts();
+        }
+
+        // render tbody
+        function renderTable() {
+            if (!filteredData.length) {
+                tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-12 text-gray-400"><i class="fa-regular fa-folder-open mr-2"></i>no matching records</td></tr>';
+                rowCounter.innerText = '0 entries';
+                return;
+            }
+            let html = '';
+            filteredData.slice(0, 50).forEach((r, idx) => { // show max 50 for perf
+                const variance = parseFloat(r.variance) || 0;
+                const varClass = variance >= 0 ? 'text-green-600' : 'text-red-600';
+                const sign = variance > 0 ? '+' : '';
+                const hasImage = r.imageLinks && r.imageLinks.trim() !== '' ? '<i class="fa-regular fa-image text-[#1e4b8c] text-lg" title="has image"></i>' : '-';
+                html += `<tr class="hover:bg-slate-50 data-row-enter">
+                    <td class="px-5 py-3 whitespace-nowrap">${r.date || '-'}</td>
+                    <td class="px-5 py-3 whitespace-nowrap font-medium">${r.projectManager || '-'}</td>
+                    <td class="px-5 py-3 whitespace-nowrap">${r.costCenter || '-'}</td>
+                    <td class="px-5 py-3 whitespace-nowrap max-w-[150px] truncate">${r.projectName || '-'}</td>
+                    <td class="px-5 py-3 whitespace-nowrap">${formatR(parseFloat(r.dailyTarget)||0)}</td>
+                    <td class="px-5 py-3 whitespace-nowrap">${formatR(parseFloat(r.dailyIncome)||0)}</td>
+                    <td class="px-5 py-3 whitespace-nowrap ${varClass}">${sign}${variance.toFixed(1)}%</td>
+                    <td class="px-5 py-3 max-w-[200px] truncate">${r.dailySummary || ''}</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-center">${hasImage}</td>
+                </tr>`;
+            });
+            if (filteredData.length > 50) html += `<tr><td colspan="9" class="text-xs text-center py-2 text-gray-400">showing first 50 of ${filteredData.length} records</td></tr>`;
+            tableBody.innerHTML = html;
+            rowCounter.innerText = filteredData.length + ' entries' + (filteredData.length!==sheetData.length?` (filtered from ${sheetData.length})`:'');
+        }
+
+        // KPI numbers
+        function updateKPIs() {
+            kpiTotal.innerText = sheetData.length;
+            const uniquePM = new Set(sheetData.map(r=>r.projectManager).filter(Boolean)).size;
+            const uniqueCC = new Set(sheetData.map(r=>r.costCenter).filter(Boolean)).size;
+            kpiPM.innerText = uniquePM || '—';
+            kpiCC.innerText = uniqueCC || '—';
+            const dates = sheetData.map(r=>r.date).filter(d=>d).sort();
+            if (dates.length) kpiLatest.innerText = moment(dates[dates.length-1]).format('DD MMM YY');
+            else kpiLatest.innerText = '—';
+        }
+
+        // charts based on filtered data (daily last 7 days)
+        function updateCharts() {
+            const last7Days = [];
+            for (let i = 6; i >= 0; i--) last7Days.push(moment().subtract(i, 'days').format('YYYY-MM-DD'));
+
+            const dailyActual = last7Days.map(day => {
+                const val = filteredData.filter(r => r.date === day).reduce((acc, r) => acc + (parseFloat(r.dailyIncome) || 0), 0);
+                return val;
+            });
+            const dailyTargetAvg = filteredData.length ? (filteredData.reduce((acc, r) => acc + (parseFloat(r.dailyTarget) || 0), 0) / filteredData.length) : 0;
+
+            // destroy old charts
+            if (charts.daily) charts.daily.destroy();
+            if (charts.variance) charts.variance.destroy();
+
+            const ctxDaily = document.getElementById('dailyChart').getContext('2d');
+            charts.daily = new Chart(ctxDaily, {
+                type: 'line',
+                data: {
+                    labels: last7Days.map(d=>moment(d).format('dd')),
+                    datasets: [
+                        { label: 'actual (R)', data: dailyActual, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', tension:0.3, fill:true },
+                        { label: 'avg target (R)', data: Array(7).fill(dailyTargetAvg), borderColor: '#1e4b8c', borderDash: [5,5], pointRadius:0 }
+                    ]
+                }
+            });
+
+            // variance histogram: group by ranges
+            const variances = filteredData.map(r => parseFloat(r.variance)||0).filter(v=>!isNaN(v));
+            const pos = variances.filter(v=> v>=0 && v<20).length;
+            const posHigh = variances.filter(v=> v>=20).length;
+            const neg = variances.filter(v=> v<0 && v>-20).length;
+            const negHigh = variances.filter(v=> v<=-20).length;
+            const ctxVar = document.getElementById('varianceChart').getContext('2d');
+            charts.variance = new Chart(ctxVar, {
+                type: 'bar',
+                data: {
+                    labels: ['≤ -20%', '-20% … 0%', '0% … 20%', '≥ 20%'],
+                    datasets: [{
+                        label: 'entries',
+                        data: [negHigh, neg, pos, posHigh],
+                        backgroundColor: ['#f87171','#fbbf24','#4ade80','#1e4b8c']
+                    }]
+                }
+            });
+        }
+
+        // test connection / initial load
+        function testConnectionAndLoad() {
+            loadSheetData(true);
+        }
+
+        window.loadSheetData = loadSheetData;
+        window.applyFilters = applyFilters;
+        window.resetFilters = resetFilters;
+
+        // auto start
+        document.addEventListener('DOMContentLoaded', () => {
+            testConnectionAndLoad();
+        });
+    })();
 </script>
 
+<!-- optional extra: display folder id -->
 </body>
 </html>
