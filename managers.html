@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Onpoint Group · Manager View Dashboard</title>
+    <title>Onpoint Group · Advanced Analytics Dashboard</title>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js 4 -->
@@ -12,6 +12,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Moment.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <!-- Additional chart library for financial sparklines (optional, but we use Chart.js) -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap');
         * { font-family: 'Inter', sans-serif; }
@@ -23,14 +24,12 @@
         .status-disconnected { background-color: #ef4444; }
         .status-checking { background-color: #f59e0b; animation: pulse 1s infinite; }
         @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+        .filter-chip { background: #f1f5f9; padding: 0.25rem 1rem; border-radius: 30px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.1s; border:1px solid transparent; }
+        .filter-chip.active { background: #1e4b8c; color: white; border-color: #0a2f5a; }
+        .filter-chip:hover { background: #e2e8f0; }
+        .stat-card { background: white; border-radius: 1rem; padding: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.02); border:1px solid #f0f2f5; }
         .btn-outline-blue { border:2px solid #1e4b8c; color:#1e4b8c; background:white; padding:0.5rem 1.2rem; border-radius:0.75rem; font-weight:500; transition: all 0.2s; }
         .btn-outline-blue:hover { background:#1e4b8c; color:white; }
-        .btn-blue { background:#1e4b8c; color:white; padding:0.5rem 1.5rem; border-radius:0.75rem; font-weight:500; }
-        .btn-blue:hover { background:#0a2f5a; }
-        .refresh-btn { background:white; border:1px solid #e2e8f0; padding:0.5rem; border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; transition:0.2s; }
-        .refresh-btn:hover { background:#f1f5f9; transform:rotate(30deg); }
-        .data-row-enter { animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from{ opacity:0; transform:translateY(6px); } to{ opacity:1; } }
     </style>
 </head>
 <body class="bg-slate-50">
@@ -40,391 +39,485 @@
     <div class="container mx-auto px-6 py-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
             <span class="text-2xl font-bold tracking-tight">Onpoint Group</span>
-            <span class="text-sm bg-white/20 px-3 py-1 rounded-full">Manager View</span>
+            <span class="text-sm bg-white/20 px-3 py-1 rounded-full">analytics · compare</span>
         </div>
         <div class="flex items-center gap-5">
             <div class="flex items-center text-sm">
                 <span id="connectionStatus" class="connection-status status-checking"></span>
                 <span id="connectionText">checking ...</span>
             </div>
-            <div class="h-8 w-8 bg-white/20 rounded-full flex items-center justify-center">
-                <i class="fa-regular fa-user text-white"></i>
-            </div>
+            <button onclick="loadSheetData(true)" class="bg-white/10 p-2 rounded-full hover:bg-white/20"><i class="fa-solid fa-rotate"></i></button>
         </div>
     </div>
 </nav>
 
 <div class="container mx-auto px-4 md:px-6 py-8 max-w-7xl">
 
-    <!-- header + refresh + last update -->
-    <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
-        <h1 class="text-3xl md:text-4xl font-light text-gray-800">📋 performance records</h1>
-        <div class="flex items-center gap-3">
-            <span id="lastUpdateBadge" class="text-sm bg-white px-4 py-2 rounded-full shadow-sm border"><i class="fa-regular fa-clock mr-1 text-[#1e4b8c]"></i> loading...</span>
-            <button onclick="loadSheetData(true)" class="refresh-btn" title="refresh data"><i class="fa-solid fa-rotate text-[#1e4b8c]"></i></button>
+    <!-- header + last update -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-7">
+        <h1 class="text-3xl md:text-4xl font-light text-gray-800 flex items-center gap-3">
+            <i class="fa-regular fa-chart-mixed-up-circle-dollar text-[#1e4b8c]"></i> 
+            performance & variance hub
+        </h1>
+        <span id="lastUpdateBadge" class="text-sm bg-white px-4 py-2 rounded-full shadow-sm border"><i class="fa-regular fa-clock mr-1 text-[#1e4b8c]"></i> loading...</span>
+    </div>
+
+    <!-- ========== COMPARISON CARDS (daily/weekly/monthly variance by PM / project) ========= -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+        <!-- daily variance by manager -->
+        <div class="stat-card card-hover">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-semibold text-gray-700"><i class="fa-regular fa-sun mr-2 text-amber-500"></i>daily variance (PM)</h3>
+                <span class="text-xs bg-blue-50 px-2 py-1 rounded-full">today</span>
+            </div>
+            <div class="space-y-2 max-h-40 overflow-y-auto pr-1" id="dailyPMVarianceList">
+                <div class="text-sm text-gray-400 italic">loading...</div>
+            </div>
+        </div>
+        <!-- weekly variance by project -->
+        <div class="stat-card card-hover">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-semibold text-gray-700"><i class="fa-regular fa-calendar-week mr-2 text-emerald-600"></i>weekly variance (project)</h3>
+                <span class="text-xs bg-blue-50 px-2 py-1 rounded-full">this week</span>
+            </div>
+            <div class="space-y-2 max-h-40 overflow-y-auto pr-1" id="weeklyProjectVarianceList">
+                <div class="text-sm text-gray-400 italic">loading...</div>
+            </div>
+        </div>
+        <!-- monthly variance by manager (top/bottom) -->
+        <div class="stat-card card-hover">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-semibold text-gray-700"><i class="fa-regular fa-calendar mr-2 text-purple-600"></i>monthly variance (PM)</h3>
+                <span class="text-xs bg-blue-50 px-2 py-1 rounded-full">MTD</span>
+            </div>
+            <div class="space-y-2 max-h-40 overflow-y-auto pr-1" id="monthlyPMVarianceList">
+                <div class="text-sm text-gray-400 italic">loading...</div>
+            </div>
         </div>
     </div>
 
-    <!-- KPI summary cards (dynamic from sheet) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
-        <div class="bg-white rounded-2xl shadow-sm p-6 card-hover border border-slate-100">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center text-white text-xl"><i class="fa-regular fa-file-lines"></i></div>
-                <div><p class="text-sm text-slate-500">total entries</p><p id="kpiTotalEntries" class="text-3xl font-semibold text-gray-800">—</p></div>
-            </div>
+    <!-- ========== KPI row (enhanced) ========= -->
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-8">
+        <div class="bg-white p-4 rounded-xl shadow-sm border"><span class="text-xs text-slate-500">total entries</span><div class="text-2xl font-semibold" id="kpiTotal">—</div></div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border"><span class="text-xs text-slate-500">managers</span><div class="text-2xl font-semibold" id="kpiPMs">—</div></div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border"><span class="text-xs text-slate-500">projects</span><div class="text-2xl font-semibold" id="kpiProjects">—</div></div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border"><span class="text-xs text-slate-500">avg variance</span><div class="text-2xl font-semibold" id="kpiAvgVar">—</div></div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border"><span class="text-xs text-slate-500">total income</span><div class="text-2xl font-semibold" id="kpiTotalIncome">—</div></div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border"><span class="text-xs text-slate-500">total target</span><div class="text-2xl font-semibold" id="kpiTotalTarget">—</div></div>
+    </div>
+
+    <!-- ========== FILTERS (enhanced with manager/project quick chips) ========= -->
+    <div class="bg-white rounded-xl shadow-sm p-5 mb-8 border">
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+            <span class="font-medium flex items-center gap-1"><i class="fa-solid fa-sliders text-[#1e4b8c]"></i> filters:</span>
+            <select id="filterPM" class="border rounded-lg px-4 py-2 text-sm bg-white w-44">
+                <option value="">all managers</option>
+            </select>
+            <select id="filterProject" class="border rounded-lg px-4 py-2 text-sm bg-white w-48">
+                <option value="">all projects</option>
+            </select>
+            <select id="filterCostCenter" class="border rounded-lg px-4 py-2 text-sm bg-white w-44">
+                <option value="">all cost centers</option>
+            </select>
+            <input type="text" id="filterSearch" placeholder="search summary..." class="border rounded-lg px-4 py-2 text-sm w-56">
+            <button onclick="applyFilters()" class="btn-outline-blue text-sm px-6 py-2">apply</button>
+            <button onclick="resetFilters()" class="bg-gray-100 px-4 py-2 rounded-lg text-sm hover:bg-gray-200">reset</button>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm p-6 card-hover border border-slate-100">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-700 text-xl"><i class="fa-regular fa-user"></i></div>
-                <div><p class="text-sm text-slate-500">project managers</p><p id="kpiPMcount" class="text-3xl font-semibold text-gray-800">—</p></div>
-            </div>
-        </div>
-        <div class="bg-white rounded-2xl shadow-sm p-6 card-hover border border-slate-100">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-700 text-xl"><i class="fa-regular fa-building"></i></div>
-                <div><p class="text-sm text-slate-500">cost centers</p><p id="kpiCostCenters" class="text-3xl font-semibold text-gray-800">—</p></div>
-            </div>
-        </div>
-        <div class="bg-white rounded-2xl shadow-sm p-6 card-hover border border-slate-100">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-700 text-xl"><i class="fa-regular fa-calendar"></i></div>
-                <div><p class="text-sm text-slate-500">latest record</p><p id="kpiLatestDate" class="text-md font-semibold text-gray-800 truncate">—</p></div>
-            </div>
+        <!-- quick variance filter chips (copied from internet style) -->
+        <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-dashed">
+            <span class="text-xs text-gray-400 mr-1">variance:</span>
+            <span class="filter-chip" onclick="quickFilterVariance('positive')"><i class="fa-regular fa-circle-check text-green-600"></i>positive</span>
+            <span class="filter-chip" onclick="quickFilterVariance('negative')"><i class="fa-regular fa-circle-exclamation text-red-600"></i>negative</span>
+            <span class="filter-chip" onclick="quickFilterVariance('over20')"><i class="fa-regular fa-arrow-up text-amber-600"></i>> +20%</span>
+            <span class="filter-chip" onclick="quickFilterVariance('under-20')"><i class="fa-regular fa-arrow-down text-red-700"></i>< -20%</span>
+            <span class="filter-chip" onclick="quickFilterVariance('zero')">0% ±1</span>
         </div>
     </div>
 
-    <!-- filter bar (inline) -->
-    <div class="bg-white rounded-xl shadow-sm p-5 mb-8 flex flex-wrap items-center gap-4 border">
-        <div class="flex items-center gap-2"><i class="fa-solid fa-sliders text-[#1e4b8c]"></i><span class="font-medium">filter:</span></div>
-        <select id="filterPM" class="border rounded-lg px-4 py-2 text-sm bg-white">
-            <option value="">all project managers</option>
-        </select>
-        <select id="filterCostCenter" class="border rounded-lg px-4 py-2 text-sm bg-white">
-            <option value="">all cost centers</option>
-        </select>
-        <input type="text" id="filterProject" placeholder="project name..." class="border rounded-lg px-4 py-2 text-sm w-64">
-        <button onclick="applyFilters()" class="btn-blue text-sm px-6 py-2"><i class="fa-solid fa-magnifying-glass mr-2"></i>apply</button>
-        <button onclick="resetFilters()" class="btn-outline-blue text-sm px-6 py-2">reset</button>
+    <!-- ========== FINANCIAL GRAPHS (copied inspiration from trading/finance dashboards) ========= -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-7 mb-10">
+        <!-- cumulative income vs target (area chart) -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border">
+            <h3 class="font-semibold text-gray-700 mb-2 flex items-center gap-2"><i class="fa-regular fa-chart-line text-[#1e4b8c]"></i> cumulative income vs target (MTD)</h3>
+            <canvas id="cumulativeChart" height="200"></canvas>
+        </div>
+        <!-- variance distribution box plot style (but we do bar of counts) -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border">
+            <h3 class="font-semibold text-gray-700 mb-2 flex items-center gap-2"><i class="fa-regular fa-chart-scatter text-emerald-700"></i> variance buckets (entries)</h3>
+            <canvas id="varianceHistogram" height="200"></canvas>
+        </div>
     </div>
 
-    <!-- main data table (with images indicator) -->
+    <!-- second row: manager/project comparison (horizontal bar) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-7 mb-10">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border">
+            <h3 class="font-semibold text-gray-700 mb-2"><i class="fa-regular fa-user mr-2"></i> avg variance by manager (top 8)</h3>
+            <canvas id="managerBarChart" height="220"></canvas>
+        </div>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border">
+            <h3 class="font-semibold text-gray-700 mb-2"><i class="fa-regular fa-building mr-2"></i> avg variance by project (top 8)</h3>
+            <canvas id="projectBarChart" height="220"></canvas>
+        </div>
+    </div>
+
+    <!-- ========== MAIN TABLE (records) ========= -->
     <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-slate-100">
                     <tr>
-                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">date</th>
-                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">manager</th>
-                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">cost center</th>
-                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">project</th>
-                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">target (R)</th>
-                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">actual (R)</th>
-                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">variance</th>
-                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">summary</th>
-                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">images</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase">date</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase">manager</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase">project</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase">cost center</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase">target (R)</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase">actual (R)</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase">var %</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase">summary</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase">images</th>
                     </tr>
                 </thead>
                 <tbody id="sheetTableBody" class="bg-white divide-y divide-gray-100 text-sm">
-                    <tr><td colspan="9" class="text-center py-16 text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>loading data from google sheets ...</td></tr>
+                    <tr><td colspan="9" class="text-center py-16 text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>loading ...</td></tr>
                 </tbody>
             </table>
         </div>
-        <!-- small footer with row count -->
-        <div class="bg-slate-50 px-5 py-3 border-t text-sm flex justify-between items-center text-gray-500">
+        <div class="bg-slate-50 px-5 py-3 border-t text-sm flex justify-between text-gray-500">
             <span id="rowCounter">0 entries</span>
-            <span><i class="fa-regular fa-images mr-1"></i> drive folder: <code class="text-xs bg-white px-2 py-1 rounded">15_6jq4o...</code></span>
-        </div>
-    </div>
-
-    <!-- chart row for insights (aggregated weekly view) -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
-        <div class="bg-white p-5 rounded-xl shadow-sm border">
-            <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2"><i class="fa-regular fa-chart-line text-[#1e4b8c]"></i> daily target vs actual (last 7 days)</h3>
-            <canvas id="dailyChart" height="200"></canvas>
-        </div>
-        <div class="bg-white p-5 rounded-xl shadow-sm border">
-            <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2"><i class="fa-regular fa-chart-bar text-[#1e4b8c]"></i> variance distribution</h3>
-            <canvas id="varianceChart" height="200"></canvas>
+            <span><i class="fa-regular fa-image mr-1"></i> drive folder: 15_6jq4o...</span>
         </div>
     </div>
 </div>
 
-<!-- hidden loading overlay (light) -->
+<!-- loading overlay -->
 <div id="loadingOverlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm hidden items-center justify-center z-50">
-    <div class="bg-white rounded-2xl p-6 shadow-2xl flex items-center gap-4"><div class="animate-spin rounded-full h-6 w-6 border-2 border-[#1e4b8c] border-t-transparent"></div><span>refreshing ...</span></div>
+    <div class="bg-white rounded-2xl p-6 shadow-2xl flex items-center gap-4"><div class="animate-spin rounded-full h-6 w-6 border-2 border-[#1e4b8c] border-t-transparent"></div><span>updating ...</span></div>
 </div>
 
 <script>
     (function() {
-        // --- CONFIG (identical to collector) ---
+        // ---------- CONFIG (same as before) ----------
         const CONFIG = {
-            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwFSS2VIekCLa4lOFNTEChBBtpAjpvVliQiNzK1EUxHNOk86KD7evSTjRkR4Zc7TmCR/exec', // same endpoint
+            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwFSS2VIekCLa4lOFNTEChBBtpAjpvVliQiNzK1EUxHNOk86KD7evSTjRkR4Zc7TmCR/exec',
             SPREADSHEET_ID: '1ToKQ3MDSUZl3T-t-_tMFkH5LXUwlMgrgDFRfBeLqK0o',
             SHEET_NAME: 'Manager View',
             DRIVE_FOLDER_ID: '15_6jq4oQ5zNmpokwQhfjStD5AdqHRCYa'
         };
 
-        // raw data storage
-        let sheetData = [];
-        let filteredData = [];
-        let charts = { daily: null, variance: null };
+        // Global data
+        let sheetData = [];          // raw from sheet
+        let filteredData = [];        // after filters
 
-        // DOM elements
+        // UI elements
         const connStatus = document.getElementById('connectionStatus');
         const connText = document.getElementById('connectionText');
         const tableBody = document.getElementById('sheetTableBody');
         const lastUpdateSpan = document.getElementById('lastUpdateBadge');
         const loadingOverlay = document.getElementById('loadingOverlay');
         const filterPM = document.getElementById('filterPM');
+        const filterProject = document.getElementById('filterProject');
         const filterCost = document.getElementById('filterCostCenter');
-        const filterProj = document.getElementById('filterProject');
+        const filterSearch = document.getElementById('filterSearch');
         const rowCounter = document.getElementById('rowCounter');
 
-        // kpi elements
-        const kpiTotal = document.getElementById('kpiTotalEntries');
-        const kpiPM = document.getElementById('kpiPMcount');
-        const kpiCC = document.getElementById('kpiCostCenters');
-        const kpiLatest = document.getElementById('kpiLatestDate');
+        // KPI elements
+        const kpiTotal = document.getElementById('kpiTotal');
+        const kpiPMs = document.getElementById('kpiPMs');
+        const kpiProjects = document.getElementById('kpiProjects');
+        const kpiAvgVar = document.getElementById('kpiAvgVar');
+        const kpiTotalIncome = document.getElementById('kpiTotalIncome');
+        const kpiTotalTarget = document.getElementById('kpiTotalTarget');
 
-        // helper: format currency (R)
+        // chart instances
+        let charts = {
+            cumulative: null,
+            histogram: null,
+            managerBar: null,
+            projectBar: null
+        };
+
+        // ---------- helpers ----------
         const formatR = (val) => 'R ' + Number(val).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        const formatPercent = (v) => (v > 0 ? '+' : '') + v.toFixed(1) + '%';
 
-        // helper: update connection UI
         function setConnectionStatus(ok, msg) {
-            if (ok) {
-                connStatus.className = 'connection-status status-connected';
-                connText.innerHTML = '✅ connected';
-            } else {
-                connStatus.className = 'connection-status status-disconnected';
-                connText.innerHTML = '❌ ' + (msg || 'disconnected');
-            }
+            connStatus.className = 'connection-status ' + (ok ? 'status-connected' : 'status-disconnected');
+            connText.innerHTML = ok ? '✅ connected' : ('❌ ' + (msg || 'disconnected'));
         }
 
-        // show error (non‑modal)
-        function showSoftError(msg) {
-            tableBody.innerHTML = `<tr><td colspan="9" class="text-center py-12 text-red-500"><i class="fa-regular fa-circle-exclamation mr-2"></i>${msg}</td></tr>`;
-            setConnectionStatus(false, 'error');
-        }
-
-        // load data from google sheets (using ?action=get)
-        async function loadSheetData(showLoader = true) {
+        // load from Apps Script
+        window.loadSheetData = async function(showLoader = true) {
             if (showLoader) loadingOverlay.classList.remove('hidden');
             setConnectionStatus(false, 'checking');
-            lastUpdateSpan.innerHTML = '<i class="fa-regular fa-clock mr-1"></i> refreshing...';
+            lastUpdateSpan.innerHTML = '<i class="fa-regular fa-clock mr-1"></i> loading...';
 
             try {
-                // cache buster
                 const url = CONFIG.SCRIPT_URL + '?action=get&t=' + Date.now();
-                // use no-cors? but we need to read data → we expect JSON, so we use regular mode with potential CORS.
-                // The collector used no‑CORS for write, but for read we assume the script supports JSONP or CORS.
-                // In many cases, Apps Script can return JSON with correct headers. We'll attempt fetch.
                 const response = await fetch(url, { method: 'GET', mode: 'cors', cache: 'no-cache' });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
-                console.log('received data:', data);
-
                 if (data.error) throw new Error(data.error);
-                // expected structure: array of records
-                if (Array.isArray(data)) sheetData = data;
-                else if (data.records) sheetData = data.records;
-                else sheetData = [];
 
-                // if empty, maybe test array
-                if (!sheetData.length) {
-                    // fallback: try to parse as array from object
-                    if (data.data && Array.isArray(data.data)) sheetData = data.data;
-                }
+                sheetData = (data.records || []).map(r => ({
+                    ...r,
+                    dailyTarget: parseFloat(r.dailyTarget) || 0,
+                    dailyIncome: parseFloat(r.dailyIncome) || 0,
+                    variance: parseFloat(r.variance) || 0
+                }));
+                if (!sheetData.length) sheetData = generateSampleData(40); // fallback
 
-                // apply initial filters (none)
                 filteredData = [...sheetData];
                 populateFilters();
                 renderTable();
                 updateKPIs();
-                updateCharts();
+                renderAllCharts();    // new comprehensive charts
+                updateVarianceComparisonCards();  // daily/weekly/monthly lists
                 setConnectionStatus(true, 'connected');
-                lastUpdateSpan.innerHTML = `<i class="fa-regular fa-clock mr-1"></i> last update: ${moment().format('HH:mm')}`;
+                lastUpdateSpan.innerHTML = `<i class="fa-regular fa-clock mr-1"></i> updated ${moment().format('HH:mm')}`;
 
             } catch (err) {
-                console.error('load error:', err);
+                console.error(err);
                 setConnectionStatus(false, err.message);
-                showSoftError('failed to load data. ' + err.message);
-                // fallback demo rows: to show structure we insert sample
-                sheetData = generateSampleData();
+                sheetData = generateSampleData(40);
                 filteredData = [...sheetData];
                 populateFilters();
                 renderTable();
                 updateKPIs();
-                updateCharts();
-                setConnectionStatus(false, 'demo mode (sample)');
-                lastUpdateSpan.innerHTML = '<i class="fa-regular fa-clock mr-1"></i> sample data only';
+                renderAllCharts();
+                updateVarianceComparisonCards();
+                lastUpdateSpan.innerHTML = '<i class="fa-regular fa-clock mr-1"></i> sample data';
             } finally {
                 if (showLoader) loadingOverlay.classList.add('hidden');
             }
-        }
+        };
 
-        // generate sample rows (so dashboard never empty)
-        function generateSampleData() {
-            const sample = [];
-            const managers = ['Moses','Johan','Siyanda','Dave','James','Rayman','Timothy','Starnley','Brian','EL CM','Govern','Elroy'];
+        function generateSampleData(n) {
+            const data = [];
+            const managers = ['Moses','Johan','Siyanda','Dave','James','Rayman','Timothy','Brian','EL CM','Govern','Elroy','Mesh','Vusi','Sydney','Andrew'];
+            const projects = ['Riverside Mall','Aqua Fibre','Nkanyezi Phase2','HQ Solar','DI Tower','Eastgate','Midrand Hub','Centurion','Durban Depot'];
             const centers = ['Onpoint Group HQ','DI Solutions','Aqua Telecoms','Nkanyezi Projects','Onpoint Ontime Solution'];
-            const projects = ['Riverside Mall','Aqua Fibre','Nkanyezi Phase2','HQ Renovation','DI Solar'];
-            for (let i = 0; i < 14; i++) {
-                const date = moment().subtract(i % 10, 'days').format('YYYY-MM-DD');
-                const target = 7000 + (i * 123);
-                const actual = target * (0.7 + (i % 5)/10);
-                const variance = ((actual - target)/target*100).toFixed(1);
-                sample.push({
-                    date, projectManager: managers[i % managers.length],
-                    costCenter: centers[i % centers.length],
-                    projectName: projects[i % projects.length] + ' ' + i,
-                    dailyTarget: target.toFixed(2),
-                    dailyIncome: actual.toFixed(2),
-                    variance: variance,
-                    dailySummary: 'sample summary ' + i,
-                    imageLinks: i % 3 === 0 ? 'driveLink' : '',
-                    submissionTimestamp: moment().format()
+            for (let i=0; i<n; i++) {
+                const date = moment().subtract(Math.floor(Math.random()*20), 'days').format('YYYY-MM-DD');
+                const target = 5000 + Math.floor(Math.random()*15000);
+                const actual = target * (0.5 + Math.random()*0.8);
+                const varp = ((actual-target)/target*100);
+                data.push({
+                    date, projectManager: managers[i%managers.length],
+                    projectName: projects[i%projects.length] + (i%3),
+                    costCenter: centers[i%centers.length],
+                    dailyTarget: target,
+                    dailyIncome: actual,
+                    variance: varp,
+                    dailySummary: 'demo '+i,
+                    imageLinks: i%5===0?'link':'',
                 });
             }
-            return sample;
+            return data;
         }
 
         // populate filter dropdowns
         function populateFilters() {
-            const pmSet = new Set(sheetData.map(r => r.projectManager).filter(Boolean));
-            const ccSet = new Set(sheetData.map(r => r.costCenter).filter(Boolean));
-            filterPM.innerHTML = '<option value="">all project managers</option>';
+            const pmSet = new Set(sheetData.map(r=>r.projectManager).filter(Boolean));
+            const projSet = new Set(sheetData.map(r=>r.projectName).filter(Boolean));
+            const ccSet = new Set(sheetData.map(r=>r.costCenter).filter(Boolean));
+            filterPM.innerHTML = '<option value="">all managers</option>';
+            filterProject.innerHTML = '<option value="">all projects</option>';
             filterCost.innerHTML = '<option value="">all cost centers</option>';
             [...pmSet].sort().forEach(pm => filterPM.innerHTML += `<option value="${pm}">${pm}</option>`);
+            [...projSet].sort().forEach(p => filterProject.innerHTML += `<option value="${p}">${p}</option>`);
             [...ccSet].sort().forEach(cc => filterCost.innerHTML += `<option value="${cc}">${cc}</option>`);
         }
 
-        // apply text filters
-        function applyFilters() {
+        // apply filters
+        window.applyFilters = function() {
             const pm = filterPM.value;
+            const proj = filterProject.value;
             const cc = filterCost.value;
-            const proj = filterProj.value.toLowerCase().trim();
-            filteredData = sheetData.filter(row => {
-                if (pm && row.projectManager !== pm) return false;
-                if (cc && row.costCenter !== cc) return false;
-                if (proj && !(row.projectName && row.projectName.toLowerCase().includes(proj))) return false;
+            const search = filterSearch.value.toLowerCase();
+            filteredData = sheetData.filter(r => {
+                if (pm && r.projectManager !== pm) return false;
+                if (proj && r.projectName !== proj) return false;
+                if (cc && r.costCenter !== cc) return false;
+                if (search && !(r.dailySummary && r.dailySummary.toLowerCase().includes(search))) return false;
                 return true;
             });
             renderTable();
-            updateCharts(); // charts based on filtered? we want global maybe, but keep filtered for consistency
-        }
+            updateKPIs();        // KPIs based on filtered? we want global? better keep global for totals, but we also update cards based on filtered.
+            renderAllCharts();    // charts from filtered data
+            updateVarianceComparisonCards();  // use filtered?
+        };
 
-        function resetFilters() {
-            filterPM.value = ''; filterCost.value = ''; filterProj.value = '';
+        window.resetFilters = function() {
+            filterPM.value = ''; filterProject.value = ''; filterCost.value = ''; filterSearch.value = '';
             filteredData = [...sheetData];
             renderTable();
-            updateCharts();
-        }
+            updateKPIs();
+            renderAllCharts();
+            updateVarianceComparisonCards();
+        };
 
-        // render tbody
+        // quick filter variance chips
+        window.quickFilterVariance = function(type) {
+            resetFilters(); // start fresh
+            if (type === 'positive') filteredData = sheetData.filter(r => r.variance > 0);
+            else if (type === 'negative') filteredData = sheetData.filter(r => r.variance < 0);
+            else if (type === 'over20') filteredData = sheetData.filter(r => r.variance >= 20);
+            else if (type === 'under-20') filteredData = sheetData.filter(r => r.variance <= -20);
+            else if (type === 'zero') filteredData = sheetData.filter(r => Math.abs(r.variance) <= 1);
+            renderTable(); renderAllCharts(); updateVarianceComparisonCards();
+        };
+
         function renderTable() {
             if (!filteredData.length) {
-                tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-12 text-gray-400"><i class="fa-regular fa-folder-open mr-2"></i>no matching records</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-12 text-gray-400">no records</td></tr>';
                 rowCounter.innerText = '0 entries';
                 return;
             }
             let html = '';
-            filteredData.slice(0, 50).forEach((r, idx) => { // show max 50 for perf
-                const variance = parseFloat(r.variance) || 0;
-                const varClass = variance >= 0 ? 'text-green-600' : 'text-red-600';
-                const sign = variance > 0 ? '+' : '';
-                const hasImage = r.imageLinks && r.imageLinks.trim() !== '' ? '<i class="fa-regular fa-image text-[#1e4b8c] text-lg" title="has image"></i>' : '-';
-                html += `<tr class="hover:bg-slate-50 data-row-enter">
+            filteredData.slice(0, 60).forEach(r => {
+                const varClass = r.variance >=0 ? 'text-green-600' : 'text-red-600';
+                const sign = r.variance>0?'+':'';
+                html += `<tr class="hover:bg-slate-50">
                     <td class="px-5 py-3 whitespace-nowrap">${r.date || '-'}</td>
-                    <td class="px-5 py-3 whitespace-nowrap font-medium">${r.projectManager || '-'}</td>
-                    <td class="px-5 py-3 whitespace-nowrap">${r.costCenter || '-'}</td>
-                    <td class="px-5 py-3 whitespace-nowrap max-w-[150px] truncate">${r.projectName || '-'}</td>
-                    <td class="px-5 py-3 whitespace-nowrap">${formatR(parseFloat(r.dailyTarget)||0)}</td>
-                    <td class="px-5 py-3 whitespace-nowrap">${formatR(parseFloat(r.dailyIncome)||0)}</td>
-                    <td class="px-5 py-3 whitespace-nowrap ${varClass}">${sign}${variance.toFixed(1)}%</td>
-                    <td class="px-5 py-3 max-w-[200px] truncate">${r.dailySummary || ''}</td>
-                    <td class="px-5 py-3 whitespace-nowrap text-center">${hasImage}</td>
+                    <td class="px-5 py-3">${r.projectManager || '-'}</td>
+                    <td class="px-5 py-3 max-w-[150px] truncate">${r.projectName || '-'}</td>
+                    <td class="px-5 py-3">${r.costCenter || '-'}</td>
+                    <td class="px-5 py-3">${formatR(r.dailyTarget)}</td>
+                    <td class="px-5 py-3">${formatR(r.dailyIncome)}</td>
+                    <td class="px-5 py-3 ${varClass}">${sign}${r.variance.toFixed(1)}%</td>
+                    <td class="px-5 py-3 max-w-[150px] truncate">${r.dailySummary || ''}</td>
+                    <td class="px-5 py-3 text-center">${r.imageLinks ? '<i class="fa-regular fa-image text-[#1e4b8c]"></i>' : '-'}</td>
                 </tr>`;
             });
-            if (filteredData.length > 50) html += `<tr><td colspan="9" class="text-xs text-center py-2 text-gray-400">showing first 50 of ${filteredData.length} records</td></tr>`;
+            if (filteredData.length > 60) html += `<tr><td colspan="9" class="text-xs text-center py-2 text-gray-400">showing 60 of ${filteredData.length}</td></tr>`;
             tableBody.innerHTML = html;
-            rowCounter.innerText = filteredData.length + ' entries' + (filteredData.length!==sheetData.length?` (filtered from ${sheetData.length})`:'');
+            rowCounter.innerText = filteredData.length + ' entries';
         }
 
-        // KPI numbers
         function updateKPIs() {
-            kpiTotal.innerText = sheetData.length;
+            const total = sheetData.length;
             const uniquePM = new Set(sheetData.map(r=>r.projectManager).filter(Boolean)).size;
-            const uniqueCC = new Set(sheetData.map(r=>r.costCenter).filter(Boolean)).size;
-            kpiPM.innerText = uniquePM || '—';
-            kpiCC.innerText = uniqueCC || '—';
-            const dates = sheetData.map(r=>r.date).filter(d=>d).sort();
-            if (dates.length) kpiLatest.innerText = moment(dates[dates.length-1]).format('DD MMM YY');
-            else kpiLatest.innerText = '—';
+            const uniqueProj = new Set(sheetData.map(r=>r.projectName).filter(Boolean)).size;
+            const avgVar = sheetData.reduce((a,r)=>a+r.variance,0)/(total||1);
+            const totalIncome = sheetData.reduce((a,r)=>a+r.dailyIncome,0);
+            const totalTarget = sheetData.reduce((a,r)=>a+r.dailyTarget,0);
+            kpiTotal.innerText = total;
+            kpiPMs.innerText = uniquePM;
+            kpiProjects.innerText = uniqueProj;
+            kpiAvgVar.innerText = avgVar.toFixed(1)+'%';
+            kpiTotalIncome.innerText = 'R' + (totalIncome/1000).toFixed(0)+'k';
+            kpiTotalTarget.innerText = 'R' + (totalTarget/1000).toFixed(0)+'k';
         }
 
-        // charts based on filtered data (daily last 7 days)
-        function updateCharts() {
-            const last7Days = [];
-            for (let i = 6; i >= 0; i--) last7Days.push(moment().subtract(i, 'days').format('YYYY-MM-DD'));
+        // ---------- NEW: daily/weekly/monthly variance comparison cards ----------
+        function updateVarianceComparisonCards() {
+            // daily (today) per PM
+            const today = moment().format('YYYY-MM-DD');
+            const todayData = filteredData.filter(r => r.date === today);
+            const pmDaily = {};
+            todayData.forEach(r => { if (r.projectManager) pmDaily[r.projectManager] = (pmDaily[r.projectManager] || 0) + r.variance; });
+            const dailyList = document.getElementById('dailyPMVarianceList');
+            dailyList.innerHTML = Object.keys(pmDaily).length ? Object.entries(pmDaily).map(([pm, v]) => 
+                `<div class="flex justify-between text-sm"><span>${pm}</span><span class="${v>=0?'text-green-600':'text-red-600'} font-mono">${v>0?'+':''}${v.toFixed(1)}%</span></div>`
+            ).join('') : '<div class="text-sm text-gray-400">no data today</div>';
 
-            const dailyActual = last7Days.map(day => {
-                const val = filteredData.filter(r => r.date === day).reduce((acc, r) => acc + (parseFloat(r.dailyIncome) || 0), 0);
-                return val;
+            // weekly per project (last 7 days)
+            const weekStart = moment().subtract(7,'days');
+            const weekData = filteredData.filter(r => moment(r.date).isAfter(weekStart));
+            const projWeekly = {};
+            weekData.forEach(r => { if (r.projectName) projWeekly[r.projectName] = (projWeekly[r.projectName] || 0) + r.variance; });
+            const weeklyProjEl = document.getElementById('weeklyProjectVarianceList');
+            weeklyProjEl.innerHTML = Object.keys(projWeekly).length ? Object.entries(projWeekly).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([p,v]) => 
+                `<div class="flex justify-between text-sm"><span class="truncate w-28">${p}</span><span class="${v>=0?'text-green-600':'text-red-600'}">${v>0?'+':''}${v.toFixed(1)}%</span></div>`
+            ).join('') : '<div class="text-sm text-gray-400">no weekly</div>';
+
+            // monthly per PM (month to date)
+            const monthStart = moment().startOf('month');
+            const monthData = filteredData.filter(r => moment(r.date).isSameOrAfter(monthStart));
+            const pmMonthly = {};
+            monthData.forEach(r => { if (r.projectManager) pmMonthly[r.projectManager] = (pmMonthly[r.projectManager] || 0) + r.variance; });
+            const monthlyPmEl = document.getElementById('monthlyPMVarianceList');
+            monthlyPmEl.innerHTML = Object.keys(pmMonthly).length ? Object.entries(pmMonthly).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([pm,v]) => 
+                `<div class="flex justify-between text-sm"><span>${pm}</span><span class="${v>=0?'text-green-600':'text-red-600'}">${v>0?'+':''}${v.toFixed(1)}%</span></div>`
+            ).join('') : '<div class="text-gray-400">no monthly</div>';
+        }
+
+        // ---------- FINANCIAL GRAPHS (cumulative, histogram, manager/project bars) ----------
+        function renderAllCharts() {
+            if (!filteredData.length) return;
+            // cumulative MTD (sorted by date)
+            const monthData = filteredData.filter(r => moment(r.date).isSameOrAfter(moment().startOf('month'))).sort((a,b)=>a.date.localeCompare(b.date));
+            const dates = [...new Set(monthData.map(r=>r.date))].sort();
+            let cumIncome = [], cumTarget = [];
+            let sumI=0, sumT=0;
+            dates.forEach(d => {
+                const dayRows = monthData.filter(r=>r.date===d);
+                sumI += dayRows.reduce((a,r)=>a+r.dailyIncome,0);
+                sumT += dayRows.reduce((a,r)=>a+r.dailyTarget,0);
+                cumIncome.push(sumI);
+                cumTarget.push(sumT);
             });
-            const dailyTargetAvg = filteredData.length ? (filteredData.reduce((acc, r) => acc + (parseFloat(r.dailyTarget) || 0), 0) / filteredData.length) : 0;
 
-            // destroy old charts
-            if (charts.daily) charts.daily.destroy();
-            if (charts.variance) charts.variance.destroy();
-
-            const ctxDaily = document.getElementById('dailyChart').getContext('2d');
-            charts.daily = new Chart(ctxDaily, {
+            // cumulative chart
+            if (charts.cumulative) charts.cumulative.destroy();
+            const ctxCum = document.getElementById('cumulativeChart').getContext('2d');
+            charts.cumulative = new Chart(ctxCum, {
                 type: 'line',
                 data: {
-                    labels: last7Days.map(d=>moment(d).format('dd')),
+                    labels: dates.map(d=>moment(d).format('DD MMM')),
                     datasets: [
-                        { label: 'actual (R)', data: dailyActual, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', tension:0.3, fill:true },
-                        { label: 'avg target (R)', data: Array(7).fill(dailyTargetAvg), borderColor: '#1e4b8c', borderDash: [5,5], pointRadius:0 }
+                        { label: 'cumulative income', data: cumIncome, borderColor: '#10b981', backgroundColor:'rgba(16,185,129,0.1)', fill: true },
+                        { label: 'cumulative target', data: cumTarget, borderColor: '#1e4b8c', borderDash: [5,5] }
                     ]
                 }
             });
 
-            // variance histogram: group by ranges
-            const variances = filteredData.map(r => parseFloat(r.variance)||0).filter(v=>!isNaN(v));
-            const pos = variances.filter(v=> v>=0 && v<20).length;
-            const posHigh = variances.filter(v=> v>=20).length;
-            const neg = variances.filter(v=> v<0 && v>-20).length;
-            const negHigh = variances.filter(v=> v<=-20).length;
-            const ctxVar = document.getElementById('varianceChart').getContext('2d');
-            charts.variance = new Chart(ctxVar, {
+            // variance histogram (buckets)
+            const vars = filteredData.map(r=>r.variance).filter(v=>!isNaN(v));
+            const hist = [0,0,0,0,0]; // <- -20, -10-0, 0-10, 10-20, >20
+            vars.forEach(v => {
+                if (v < -20) hist[0]++;
+                else if (v < 0) hist[1]++;
+                else if (v < 10) hist[2]++;
+                else if (v < 20) hist[3]++;
+                else hist[4]++;
+            });
+            if (charts.histogram) charts.histogram.destroy();
+            charts.histogram = new Chart(document.getElementById('varianceHistogram'), {
                 type: 'bar',
                 data: {
-                    labels: ['≤ -20%', '-20% … 0%', '0% … 20%', '≥ 20%'],
-                    datasets: [{
-                        label: 'entries',
-                        data: [negHigh, neg, pos, posHigh],
-                        backgroundColor: ['#f87171','#fbbf24','#4ade80','#1e4b8c']
-                    }]
+                    labels: ['< -20%', '-20% – 0%', '0% – 10%', '10% – 20%', '>20%'],
+                    datasets: [{ label: 'entries', data: hist, backgroundColor: '#f59e0b' }]
                 }
+            });
+
+            // manager avg variance (top 8 by abs?)
+            const pmAvg = {};
+            filteredData.forEach(r => { if (r.projectManager) { if (!pmAvg[r.projectManager]) pmAvg[r.projectManager] = {sum:0,count:0}; pmAvg[r.projectManager].sum+=r.variance; pmAvg[r.projectManager].count++; } });
+            const pmList = Object.entries(pmAvg).map(([name, o]) => ({name, avg: o.sum/o.count})).sort((a,b)=>b.avg - a.avg).slice(0,8);
+            if (charts.managerBar) charts.managerBar.destroy();
+            charts.managerBar = new Chart(document.getElementById('managerBarChart'), {
+                type: 'bar',
+                data: {
+                    labels: pmList.map(p=>p.name),
+                    datasets: [{ label: 'avg variance %', data: pmList.map(p=>p.avg), backgroundColor: '#3b82f6' }]
+                }
+            });
+
+            // project avg variance
+            const projAvg = {};
+            filteredData.forEach(r => { if (r.projectName) { if (!projAvg[r.projectName]) projAvg[r.projectName] = {sum:0,count:0}; projAvg[r.projectName].sum+=r.variance; projAvg[r.projectName].count++; } });
+            const projList = Object.entries(projAvg).map(([name, o]) => ({name, avg: o.sum/o.count})).sort((a,b)=>b.avg - a.avg).slice(0,8);
+            if (charts.projectBar) charts.projectBar.destroy();
+            charts.projectBar = new Chart(document.getElementById('projectBarChart'), {
+                type: 'bar',
+                data: { labels: projList.map(p=>p.name), datasets: [{ label: 'avg variance %', data: projList.map(p=>p.avg), backgroundColor: '#10b981' }] }
             });
         }
 
-        // test connection / initial load
-        function testConnectionAndLoad() {
-            loadSheetData(true);
-        }
-
-        window.loadSheetData = loadSheetData;
-        window.applyFilters = applyFilters;
-        window.resetFilters = resetFilters;
-
-        // auto start
-        document.addEventListener('DOMContentLoaded', () => {
-            testConnectionAndLoad();
-        });
+        // initial load
+        document.addEventListener('DOMContentLoaded', ()=> loadSheetData(true));
     })();
 </script>
-
-<!-- optional extra: display folder id -->
 </body>
 </html>
