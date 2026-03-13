@@ -8,9 +8,6 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Chart.js 4 -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -572,7 +569,7 @@
         // CONFIGURATION - REPLACE WITH YOUR APPS SCRIPT URL
         // ============================================
         var CONFIG = {
-            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbx-u2SDORutKkQk42u7OtYErtP9rgajK9Un80dSb2usdtjSZ6LJRwvdd8hh3Sk3cWty/exec',
+            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwBm8LKTmHFL0ZWiks89aOHV_Eyr7i8lMc0qvOuC1aeQFGxnCkxoZ4rBx6jCsKL2MfW/exec',
             SPREADSHEET_ID: '1ToKQ3MDSUZl3T-t-_tMFkH5LXUwlMgrgDFRfBeLqK0o',
             SHEET_NAME: 'Manager View',
             DRIVE_FOLDER_ID: '15_6jq4oQ5zNmpokwQhfjStD5AdqHRCYa'
@@ -592,14 +589,19 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Dashboard initializing...');
             
+            // Set default dates
             var today = moment().format('YYYY-MM-DD');
             var thirtyDaysAgo = moment().subtract(30, 'days').format('YYYY-MM-DD');
             document.getElementById('startDate').value = thirtyDaysAgo;
             document.getElementById('endDate').value = today;
             
+            // Initialize DataTable
             initializeDataTable();
+            
+            // Load data from Google Sheets
             loadDataFromSheet();
             
+            // Setup date range listener
             document.getElementById('filterDateRange').addEventListener('change', function(e) {
                 var dateInputs = document.querySelectorAll('#startDate, #endDate');
                 for (var i = 0; i < dateInputs.length; i++) {
@@ -608,6 +610,7 @@
             });
         });
 
+        // Initialize DataTable
         function initializeDataTable() {
             dataTable = $('#performanceTable').DataTable({
                 responsive: true,
@@ -671,15 +674,13 @@
             });
         }
 
+        // Load data from Google Sheets
         async function loadDataFromSheet() {
             showLoading();
             updateConnectionStatus('checking');
             
             try {
-                if (CONFIG.SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbwlnmQ1QNQ_aduIA0CpOAf4u1J-s7Ce7n3KwlIeRnXX9ecKtFOYvCmMnxo29JFrNQgu/exec') {
-                    throw new Error('Please configure your Google Apps Script URL in the CONFIG section');
-                }
-                
+                // Test the connection first
                 var testUrl = CONFIG.SCRIPT_URL + '?action=test&t=' + new Date().getTime();
                 console.log('Testing connection to:', testUrl);
                 
@@ -698,9 +699,15 @@
                     throw new Error(testResult.message || 'Connection test failed');
                 }
                 
-                document.getElementById('dataSourceInfo').textContent = 'Connected to: ' + testResult.data.spreadsheetName + ' - ' + testResult.data.rowCount + ' records found';
+                // Update connection info
+                if (testResult.data) {
+                    document.getElementById('dataSourceInfo').textContent = 'Connected to: ' + 
+                        (testResult.data.spreadsheetName || 'Google Sheet') + ' - ' + 
+                        (testResult.data.rowCount || 0) + ' records found';
+                }
                 updateConnectionStatus(true);
                 
+                // Fetch all records
                 var recordsUrl = CONFIG.SCRIPT_URL + '?action=getRecords&t=' + new Date().getTime();
                 console.log('Fetching records from:', recordsUrl);
                 
@@ -725,6 +732,7 @@
                 if (allData.length === 0) {
                     showMessage('No data found in the Google Sheet. Please add some records first.', false);
                     
+                    // Clear all displays
                     document.getElementById('totalRecords').textContent = '0';
                     document.getElementById('activeManagers').textContent = '0';
                     document.getElementById('avgPerformance').textContent = '0%';
@@ -739,6 +747,7 @@
                 } else {
                     showMessage('Successfully loaded ' + allData.length + ' records from Google Sheets', true);
                     
+                    // Extract unique values for filters
                     var managers = [];
                     var projects = [];
                     var centers = [];
@@ -775,6 +784,7 @@
                 showMessage('Error loading data: ' + error.message + '. Please check your connection and script URL.', false);
                 updateConnectionStatus(false);
                 
+                // Clear all data and show empty state
                 allData = [];
                 filteredData = [];
                 
@@ -810,16 +820,19 @@
             }
         }
 
+        // Update select options
         function updateSelectOptions(selectId, options) {
             var select = document.getElementById(selectId);
             if (!select) return;
             
             var currentValue = select.value;
             
+            // Keep the "All" option
             while (select.options.length > 1) {
                 select.remove(1);
             }
             
+            // Add new options
             for (var i = 0; i < options.length; i++) {
                 var option = options[i];
                 if (option && option.trim()) {
@@ -830,11 +843,13 @@
                 }
             }
             
+            // Try to restore previous selection
             if (currentValue !== 'all' && options.indexOf(currentValue) !== -1) {
                 select.value = currentValue;
             }
         }
 
+        // Apply filters
         function applyFilters() {
             if (allData.length === 0) return;
             
@@ -851,10 +866,16 @@
                 var record = allData[i];
                 var include = true;
                 
+                // Apply manager filter
                 if (manager !== 'all' && record.projectManager !== manager) include = false;
+                
+                // Apply cost center filter
                 if (include && costCenter !== 'all' && record.costCenter !== costCenter) include = false;
+                
+                // Apply project filter
                 if (include && project !== 'all' && record.projectName !== project) include = false;
                 
+                // Apply date range filter
                 if (include && dateRange !== 'all') {
                     var recordDate = moment(record.date);
                     var today = moment();
@@ -880,6 +901,7 @@
                 }
             }
             
+            // Update all displays
             updateKPIs();
             updateCharts();
             updateManagerPerformance();
@@ -889,6 +911,7 @@
             showMessage('Showing ' + filteredData.length + ' records', true);
         }
 
+        // Reset filters
         function resetFilters() {
             document.getElementById('filterManager').value = 'all';
             document.getElementById('filterCostCenter').value = 'all';
@@ -906,6 +929,7 @@
             applyFilters();
         }
 
+        // Update KPIs
         function updateKPIs() {
             if (filteredData.length === 0) {
                 document.getElementById('totalRecords').textContent = '0';
@@ -960,6 +984,7 @@
             document.getElementById('incomeVsTarget').textContent = incomeVsTarget + '%';
         }
 
+        // Update award cards
         function updateAwardCards() {
             if (filteredData.length === 0) {
                 document.getElementById('topPerformer').textContent = '-';
@@ -973,6 +998,7 @@
                 return;
             }
             
+            // Group by manager
             var managerStats = {};
             
             for (var i = 0; i < filteredData.length; i++) {
@@ -994,6 +1020,7 @@
             
             var managerList = Object.keys(managerStats);
             
+            // Calculate averages and standard deviations
             for (var j = 0; j < managerList.length; j++) {
                 var mgr = managerList[j];
                 var stats = managerStats[mgr];
@@ -1003,6 +1030,7 @@
                 }
                 stats.avgVariance = sum / stats.variances.length;
                 
+                // Calculate standard deviation
                 var mean = stats.avgVariance;
                 var squaredSum = 0;
                 for (var k = 0; k < stats.variances.length; k++) {
@@ -1012,6 +1040,7 @@
                 stats.stdDeviation = Math.sqrt(avgSquaredDiff);
             }
             
+            // Top Performer (highest average variance)
             var topPerformer = null;
             var highestAvgVariance = -Infinity;
             
@@ -1029,6 +1058,7 @@
                 document.getElementById('topPerformerBar').style.width = Math.min(highestAvgVariance + 50, 100) + '%';
             }
             
+            // Most Consistent (lowest standard deviation)
             var mostConsistent = null;
             var lowestStdDev = Infinity;
             
@@ -1045,6 +1075,7 @@
                 document.getElementById('consistentDeviation').textContent = lowestStdDev.toFixed(1) + '%';
             }
             
+            // Highest Income
             var highestIncome = null;
             var maxIncome = -Infinity;
             
@@ -1061,6 +1092,7 @@
                 document.getElementById('highestIncomeAmount').textContent = 'R ' + maxIncome.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             }
             
+            // Most Improved (compare first half vs second half)
             var mostImproved = null;
             var highestGrowth = -Infinity;
             
@@ -1101,6 +1133,7 @@
             }
         }
 
+        // Update charts
         function updateCharts() {
             if (filteredData.length === 0) {
                 if (trendChart) {
@@ -1116,6 +1149,7 @@
             updateDistributionChart();
         }
 
+        // Update trend chart
         function updateTrendChart() {
             var chartData = prepareTrendData();
             
@@ -1202,6 +1236,7 @@
             }
         }
 
+        // Prepare trend data
         function prepareTrendData() {
             if (filteredData.length === 0) {
                 return { labels: [], values: [] };
@@ -1255,6 +1290,7 @@
             return { labels: labels, values: values };
         }
 
+        // Update distribution chart
         function updateDistributionChart() {
             if (filteredData.length === 0) {
                 if (distributionChart) {
@@ -1344,6 +1380,7 @@
             }
         }
 
+        // Change chart period
         function changeChartPeriod(period) {
             currentChartPeriod = period;
             
@@ -1365,6 +1402,7 @@
             updateTrendChart();
         }
 
+        // Update manager performance displays
         function updateManagerPerformance() {
             if (filteredData.length === 0) {
                 document.getElementById('dailyManagerPerformance').innerHTML = '<p class="text-gray-500 text-center py-4">No data available</p>';
@@ -1376,6 +1414,7 @@
             updateWeeklyManagerPerformance();
         }
 
+        // Update daily manager performance
         function updateDailyManagerPerformance() {
             var today = moment().format('YYYY-MM-DD');
             var todayData = [];
@@ -1449,6 +1488,7 @@
             }
         }
 
+        // Update weekly manager performance
         function updateWeeklyManagerPerformance() {
             var weekStart = moment().startOf('week');
             var weekEnd = moment().endOf('week');
@@ -1526,6 +1566,7 @@
             }
         }
 
+        // Update data table
         function updateDataTable() {
             if (!dataTable) return;
             
@@ -1556,14 +1597,17 @@
             dataTable.draw();
         }
 
+        // Show loading overlay
         function showLoading() {
             document.getElementById('loadingOverlay').style.display = 'flex';
         }
 
+        // Hide loading overlay
         function hideLoading() {
             document.getElementById('loadingOverlay').style.display = 'none';
         }
 
+        // Show message
         function showMessage(message, isSuccess) {
             var messageDiv = document.getElementById('messageContainer');
             messageDiv.className = isSuccess ? 'success-message' : 'error-message';
@@ -1582,15 +1626,18 @@
             }, 5000);
         }
 
+        // Show error modal
         function showError(message) {
             document.getElementById('errorMessage').textContent = message;
             document.getElementById('errorModal').style.display = 'flex';
         }
 
+        // Close error modal
         function closeErrorModal() {
             document.getElementById('errorModal').style.display = 'none';
         }
 
+        // Update connection status
         function updateConnectionStatus(connected) {
             var statusDot = document.getElementById('connectionStatus');
             var statusText = document.getElementById('connectionText');
@@ -1607,10 +1654,12 @@
             }
         }
 
+        // Refresh data
         function refreshData() {
             loadDataFromSheet();
         }
 
+        // Export to Excel/CSV
         function exportToExcel() {
             if (filteredData.length === 0) {
                 showMessage('No data to export', false);
@@ -1627,7 +1676,7 @@
                 var row = [
                     record.date,
                     record.projectManager,
-                    '"' + record.projectName + '"',
+                    '"' + record.projectName.replace(/"/g, '""') + '"',
                     record.costCenter,
                     record.dailyTarget,
                     record.dailyIncome,
@@ -1651,10 +1700,12 @@
             showMessage('Data exported successfully!', true);
         }
 
+        // Export table to CSV
         function exportTableToCSV() {
             exportToExcel();
         }
 
+        // Print table
         function printTable() {
             window.print();
         }
