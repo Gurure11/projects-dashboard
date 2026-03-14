@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Onpoint Group · Project Analytics Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onpoint Group · Projects Manager Analytics</title>
     
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,9 +17,6 @@
     <!-- Moment.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     
-    <!-- ApexCharts for advanced visualizations -->
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -27,14 +24,25 @@
             font-family: 'Inter', sans-serif;
         }
         
-        /* Custom animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e4b8c 0%, #0a2f5a 100%);
         }
         
-        .fade-in {
-            animation: fadeIn 0.5s ease-out;
+        .gradient-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        }
+        
+        .status-connected { background-color: #10b981; }
+        .status-disconnected { background-color: #ef4444; }
+        .status-checking { background-color: #f59e0b; }
+        
+        .connection-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
         }
         
         @keyframes pulse {
@@ -42,76 +50,59 @@
             50% { opacity: 0.5; }
         }
         
-        .pulse-animation {
-            animation: pulse 2s infinite;
-        }
-        
-        /* Gradient backgrounds */
-        .gradient-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .gradient-success {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        }
-        
-        .gradient-warning {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        }
-        
-        .gradient-info {
-            background: linear-gradient(135deg, #3c8ce7 0%, #00eaff 100%);
-        }
-        
-        /* Status badges */
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            display: inline-block;
-        }
-        
-        .status-active { background: #3b82f620; color: #3b82f6; }
-        .status-ontrack { background: #10b98120; color: #10b981; }
-        .status-atrisk { background: #f59e0b20; color: #f59e0b; }
-        .status-behind { background: #ef444420; color: #ef4444; }
-        .status-completed { background: #8b5cf620; color: #8b5cf6; }
-        
-        /* Risk badges */
-        .risk-low { background: #10b98120; color: #10b981; }
-        .risk-medium { background: #f59e0b20; color: #f59e0b; }
-        .risk-high { background: #ef444420; color: #ef4444; }
-        .risk-critical { background: #7f1d1d20; color: #7f1d1d; }
-        
-        /* Chart containers */
         .chart-container {
             position: relative;
             width: 100%;
-            height: 300px;
+            height: 280px;
             margin: 0 auto;
         }
         
-        /* Metric cards */
-        .metric-card {
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        .chart-card {
             background: white;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            height: 380px;
+            display: flex;
+            flex-direction: column;
         }
         
-        .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        .chart-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         
-        /* Filter chips */
+        .chart-card h3 {
+            flex-shrink: 0;
+            margin-bottom: 1rem;
+        }
+        
+        .kpi-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid #1e4b8c;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
         .filter-chip {
-            background: #f3f4f6;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 13px;
+            background: #f1f5f9;
+            padding: 0.375rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -121,449 +112,405 @@
         }
         
         .filter-chip:hover {
-            background: #e5e7eb;
+            background: #e2e8f0;
         }
         
         .filter-chip.active {
-            background: #667eea;
+            background: #1e4b8c;
             color: white;
         }
         
-        /* Progress bar */
+        .filter-chip.active i {
+            color: white;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-active { background: #dbeafe; color: #1e4b8c; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-risk { background: #fee2e2; color: #991b1b; }
+        
+        .risk-low { background: #d1fae5; color: #065f46; }
+        .risk-medium { background: #fed7aa; color: #92400e; }
+        .risk-high { background: #fee2e2; color: #991b1b; }
+        .risk-critical { background: #fecaca; color: #7f1d1d; }
+        
+        .table-container {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 0.75rem;
+        }
+        
+        table {
+            min-width: 1200px;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #1e4b8c;
+            color: white;
+            padding: 0.75rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.875rem;
+        }
+        
+        tr:hover {
+            background: #f8fafc;
+        }
+        
         .progress-bar {
             width: 100%;
-            height: 8px;
+            height: 6px;
             background: #e5e7eb;
-            border-radius: 4px;
+            border-radius: 9999px;
             overflow: hidden;
         }
         
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            border-radius: 4px;
+            background: linear-gradient(90deg, #1e4b8c, #3b82f6);
+            border-radius: 9999px;
             transition: width 0.3s ease;
         }
         
-        /* Table styles */
-        .table-container {
-            overflow-x: auto;
-            border-radius: 12px;
-            background: white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 800px;
-        }
-        
-        th {
-            background: #f9fafb;
-            padding: 16px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 600;
-            color: #4b5563;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 2px solid #e5e7eb;
-        }
-        
-        td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 13px;
-        }
-        
-        tr:hover {
-            background: #f9fafb;
-        }
-        
-        /* Mobile responsive */
-        @media (max-width: 768px) {
-            .chart-container {
-                height: 250px;
-            }
-            
-            .metric-card {
-                padding: 15px;
-            }
-            
-            .kpi-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .filter-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
-        
-        /* Loading spinner */
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #1e4b8c;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
             animation: spin 1s linear infinite;
         }
         
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
         
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        .message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            background: white;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1001;
+            border-left: 4px solid;
         }
         
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #c5c5c5;
-            border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
+        .message-box.success { border-left-color: #10b981; }
+        .message-box.error { border-left-color: #ef4444; }
+        .message-box.info { border-left-color: #3b82f6; }
     </style>
 </head>
 <body class="bg-gray-50">
 
-<!-- Loading Overlay -->
-<div id="loadingOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
-    <div class="bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center gap-4">
-        <div class="spinner"></div>
-        <span class="text-gray-600 font-medium">Loading project data...</span>
-    </div>
-</div>
-
-<!-- Notification -->
-<div id="notification" class="fixed top-4 right-4 z-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl p-4 flex items-center gap-3 border-l-4" id="notificationContent">
-        <i id="notificationIcon" class="fas fa-check-circle text-green-500"></i>
-        <span id="notificationMessage" class="text-gray-700"></span>
-    </div>
-</div>
-
-<!-- Main Container -->
-<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl">
-
-    <!-- Header -->
-    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 fade-in">
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+<!-- Navigation -->
+<nav class="gradient-bg text-white shadow-lg">
+    <div class="container mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center">
-                    <i class="fas fa-chart-pie text-white text-2xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Project Analytics Hub</h1>
-                    <p class="text-sm text-gray-500 mt-1">
-                        <i class="fas fa-database mr-1"></i>
-                        <span id="totalProjects">0</span> Projects · 
-                        <span id="lastUpdated">Loading...</span>
-                    </p>
-                </div>
+                <span class="text-2xl font-bold tracking-tight">Onpoint Group</span>
+                <span class="text-sm bg-white/20 px-3 py-1 rounded-full">Projects Manager Analytics</span>
             </div>
-            <div class="flex items-center gap-3 w-full md:w-auto">
-                <div class="flex-1 md:flex-initial">
-                    <select id="timeRangeFilter" class="w-full md:w-auto px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                        <option value="all">All Time</option>
-                        <option value="today">Today</option>
-                        <option value="week">This Week</option>
-                        <option value="month">This Month</option>
-                        <option value="quarter">This Quarter</option>
-                    </select>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center text-sm bg-white/10 px-4 py-2 rounded-full">
+                    <span id="connectionStatus" class="connection-status status-checking mr-2"></span>
+                    <span id="connectionText">Connecting to Google Sheets...</span>
                 </div>
-                <button onclick="refreshData()" class="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
-                    <i class="fas fa-sync-alt"></i>
+                <button onclick="loadData()" class="bg-white/10 p-2 rounded-full hover:bg-white/20 transition">
+                    <i class="fa-solid fa-rotate"></i>
                 </button>
             </div>
         </div>
     </div>
+</nav>
+
+<!-- Main Container -->
+<div class="container mx-auto px-4 md:px-6 py-8 max-w-7xl">
+
+    <!-- Message Display -->
+    <div id="messageBox" class="message-box">
+        <i id="messageIcon" class="fa-regular fa-circle-check text-xl"></i>
+        <span id="messageText"></span>
+    </div>
+
+    <!-- Header -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl md:text-4xl font-light text-gray-800 flex items-center gap-3">
+                <i class="fa-regular fa-chart-line text-[#1e4b8c]"></i>
+                Projects Analytics Dashboard
+            </h1>
+            <p class="text-gray-500 mt-1">Real-time project performance monitoring and analysis</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span id="updateTime" class="text-sm bg-white px-4 py-2 rounded-full shadow-sm border">
+                <i class="fa-regular fa-clock mr-1 text-[#1e4b8c]"></i>Loading...
+            </span>
+            <button onclick="testConnection()" class="border-2 border-[#1e4b8c] text-[#1e4b8c] px-4 py-2 rounded-lg hover:bg-[#1e4b8c] hover:text-white transition">
+                <i class="fa-solid fa-plug mr-1"></i>Test
+            </button>
+        </div>
+    </div>
 
     <!-- KPI Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 fade-in">
-        <div class="metric-card">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-sm text-gray-500">Total Value</span>
-                <span class="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
-                    <i class="fas fa-rand text-white text-sm"></i>
-                </span>
-            </div>
-            <div class="text-2xl font-bold text-gray-800" id="totalValue">R 0</div>
-            <div class="text-xs text-gray-500 mt-2" id="totalValueTrend">Loading...</div>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
+        <div class="kpi-card">
+            <span class="text-xs text-gray-500 uppercase">Total Projects</span>
+            <div class="text-2xl font-bold text-gray-800" id="kpiTotalProjects">0</div>
         </div>
-
-        <div class="metric-card">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-sm text-gray-500">Total Profit</span>
-                <span class="w-8 h-8 gradient-success rounded-lg flex items-center justify-center">
-                    <i class="fas fa-chart-line text-white text-sm"></i>
-                </span>
-            </div>
-            <div class="text-2xl font-bold text-gray-800" id="totalProfit">R 0</div>
-            <div class="text-xs text-green-500 mt-2" id="profitMargin">Margin: 0%</div>
+        <div class="kpi-card">
+            <span class="text-xs text-gray-500 uppercase">Active</span>
+            <div class="text-2xl font-bold text-green-600" id="kpiActive">0</div>
         </div>
-
-        <div class="metric-card">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-sm text-gray-500">Active Projects</span>
-                <span class="w-8 h-8 gradient-warning rounded-lg flex items-center justify-center">
-                    <i class="fas fa-tasks text-white text-sm"></i>
-                </span>
-            </div>
-            <div class="text-2xl font-bold text-gray-800" id="activeProjects">0</div>
-            <div class="text-xs text-gray-500 mt-2" id="completionRate">Completion: 0%</div>
+        <div class="kpi-card">
+            <span class="text-xs text-gray-500 uppercase">Completed</span>
+            <div class="text-2xl font-bold text-blue-600" id="kpiCompleted">0</div>
         </div>
-
-        <div class="metric-card">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-sm text-gray-500">At Risk</span>
-                <span class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-exclamation-triangle text-white text-sm"></i>
-                </span>
-            </div>
-            <div class="text-2xl font-bold text-gray-800" id="atRiskProjects">0</div>
-            <div class="text-xs text-red-500 mt-2" id="riskPercentage">0% of total</div>
+        <div class="kpi-card">
+            <span class="text-xs text-gray-500 uppercase">At Risk</span>
+            <div class="text-2xl font-bold text-red-600" id="kpiAtRisk">0</div>
+        </div>
+        <div class="kpi-card">
+            <span class="text-xs text-gray-500 uppercase">Total Value</span>
+            <div class="text-lg font-bold text-gray-800" id="kpiTotalValue">R 0</div>
+        </div>
+        <div class="kpi-card">
+            <span class="text-xs text-gray-500 uppercase">Total Profit</span>
+            <div class="text-lg font-bold text-green-600" id="kpiTotalProfit">R 0</div>
+        </div>
+        <div class="kpi-card">
+            <span class="text-xs text-gray-500 uppercase">Avg Progress</span>
+            <div class="text-lg font-bold text-gray-800" id="kpiAvgProgress">0%</div>
+        </div>
+        <div class="kpi-card">
+            <span class="text-xs text-gray-500 uppercase">Avg ROI</span>
+            <div class="text-lg font-bold text-purple-600" id="kpiAvgROI">0%</div>
         </div>
     </div>
 
     <!-- Filter Section -->
-    <div class="bg-white rounded-xl shadow-sm p-5 mb-6 border fade-in">
-        <div class="flex flex-wrap items-center gap-3 mb-4">
-            <span class="text-sm font-semibold text-gray-700">
-                <i class="fas fa-filter mr-1 text-purple-500"></i>Filters:
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8 border">
+        <div class="flex flex-wrap items-center gap-4 mb-4">
+            <span class="font-semibold text-gray-700 flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-[#1e4b8c]"></i> Filters:
             </span>
             
-            <select id="filterProjectName" class="border rounded-lg px-4 py-2 text-sm bg-white min-w-[200px]">
-                <option value="">All Projects</option>
-            </select>
-            
-            <select id="filterSupervisor" class="border rounded-lg px-4 py-2 text-sm bg-white min-w-[180px]">
-                <option value="">All Supervisors</option>
-            </select>
-            
-            <select id="filterManager" class="border rounded-lg px-4 py-2 text-sm bg-white min-w-[180px]">
+            <select id="filterManager" class="border rounded-lg px-4 py-2 text-sm bg-white w-44">
                 <option value="">All Managers</option>
             </select>
             
-            <select id="filterCostCenter" class="border rounded-lg px-4 py-2 text-sm bg-white min-w-[180px]">
+            <select id="filterSupervisor" class="border rounded-lg px-4 py-2 text-sm bg-white w-44">
+                <option value="">All Supervisors</option>
+            </select>
+            
+            <select id="filterCostCenter" class="border rounded-lg px-4 py-2 text-sm bg-white w-48">
                 <option value="">All Cost Centers</option>
             </select>
             
-            <select id="filterStatus" class="border rounded-lg px-4 py-2 text-sm bg-white min-w-[150px]">
-                <option value="">All Statuses</option>
-                <option value="Active">Active</option>
-                <option value="On Track">On Track</option>
-                <option value="At Risk">At Risk</option>
-                <option value="Behind Schedule">Behind Schedule</option>
-                <option value="Completed">Completed</option>
+            <select id="filterLocation" class="border rounded-lg px-4 py-2 text-sm bg-white w-40">
+                <option value="">All Locations</option>
             </select>
             
-            <select id="filterRisk" class="border rounded-lg px-4 py-2 text-sm bg-white min-w-[150px]">
-                <option value="">All Risk Levels</option>
+            <select id="filterRisk" class="border rounded-lg px-4 py-2 text-sm bg-white w-36">
+                <option value="">All Risks</option>
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
                 <option value="Critical">Critical</option>
             </select>
+            
+            <select id="filterStatus" class="border rounded-lg px-4 py-2 text-sm bg-white w-36">
+                <option value="">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Completed">Completed</option>
+                <option value="On Hold">On Hold</option>
+            </select>
+            
+            <button onclick="applyFilters()" class="bg-[#1e4b8c] text-white px-6 py-2 rounded-lg text-sm hover:bg-[#0a2f5a] transition">
+                Apply
+            </button>
+            <button onclick="resetFilters()" class="bg-gray-100 px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition">
+                Reset
+            </button>
         </div>
         
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex flex-wrap gap-2">
-                <span class="text-xs text-gray-400 mr-1">Quick filters:</span>
-                <span class="filter-chip" onclick="quickFilter('risk_high')">
-                    <i class="fas fa-exclamation-triangle text-red-500"></i> High Risk
-                </span>
-                <span class="filter-chip" onclick="quickFilter('behind')">
-                    <i class="fas fa-clock text-orange-500"></i> Behind Schedule
-                </span>
-                <span class="filter-chip" onclick="quickFilter('profitable')">
-                    <i class="fas fa-chart-line text-green-500"></i> Profitable
-                </span>
-                <span class="filter-chip" onclick="quickFilter('completed')">
-                    <i class="fas fa-check-circle text-purple-500"></i> Completed
-                </span>
-            </div>
-            
-            <div class="flex gap-2">
-                <button onclick="applyFilters()" class="gradient-primary text-white px-6 py-2 rounded-lg text-sm hover:opacity-90 transition">
-                    Apply Filters
-                </button>
-                <button onclick="resetFilters()" class="bg-gray-100 px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition">
-                    Reset
-                </button>
-            </div>
+        <!-- Quick Filter Chips -->
+        <div class="flex flex-wrap items-center gap-2 pt-4 border-t">
+            <span class="text-xs text-gray-400 mr-2">Quick Analysis:</span>
+            <span class="filter-chip" onclick="quickFilter('highRisk')">
+                <i class="fa-regular fa-circle-exclamation text-red-500"></i> High Risk
+            </span>
+            <span class="filter-chip" onclick="quickFilter('behindSchedule')">
+                <i class="fa-regular fa-clock text-orange-500"></i> Behind Schedule
+            </span>
+            <span class="filter-chip" onclick="quickFilter('profitable')">
+                <i class="fa-regular fa-circle-check text-green-500"></i> Profitable
+            </span>
+            <span class="filter-chip" onclick="quickFilter('completed')">
+                <i class="fa-regular fa-flag-checkered text-blue-500"></i> Completed
+            </span>
+            <span class="filter-chip" onclick="quickFilter('overBudget')">
+                <i class="fa-regular fa-chart-line text-red-500"></i> Over Budget
+            </span>
         </div>
     </div>
 
-    <!-- Charts Row 1: Overview & Trends -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 fade-in">
-        <!-- Project Health Gauge -->
-        <div class="bg-white rounded-xl shadow-sm p-5 border">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-semibold text-gray-700">
-                    <i class="fas fa-heartbeat text-red-500 mr-2"></i>Project Health Overview
-                </h3>
-                <div class="flex gap-2">
-                    <span class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">On Track</span>
-                    <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">At Risk</span>
-                    <span class="text-xs px-2 py-1 bg-red-100 text-red-600 rounded-full">Critical</span>
-                </div>
-            </div>
-            <div class="chart-container">
-                <div id="healthGaugeChart"></div>
-            </div>
-        </div>
-
-        <!-- Daily/Weekly/Monthly Performance -->
-        <div class="bg-white rounded-xl shadow-sm p-5 border">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-semibold text-gray-700">
-                    <i class="fas fa-chart-line text-blue-500 mr-2"></i>Performance Trends
-                </h3>
-                <div class="flex gap-2">
-                    <button onclick="changeTimeView('daily')" class="time-view-btn px-3 py-1 text-xs rounded-lg bg-purple-100 text-purple-600" id="btnDaily">Daily</button>
-                    <button onclick="changeTimeView('weekly')" class="time-view-btn px-3 py-1 text-xs rounded-lg bg-gray-100 text-gray-600" id="btnWeekly">Weekly</button>
-                    <button onclick="changeTimeView('monthly')" class="time-view-btn px-3 py-1 text-xs rounded-lg bg-gray-100 text-gray-600" id="btnMonthly">Monthly</button>
-                </div>
-            </div>
-            <div class="chart-container">
-                <div id="performanceTrendChart"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Charts Row 2: Financial Analytics -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 fade-in">
-        <!-- Budget vs Actual -->
-        <div class="bg-white rounded-xl shadow-sm p-5 border">
-            <h3 class="font-semibold text-gray-700 mb-4">
-                <i class="fas fa-chart-bar text-green-500 mr-2"></i>Budget vs Actual (Top 10 Projects)
+    <!-- Charts Row 1 - Financial Overview -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-7 mb-8">
+        <div class="chart-card">
+            <h3 class="font-semibold text-gray-700">
+                <i class="fa-regular fa-chart-line text-[#1e4b8c] mr-2"></i>Financial Performance
             </h3>
             <div class="chart-container">
-                <canvas id="budgetChart"></canvas>
+                <canvas id="financialChart"></canvas>
             </div>
         </div>
-
-        <!-- Profit Distribution -->
-        <div class="bg-white rounded-xl shadow-sm p-5 border">
-            <h3 class="font-semibold text-gray-700 mb-4">
-                <i class="fas fa-chart-pie text-purple-500 mr-2"></i>Profit Distribution by Cost Center
+        
+        <div class="chart-card">
+            <h3 class="font-semibold text-gray-700">
+                <i class="fa-regular fa-chart-pie text-[#1e4b8c] mr-2"></i>Projects by Status
             </h3>
             <div class="chart-container">
-                <canvas id="profitChart"></canvas>
+                <canvas id="statusChart"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Charts Row 3: Progress & Risk -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 fade-in">
-        <!-- Progress Distribution -->
-        <div class="bg-white rounded-xl shadow-sm p-5 border">
-            <h3 class="font-semibold text-gray-700 mb-4">
-                <i class="fas fa-tachometer-alt text-orange-500 mr-2"></i>Progress Distribution
+    <!-- Charts Row 2 - Progress & Risk -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-7 mb-8">
+        <div class="chart-card">
+            <h3 class="font-semibold text-gray-700">
+                <i class="fa-regular fa-gauge-high text-[#1e4b8c] mr-2"></i>Progress by Manager
             </h3>
             <div class="chart-container">
                 <canvas id="progressChart"></canvas>
             </div>
         </div>
-
-        <!-- Risk Heat Map -->
-        <div class="bg-white rounded-xl shadow-sm p-5 border">
-            <h3 class="font-semibold text-gray-700 mb-4">
-                <i class="fas fa-fire text-red-500 mr-2"></i>Risk Heat Map by Supervisor
+        
+        <div class="chart-card">
+            <h3 class="font-semibold text-gray-700">
+                <i class="fa-regular fa-fire text-[#1e4b8c] mr-2"></i>Risk Distribution
             </h3>
-            <div class="overflow-x-auto">
-                <div id="riskHeatMap" class="min-w-[400px]"></div>
+            <div class="chart-container">
+                <canvas id="riskChart"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Advanced Analytics Row -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 fade-in">
-        <!-- ROI Summary -->
-        <div class="bg-white rounded-xl shadow-sm p-4 border">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="w-10 h-10 gradient-success rounded-lg flex items-center justify-center">
-                    <i class="fas fa-percent text-white"></i>
-                </div>
-                <div>
-                    <div class="text-xs text-gray-500">Average ROI</div>
-                    <div class="text-xl font-bold" id="avgROI">0%</div>
-                </div>
+    <!-- Charts Row 3 - Variance Analysis -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-7 mb-8">
+        <div class="chart-card">
+            <h3 class="font-semibold text-gray-700">
+                <i class="fa-regular fa-chart-bar text-[#1e4b8c] mr-2"></i>Budget Utilization
+            </h3>
+            <div class="chart-container">
+                <canvas id="budgetChart"></canvas>
             </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="roiProgress" style="width: 0%"></div>
-            </div>
-            <div class="text-xs text-gray-500 mt-2" id="roiRange">Range: 0% - 0%</div>
         </div>
-
-        <!-- Burn Rate -->
-        <div class="bg-white rounded-xl shadow-sm p-4 border">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="w-10 h-10 gradient-warning rounded-lg flex items-center justify-center">
-                    <i class="fas fa-fire text-white"></i>
-                </div>
-                <div>
-                    <div class="text-xs text-gray-500">Avg Daily Burn Rate</div>
-                    <div class="text-xl font-bold" id="avgBurnRate">R 0</div>
-                </div>
+        
+        <div class="chart-card">
+            <h3 class="font-semibold text-gray-700">
+                <i class="fa-regular fa-clock text-[#1e4b8c] mr-2"></i>Schedule Variance
+            </h3>
+            <div class="chart-container">
+                <canvas id="scheduleChart"></canvas>
             </div>
-            <div class="text-sm" id="burnRateTrend"></div>
         </div>
+    </div>
 
-        <!-- Schedule Variance -->
-        <div class="bg-white rounded-xl shadow-sm p-4 border">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="w-10 h-10 gradient-info rounded-lg flex items-center justify-center">
-                    <i class="fas fa-clock text-white"></i>
-                </div>
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-blue-600">
+            <div class="flex items-center justify-between">
                 <div>
-                    <div class="text-xs text-gray-500">Schedule Variance</div>
-                    <div class="text-xl font-bold" id="scheduleVariance">0 days</div>
+                    <p class="text-sm text-gray-500">By Cost Center</p>
+                    <p class="text-xs text-gray-400 mt-1" id="costCenterCount">0 centers</p>
                 </div>
+                <i class="fa-regular fa-building text-2xl text-blue-600"></i>
             </div>
-            <div class="text-sm" id="varianceStatus"></div>
+            <div class="mt-2 text-xs" id="costCenterList"></div>
         </div>
-
-        <!-- Days to Completion -->
-        <div class="bg-white rounded-xl shadow-sm p-4 border">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-calendar-check text-white"></i>
-                </div>
+        
+        <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-green-600">
+            <div class="flex items-center justify-between">
                 <div>
-                    <div class="text-xs text-gray-500">Avg Days to Completion</div>
-                    <div class="text-xl font-bold" id="avgDaysToComplete">0</div>
+                    <p class="text-sm text-gray-500">By Manager</p>
+                    <p class="text-xs text-gray-400 mt-1" id="managerCount">0 managers</p>
                 </div>
+                <i class="fa-regular fa-user text-2xl text-green-600"></i>
             </div>
-            <div class="text-sm" id="completionForecast"></div>
+            <div class="mt-2 text-xs" id="managerList"></div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-yellow-600">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">By Location</p>
+                    <p class="text-xs text-gray-400 mt-1" id="locationCount">0 locations</p>
+                </div>
+                <i class="fa-regular fa-location-dot text-2xl text-yellow-600"></i>
+            </div>
+            <div class="mt-2 text-xs" id="locationList"></div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-purple-600">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">Risk Summary</p>
+                    <p class="text-xs text-gray-400 mt-1">High: <span id="highRiskCount">0</span></p>
+                </div>
+                <i class="fa-regular fa-triangle-exclamation text-2xl text-purple-600"></i>
+            </div>
+            <div class="mt-2 text-xs grid grid-cols-2 gap-1">
+                <span class="risk-low px-2 py-1 rounded">Low: <span id="lowRiskCount">0</span></span>
+                <span class="risk-medium px-2 py-1 rounded">Medium: <span id="mediumRiskCount">0</span></span>
+                <span class="risk-high px-2 py-1 rounded">High: <span id="highRiskCount2">0</span></span>
+                <span class="risk-critical px-2 py-1 rounded">Critical: <span id="criticalRiskCount">0</span></span>
+            </div>
         </div>
     </div>
 
     <!-- Projects Table -->
-    <div class="bg-white rounded-xl shadow-sm border overflow-hidden fade-in">
-        <div class="px-5 py-4 border-b bg-gray-50 flex flex-wrap items-center justify-between gap-3">
+    <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div class="px-6 py-4 border-b bg-gray-50 flex justify-between items-center">
             <h3 class="font-semibold text-gray-700">
-                <i class="fas fa-table mr-2 text-purple-500"></i>Projects Overview
+                <i class="fa-regular fa-table mr-2 text-[#1e4b8c]"></i>Projects Details
             </h3>
-            <div class="flex items-center gap-3">
-                <span class="text-sm text-gray-500" id="tableRowCount">0 projects</span>
-                <button onclick="exportToCSV()" class="text-sm bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">
-                    <i class="fas fa-download mr-1"></i>Export
-                </button>
-            </div>
+            <span id="rowCount" class="text-sm text-gray-500">0 projects</span>
         </div>
         
         <div class="table-container">
@@ -572,22 +519,23 @@
                     <tr>
                         <th>Project ID</th>
                         <th>Project Name</th>
-                        <th>Cost Center</th>
-                        <th>Supervisor</th>
                         <th>Manager</th>
+                        <th>Supervisor</th>
+                        <th>Cost Center</th>
+                        <th>Location</th>
                         <th>Progress</th>
-                        <th>Budget Util</th>
                         <th>Daily Profit</th>
+                        <th>Budget Util</th>
                         <th>ROI</th>
                         <th>Status</th>
                         <th>Risk</th>
-                        <th>Actions</th>
+                        <th>Days Left</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
                     <tr>
-                        <td colspan="12" class="text-center py-8 text-gray-400">
-                            <i class="fas fa-spinner fa-spin mr-2"></i>Loading data...
+                        <td colspan="13" class="text-center py-8 text-gray-400">
+                            <i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading data...
                         </td>
                     </tr>
                 </tbody>
@@ -595,40 +543,47 @@
         </div>
         
         <!-- Pagination -->
-        <div class="px-5 py-3 border-t flex items-center justify-between">
+        <div class="px-6 py-3 border-t flex items-center justify-between">
             <div class="text-sm text-gray-500" id="paginationInfo">Showing 1-10 of 0</div>
             <div class="flex gap-2">
-                <button onclick="prevPage()" class="px-3 py-1 border rounded-lg text-sm hover:bg-gray-50" id="prevBtn" disabled>
-                    <i class="fas fa-chevron-left"></i>
+                <button onclick="prevPage()" class="px-3 py-1 border rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50" id="prevBtn" disabled>
+                    <i class="fa-solid fa-chevron-left"></i>
                 </button>
                 <span class="px-3 py-1 text-sm" id="currentPage">1</span>
-                <button onclick="nextPage()" class="px-3 py-1 border rounded-lg text-sm hover:bg-gray-50" id="nextBtn" disabled>
-                    <i class="fas fa-chevron-right"></i>
+                <button onclick="nextPage()" class="px-3 py-1 border rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50" id="nextBtn" disabled>
+                    <i class="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center">
+        <div class="spinner mb-4"></div>
+        <p class="text-gray-600">Loading project data...</p>
+    </div>
+</div>
+
 <script>
 // ============================================
-// CONFIGURATION
+// COMPLETE DASHBOARD FOR PROJECTS MANAGER SHEET
 // ============================================
+
+// Configuration - REPLACE WITH YOUR ACTUAL APPS SCRIPT URL
 const CONFIG = {
-    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwYxOxmJakwlG_bP_HtFPagri7aCFw0S4NE5Jct0YaZjCbzUPFJOCDJkM_72j7B_pus2Q/exec',
-    SHEET_ID: '1eGa1jErIa2bQgyVqz0XelQFpkJ6LFch0-NGccX8JP9s',
-    SHEET_NAME: 'Projects Manager',
-    DRIVE_FOLDER_ID: '1al8guXtgk-PJWwdNvd2umUXYv4AvwXSM'
+    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyXmp-6ALUyQw_Xmy2LBryrD4w9FI0nG1f1USnwhlpAbAowXHCv6GFFWCM3IKcUfaNqFw/exec',
+    SPREADSHEET_ID: '1eGa1jErIa2bQgyVqz0XelQFpkJ6LFch0-NGccX8JP9s',
+    SHEET_NAME: 'Projects Manager'
 };
 
-// Global state
+// Global variables
 let allProjects = [];
 let filteredProjects = [];
 let charts = {};
-let apexCharts = {};
 let currentPage = 1;
-let pageSize = 10;
-let currentTimeView = 'daily';
+const pageSize = 15;
 
 // ============================================
 // INITIALIZATION
@@ -638,44 +593,47 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================================
-// SHOW NOTIFICATION
+// FORMATTING FUNCTIONS
 // ============================================
-function showNotification(message, type = 'success') {
-    const notification = document.getElementById('notification');
-    const icon = document.getElementById('notificationIcon');
-    const content = document.getElementById('notificationContent');
-    const messageEl = document.getElementById('notificationMessage');
+function formatCurrency(amount) {
+    if (amount === undefined || amount === null || isNaN(amount)) return 'R 0.00';
+    return 'R ' + Number(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function formatPercent(value) {
+    if (value === undefined || value === null || isNaN(value)) return '0.0%';
+    return Number(value).toFixed(1) + '%';
+}
+
+function formatNumber(value) {
+    if (value === undefined || value === null || isNaN(value)) return '0';
+    return Number(value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// ============================================
+// SHOW MESSAGE
+// ============================================
+function showMessage(message, type = 'success') {
+    const box = document.getElementById('messageBox');
+    const icon = document.getElementById('messageIcon');
+    const text = document.getElementById('messageText');
     
-    let borderColor, iconColor, iconClass;
+    box.className = `message-box ${type}`;
     
-    switch(type) {
-        case 'success':
-            borderColor = 'border-green-500';
-            iconColor = 'text-green-500';
-            iconClass = 'fa-check-circle';
-            break;
-        case 'error':
-            borderColor = 'border-red-500';
-            iconColor = 'text-red-500';
-            iconClass = 'fa-exclamation-circle';
-            break;
-        case 'warning':
-            borderColor = 'border-yellow-500';
-            iconColor = 'text-yellow-500';
-            iconClass = 'fa-exclamation-triangle';
-            break;
-        default:
-            borderColor = 'border-blue-500';
-            iconColor = 'text-blue-500';
-            iconClass = 'fa-info-circle';
+    if (type === 'success') {
+        icon.className = 'fa-regular fa-circle-check text-green-500 text-xl';
+    } else if (type === 'error') {
+        icon.className = 'fa-regular fa-circle-exclamation text-red-500 text-xl';
+    } else {
+        icon.className = 'fa-regular fa-info-circle text-blue-500 text-xl';
     }
     
-    content.className = `bg-white rounded-lg shadow-xl p-4 flex items-center gap-3 border-l-4 ${borderColor}`;
-    icon.className = `fas ${iconClass} ${iconColor}`;
-    messageEl.textContent = message;
+    text.textContent = message;
+    box.style.display = 'flex';
     
-    notification.classList.remove('hidden');
-    setTimeout(() => notification.classList.add('hidden'), 3000);
+    setTimeout(() => {
+        box.style.display = 'none';
+    }, 5000);
 }
 
 // ============================================
@@ -683,6 +641,7 @@ function showNotification(message, type = 'success') {
 // ============================================
 async function loadData() {
     showLoading(true);
+    updateStatus('checking', 'Connecting...');
     
     try {
         const url = `${CONFIG.SCRIPT_URL}?action=getProjects&t=${Date.now()}`;
@@ -705,115 +664,26 @@ async function loadData() {
         allProjects = allProjects.map(project => ({
             ...project,
             TotalProfit: (project.TotalInvoiced || 0) - (project.TotalCosts || 0),
-            ProfitMargin: project.TotalInvoiced > 0 ? ((project.TotalInvoiced - project.TotalCosts) / project.TotalInvoiced) * 100 : 0,
-            DaysRemaining: calculateDaysRemaining(project),
-            HealthScore: calculateHealthScore(project)
+            ProfitMargin: project.TotalInvoiced > 0 ? 
+                ((project.TotalInvoiced - project.TotalCosts) / project.TotalInvoiced) * 100 : 0,
+            DaysRemaining: calculateDaysRemaining(project)
         }));
         
         filteredProjects = [...allProjects];
         
         updateUI();
-        showNotification(`Loaded ${allProjects.length} projects successfully`, 'success');
+        updateStatus('connected', `Connected (${allProjects.length} projects)`);
+        showMessage(`Loaded ${allProjects.length} projects successfully`, 'success');
         
     } catch (error) {
         console.error('Error:', error);
-        showNotification('Error loading data: ' + error.message, 'error');
+        updateStatus('disconnected', 'Connection failed');
+        showMessage('Error loading data: ' + error.message, 'error');
         generateSampleData();
     } finally {
         showLoading(false);
-        document.getElementById('lastUpdated').innerHTML = moment().format('HH:mm:ss');
+        document.getElementById('updateTime').innerHTML = `<i class="fa-regular fa-clock mr-1"></i>${moment().format('HH:mm')}`;
     }
-}
-
-// ============================================
-// GENERATE SAMPLE DATA (FALLBACK)
-// ============================================
-function generateSampleData() {
-    const costCenters = ['Aqua Telecoms', 'DI Solutions', 'Nkanyezi Projects', 'Onpoint HQ'];
-    const supervisors = ['John Smith', 'Sarah Johnson', 'Mike Peters', 'Lisa Brown', 'David Wilson'];
-    const managers = ['Moses', 'Johan', 'Siyanda', 'Dave', 'James'];
-    const statuses = ['Active', 'On Track', 'At Risk', 'Behind Schedule', 'Completed'];
-    const risks = ['Low', 'Medium', 'High', 'Critical'];
-    
-    allProjects = [];
-    
-    for (let i = 1; i <= 25; i++) {
-        const startDate = moment().subtract(Math.floor(Math.random() * 100), 'days');
-        const duration = 30 + Math.floor(Math.random() * 200);
-        const endDate = moment(startDate).add(duration, 'days');
-        const progress = Math.min(100, Math.floor(Math.random() * 120));
-        const invoiced = 100000 + Math.random() * 900000;
-        const costs = invoiced * (0.5 + Math.random() * 0.4);
-        
-        allProjects.push({
-            ProjectID: `PRJ-${String(i).padStart(3, '0')}`,
-            ProjectName: `Project ${String.fromCharCode(65 + (i % 26))} - ${['Infrastructure', 'Solar', 'Fiber', 'Network', 'Security'][i % 5]}`,
-            CostCenter: costCenters[i % costCenters.length],
-            Location: ['Johannesburg', 'Cape Town', 'Durban', 'Pretoria'][i % 4],
-            Supervisor: supervisors[i % supervisors.length],
-            ProjectManager: managers[i % managers.length],
-            TotalInvoiced: invoiced,
-            TotalCosts: costs,
-            TargetValue: invoiced,
-            TargetMeasure: 'R',
-            ActualProgress: progress,
-            StartDate: startDate.format('YYYY-MM-DD'),
-            EndDate: endDate.format('YYYY-MM-DD'),
-            CurrentDate: moment().format('YYYY-MM-DD'),
-            DurationNumber: duration,
-            DurationType: 'Days',
-            DailyIncome: invoiced / duration,
-            DailyExpenses: costs / duration,
-            DailyProfit: (invoiced - costs) / duration,
-            ProgressPercentage: Math.min(progress, 100),
-            Variance: progress > 100 ? progress - 100 : 0,
-            VarianceUnit: '%',
-            DaysToCompletion: Math.max(0, endDate.diff(moment(), 'days')),
-            ScheduleVariance: (progress / 100) * duration - moment().diff(startDate, 'days'),
-            Status: statuses[i % statuses.length],
-            Comments: 'Sample project data',
-            Challenges: Math.random() > 0.7 ? 'Some challenges' : '',
-            RiskLevel: risks[i % risks.length],
-            PhotoCount: Math.floor(Math.random() * 10),
-            VideoLink: '',
-            BudgetUtilization: (costs / invoiced) * 100,
-            BurnRate: costs / duration,
-            ROI: ((invoiced - costs) / costs) * 100,
-            CompletionEstimate: moment(startDate).add(duration * (progress/100), 'days').format('YYYY-MM-DD'),
-            CreatedBy: 'system',
-            LastModifiedBy: 'system'
-        });
-    }
-    
-    filteredProjects = [...allProjects];
-    updateUI();
-    showNotification('Using sample data (offline mode)', 'warning');
-}
-
-// ============================================
-// CALCULATE HEALTH SCORE
-// ============================================
-function calculateHealthScore(project) {
-    let score = 100;
-    
-    // Progress variance
-    if (project.ScheduleVariance < -10) score -= 20;
-    else if (project.ScheduleVariance < 0) score -= 10;
-    
-    // Budget utilization
-    if (project.BudgetUtilization > 95) score -= 15;
-    else if (project.BudgetUtilization > 80) score -= 5;
-    
-    // Risk level
-    if (project.RiskLevel === 'High') score -= 20;
-    else if (project.RiskLevel === 'Medium') score -= 10;
-    else if (project.RiskLevel === 'Critical') score -= 30;
-    
-    // Status
-    if (project.Status === 'Behind Schedule') score -= 15;
-    else if (project.Status === 'Completed') score += 5;
-    
-    return Math.max(0, Math.min(100, score));
 }
 
 // ============================================
@@ -827,136 +697,145 @@ function calculateDaysRemaining(project) {
 }
 
 // ============================================
+// GENERATE SAMPLE DATA (FALLBACK)
+// ============================================
+function generateSampleData() {
+    const managers = ['Moses', 'Johan', 'Siyanda', 'Dave', 'James', 'Rayman', 'Timothy'];
+    const supervisors = ['John Smith', 'Sarah Johnson', 'Mike Peters', 'Lisa Brown'];
+    const costCenters = ['Aqua Telecoms', 'DI Solutions', 'Nkanyezi Projects', 'Onpoint HQ'];
+    const locations = ['Johannesburg', 'Cape Town', 'Durban', 'Pretoria'];
+    const risks = ['Low', 'Medium', 'High', 'Critical'];
+    const statuses = ['Active', 'On Track', 'At Risk', 'Behind Schedule', 'Completed'];
+    
+    allProjects = [];
+    
+    for (let i = 1; i <= 30; i++) {
+        const startDate = moment().subtract(Math.floor(Math.random() * 100), 'days');
+        const duration = 30 + Math.floor(Math.random() * 200);
+        const endDate = moment(startDate).add(duration, 'days');
+        const progress = Math.min(100, Math.floor(Math.random() * 120));
+        const invoiced = 500000 + Math.random() * 2000000;
+        const costs = invoiced * (0.5 + Math.random() * 0.4);
+        const roi = ((invoiced - costs) / costs) * 100;
+        
+        allProjects.push({
+            ProjectID: `PRJ-${String(i).padStart(3, '0')}`,
+            ProjectName: `Project ${String.fromCharCode(65 + (i % 26))} - ${['Infrastructure', 'Solar', 'Fiber', 'Network'][i % 4]}`,
+            CostCenter: costCenters[i % costCenters.length],
+            Location: locations[i % locations.length],
+            Supervisor: supervisors[i % supervisors.length],
+            ProjectManager: managers[i % managers.length],
+            TotalInvoiced: invoiced,
+            TotalCosts: costs,
+            TotalProfit: invoiced - costs,
+            ProfitMargin: ((invoiced - costs) / invoiced) * 100,
+            ProgressPercentage: progress,
+            StartDate: startDate.format('YYYY-MM-DD'),
+            EndDate: endDate.format('YYYY-MM-DD'),
+            CurrentDate: moment().format('YYYY-MM-DD'),
+            Status: statuses[i % statuses.length],
+            RiskLevel: risks[i % risks.length],
+            BudgetUtilization: (costs / invoiced) * 100,
+            BurnRate: costs / duration,
+            ROI: roi,
+            DaysRemaining: Math.max(0, endDate.diff(moment(), 'days')),
+            ScheduleVariance: (progress / 100) * duration - moment().diff(startDate, 'days'),
+            Comments: 'Sample project data',
+            PhotoCount: Math.floor(Math.random() * 10)
+        });
+    }
+    
+    filteredProjects = [...allProjects];
+    updateUI();
+    showMessage('Using sample data (offline mode)', 'info');
+}
+
+// ============================================
 // UPDATE ALL UI COMPONENTS
 // ============================================
 function updateUI() {
     updateKPIs();
     updateFilters();
-    updateCharts();
-    renderTable();
-    updatePagination();
+    updateSummaryCards();
+    renderAllCharts();
+    updateTable();
 }
 
 // ============================================
 // UPDATE KPI CARDS
 // ============================================
 function updateKPIs() {
+    document.getElementById('kpiTotalProjects').innerText = allProjects.length;
+    
+    const active = allProjects.filter(p => p.Status !== 'Completed' && p.Status !== 'Cancelled').length;
+    const completed = allProjects.filter(p => p.Status === 'Completed').length;
+    const atRisk = allProjects.filter(p => p.RiskLevel === 'High' || p.RiskLevel === 'Critical').length;
+    
+    document.getElementById('kpiActive').innerText = active;
+    document.getElementById('kpiCompleted').innerText = completed;
+    document.getElementById('kpiAtRisk').innerText = atRisk;
+    
     const totalValue = allProjects.reduce((sum, p) => sum + (p.TotalInvoiced || 0), 0);
-    const totalCosts = allProjects.reduce((sum, p) => sum + (p.TotalCosts || 0), 0);
-    const totalProfit = totalValue - totalCosts;
-    const profitMargin = totalValue > 0 ? (totalProfit / totalValue) * 100 : 0;
+    const totalProfit = allProjects.reduce((sum, p) => sum + (p.TotalProfit || 0), 0);
     
-    const activeProjects = allProjects.filter(p => p.Status !== 'Completed').length;
-    const completedProjects = allProjects.filter(p => p.Status === 'Completed').length;
-    const completionRate = allProjects.length > 0 ? (completedProjects / allProjects.length) * 100 : 0;
+    document.getElementById('kpiTotalValue').innerText = formatCurrency(totalValue);
+    document.getElementById('kpiTotalProfit').innerText = formatCurrency(totalProfit);
     
-    const atRiskProjects = allProjects.filter(p => p.RiskLevel === 'High' || p.RiskLevel === 'Critical').length;
-    const riskPercentage = allProjects.length > 0 ? (atRiskProjects / allProjects.length) * 100 : 0;
-    
-    document.getElementById('totalProjects').innerText = allProjects.length;
-    document.getElementById('totalValue').innerHTML = formatCurrency(totalValue);
-    document.getElementById('totalProfit').innerHTML = formatCurrency(totalProfit);
-    document.getElementById('profitMargin').innerHTML = `Margin: ${profitMargin.toFixed(1)}%`;
-    document.getElementById('activeProjects').innerText = activeProjects;
-    document.getElementById('completionRate').innerHTML = `Completion: ${completionRate.toFixed(1)}%`;
-    document.getElementById('atRiskProjects').innerText = atRiskProjects;
-    document.getElementById('riskPercentage').innerHTML = `${riskPercentage.toFixed(1)}% of total`;
-    
-    // Advanced metrics
+    const avgProgress = allProjects.reduce((sum, p) => sum + (p.ProgressPercentage || 0), 0) / allProjects.length || 0;
     const avgROI = allProjects.reduce((sum, p) => sum + (p.ROI || 0), 0) / allProjects.length || 0;
-    const maxROI = Math.max(...allProjects.map(p => p.ROI || 0));
-    const minROI = Math.min(...allProjects.map(p => p.ROI || 0));
     
-    document.getElementById('avgROI').innerHTML = avgROI.toFixed(1) + '%';
-    document.getElementById('roiProgress').style.width = Math.min(100, avgROI) + '%';
-    document.getElementById('roiRange').innerHTML = `Range: ${minROI.toFixed(1)}% - ${maxROI.toFixed(1)}%`;
-    
-    const avgBurnRate = allProjects.reduce((sum, p) => sum + (p.BurnRate || 0), 0) / allProjects.length || 0;
-    document.getElementById('avgBurnRate').innerHTML = formatCurrency(avgBurnRate) + '/day';
-    
-    const avgScheduleVariance = allProjects.reduce((sum, p) => sum + (p.ScheduleVariance || 0), 0) / allProjects.length || 0;
-    document.getElementById('scheduleVariance').innerHTML = avgScheduleVariance.toFixed(1) + ' days';
-    document.getElementById('varianceStatus').innerHTML = avgScheduleVariance > 0 ? 
-        '<span class="text-green-500">Ahead of schedule</span>' : 
-        '<span class="text-red-500">Behind schedule</span>';
-    
-    const avgDaysToComplete = allProjects.reduce((sum, p) => sum + (p.DaysToCompletion || 0), 0) / allProjects.length || 0;
-    document.getElementById('avgDaysToComplete').innerHTML = Math.round(avgDaysToComplete);
-    document.getElementById('completionForecast').innerHTML = `Est: ${moment().add(avgDaysToComplete, 'days').format('MMM DD')}`;
+    document.getElementById('kpiAvgProgress').innerText = formatPercent(avgProgress);
+    document.getElementById('kpiAvgROI').innerText = formatPercent(avgROI);
 }
 
 // ============================================
 // UPDATE FILTER DROPDOWNS
 // ============================================
 function updateFilters() {
-    const projectNames = [...new Set(allProjects.map(p => p.ProjectName).filter(Boolean))].sort();
-    const supervisors = [...new Set(allProjects.map(p => p.Supervisor).filter(Boolean))].sort();
     const managers = [...new Set(allProjects.map(p => p.ProjectManager).filter(Boolean))].sort();
+    const supervisors = [...new Set(allProjects.map(p => p.Supervisor).filter(Boolean))].sort();
     const costCenters = [...new Set(allProjects.map(p => p.CostCenter).filter(Boolean))].sort();
+    const locations = [...new Set(allProjects.map(p => p.Location).filter(Boolean))].sort();
     
-    updateSelect('filterProjectName', projectNames, 'All Projects');
-    updateSelect('filterSupervisor', supervisors, 'All Supervisors');
-    updateSelect('filterManager', managers, 'All Managers');
-    updateSelect('filterCostCenter', costCenters, 'All Cost Centers');
-}
-
-function updateSelect(elementId, options, defaultText) {
-    const select = document.getElementById(elementId);
-    select.innerHTML = `<option value="">${defaultText}</option>`;
-    options.forEach(opt => {
-        select.innerHTML += `<option value="${opt}">${opt}</option>`;
-    });
+    document.getElementById('filterManager').innerHTML = '<option value="">All Managers</option>' + 
+        managers.map(m => `<option value="${m}">${m}</option>`).join('');
+    
+    document.getElementById('filterSupervisor').innerHTML = '<option value="">All Supervisors</option>' + 
+        supervisors.map(s => `<option value="${s}">${s}</option>`).join('');
+    
+    document.getElementById('filterCostCenter').innerHTML = '<option value="">All Cost Centers</option>' + 
+        costCenters.map(cc => `<option value="${cc}">${cc}</option>`).join('');
+    
+    document.getElementById('filterLocation').innerHTML = '<option value="">All Locations</option>' + 
+        locations.map(l => `<option value="${l}">${l}</option>`).join('');
 }
 
 // ============================================
 // APPLY FILTERS
 // ============================================
 function applyFilters() {
-    const projectName = document.getElementById('filterProjectName').value;
-    const supervisor = document.getElementById('filterSupervisor').value;
     const manager = document.getElementById('filterManager').value;
+    const supervisor = document.getElementById('filterSupervisor').value;
     const costCenter = document.getElementById('filterCostCenter').value;
-    const status = document.getElementById('filterStatus').value;
+    const location = document.getElementById('filterLocation').value;
     const risk = document.getElementById('filterRisk').value;
-    const timeRange = document.getElementById('timeRangeFilter').value;
+    const status = document.getElementById('filterStatus').value;
     
-    filteredProjects = allProjects.filter(project => {
-        if (projectName && project.ProjectName !== projectName) return false;
-        if (supervisor && project.Supervisor !== supervisor) return false;
-        if (manager && project.ProjectManager !== manager) return false;
-        if (costCenter && project.CostCenter !== costCenter) return false;
-        if (status && project.Status !== status) return false;
-        if (risk && project.RiskLevel !== risk) return false;
-        
-        // Time range filter
-        if (timeRange !== 'all') {
-            const startDate = moment(project.StartDate);
-            const now = moment();
-            
-            switch(timeRange) {
-                case 'today':
-                    if (!startDate.isSame(now, 'day')) return false;
-                    break;
-                case 'week':
-                    if (!startDate.isSame(now, 'week')) return false;
-                    break;
-                case 'month':
-                    if (!startDate.isSame(now, 'month')) return false;
-                    break;
-                case 'quarter':
-                    if (!startDate.isSame(now, 'quarter')) return false;
-                    break;
-            }
-        }
-        
+    filteredProjects = allProjects.filter(p => {
+        if (manager && p.ProjectManager !== manager) return false;
+        if (supervisor && p.Supervisor !== supervisor) return false;
+        if (costCenter && p.CostCenter !== costCenter) return false;
+        if (location && p.Location !== location) return false;
+        if (risk && p.RiskLevel !== risk) return false;
+        if (status && p.Status !== status) return false;
         return true;
     });
     
     currentPage = 1;
-    renderTable();
-    updateCharts();
-    updatePagination();
-    showNotification(`Found ${filteredProjects.length} projects`, 'success');
+    updateTable();
+    renderAllCharts();
+    updateSummaryCards();
+    showMessage(`Showing ${filteredProjects.length} projects`, 'success');
 }
 
 // ============================================
@@ -964,11 +843,11 @@ function applyFilters() {
 // ============================================
 function quickFilter(type) {
     switch(type) {
-        case 'risk_high':
+        case 'highRisk':
             filteredProjects = allProjects.filter(p => p.RiskLevel === 'High' || p.RiskLevel === 'Critical');
             break;
-        case 'behind':
-            filteredProjects = allProjects.filter(p => p.Status === 'Behind Schedule' || p.ScheduleVariance < -10);
+        case 'behindSchedule':
+            filteredProjects = allProjects.filter(p => p.Status === 'Behind Schedule' || (p.ScheduleVariance && p.ScheduleVariance < -10));
             break;
         case 'profitable':
             filteredProjects = allProjects.filter(p => (p.TotalProfit || 0) > 0);
@@ -976,167 +855,142 @@ function quickFilter(type) {
         case 'completed':
             filteredProjects = allProjects.filter(p => p.Status === 'Completed');
             break;
+        case 'overBudget':
+            filteredProjects = allProjects.filter(p => (p.BudgetUtilization || 0) > 100);
+            break;
+        default:
+            filteredProjects = [...allProjects];
     }
     
     currentPage = 1;
-    renderTable();
-    updateCharts();
-    updatePagination();
-    showNotification(`Found ${filteredProjects.length} projects`, 'success');
+    updateTable();
+    renderAllCharts();
+    updateSummaryCards();
 }
 
 // ============================================
 // RESET FILTERS
 // ============================================
 function resetFilters() {
-    document.getElementById('filterProjectName').value = '';
-    document.getElementById('filterSupervisor').value = '';
     document.getElementById('filterManager').value = '';
+    document.getElementById('filterSupervisor').value = '';
     document.getElementById('filterCostCenter').value = '';
-    document.getElementById('filterStatus').value = '';
+    document.getElementById('filterLocation').value = '';
     document.getElementById('filterRisk').value = '';
-    document.getElementById('timeRangeFilter').value = 'all';
+    document.getElementById('filterStatus').value = '';
     
     filteredProjects = [...allProjects];
     currentPage = 1;
-    renderTable();
-    updateCharts();
-    updatePagination();
-    showNotification('Filters reset', 'success');
+    updateTable();
+    renderAllCharts();
+    updateSummaryCards();
+    showMessage('Filters reset', 'info');
 }
 
 // ============================================
-// RENDER TABLE WITH PAGINATION
+// UPDATE SUMMARY CARDS
 // ============================================
-function renderTable() {
-    const tbody = document.getElementById('tableBody');
-    const start = (currentPage - 1) * pageSize;
-    const end = Math.min(start + pageSize, filteredProjects.length);
-    const pageData = filteredProjects.slice(start, end);
-    
-    if (pageData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-gray-400">No projects found</td></tr>';
-        return;
-    }
-    
-    let html = '';
-    pageData.forEach(project => {
-        const statusClass = getStatusClass(project.Status);
-        const riskClass = getRiskClass(project.RiskLevel);
-        const progress = project.ProgressPercentage || 0;
-        
-        html += `<tr class="hover:bg-gray-50">
-            <td class="font-mono text-xs">${project.ProjectID || 'N/A'}</td>
-            <td class="font-medium">${project.ProjectName || 'Unnamed'}</td>
-            <td>${project.CostCenter || 'N/A'}</td>
-            <td>${project.Supervisor || 'N/A'}</td>
-            <td>${project.ProjectManager || 'N/A'}</td>
-            <td>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-medium">${progress.toFixed(1)}%</span>
-                    <div class="progress-bar w-16">
-                        <div class="progress-fill" style="width: ${progress}%"></div>
-                    </div>
-                </div>
-            </td>
-            <td>${(project.BudgetUtilization || 0).toFixed(1)}%</td>
-            <td class="font-medium ${(project.DailyProfit || 0) > 0 ? 'text-green-600' : 'text-red-600'}">
-                ${formatCurrency(project.DailyProfit || 0)}
-            </td>
-            <td class="font-medium ${(project.ROI || 0) > 15 ? 'text-green-600' : (project.ROI || 0) > 0 ? 'text-yellow-600' : 'text-red-600'}">
-                ${(project.ROI || 0).toFixed(1)}%
-            </td>
-            <td><span class="status-badge ${statusClass}">${project.Status || 'Unknown'}</span></td>
-            <td><span class="status-badge ${riskClass}">${project.RiskLevel || 'Unknown'}</span></td>
-            <td>
-                <button onclick="viewProject('${project.ProjectID}')" class="text-purple-600 hover:text-purple-800">
-                    <i class="fas fa-eye"></i>
-                </button>
-            </td>
-        </tr>`;
+function updateSummaryCards() {
+    // Cost Centers
+    const costCenters = {};
+    filteredProjects.forEach(p => {
+        const cc = p.CostCenter || 'Unknown';
+        costCenters[cc] = (costCenters[cc] || 0) + 1;
     });
     
-    tbody.innerHTML = html;
-    document.getElementById('tableRowCount').innerText = `${filteredProjects.length} projects`;
-}
-
-// ============================================
-// UPDATE PAGINATION
-// ============================================
-function updatePagination() {
-    const totalPages = Math.ceil(filteredProjects.length / pageSize);
-    document.getElementById('paginationInfo').innerText = `Showing ${Math.min(filteredProjects.length, 1)}-${Math.min(filteredProjects.length, pageSize)} of ${filteredProjects.length}`;
-    document.getElementById('currentPage').innerText = currentPage;
+    document.getElementById('costCenterCount').innerText = Object.keys(costCenters).length + ' centers';
+    document.getElementById('costCenterList').innerHTML = Object.entries(costCenters)
+        .slice(0, 3)
+        .map(([cc, count]) => `<div class="flex justify-between"><span>${cc}</span><span class="font-medium">${count}</span></div>`)
+        .join('');
     
-    document.getElementById('prevBtn').disabled = currentPage === 1;
-    document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
-}
-
-function prevPage() {
-    if (currentPage > 1) {
-        currentPage--;
-        renderTable();
-        updatePagination();
-    }
-}
-
-function nextPage() {
-    const totalPages = Math.ceil(filteredProjects.length / pageSize);
-    if (currentPage < totalPages) {
-        currentPage++;
-        renderTable();
-        updatePagination();
-    }
+    // Managers
+    const managers = {};
+    filteredProjects.forEach(p => {
+        const m = p.ProjectManager || 'Unknown';
+        managers[m] = (managers[m] || 0) + 1;
+    });
+    
+    document.getElementById('managerCount').innerText = Object.keys(managers).length + ' managers';
+    document.getElementById('managerList').innerHTML = Object.entries(managers)
+        .slice(0, 3)
+        .map(([m, count]) => `<div class="flex justify-between"><span>${m}</span><span class="font-medium">${count}</span></div>`)
+        .join('');
+    
+    // Locations
+    const locations = {};
+    filteredProjects.forEach(p => {
+        const l = p.Location || 'Unknown';
+        locations[l] = (locations[l] || 0) + 1;
+    });
+    
+    document.getElementById('locationCount').innerText = Object.keys(locations).length + ' locations';
+    document.getElementById('locationList').innerHTML = Object.entries(locations)
+        .slice(0, 3)
+        .map(([l, count]) => `<div class="flex justify-between"><span>${l}</span><span class="font-medium">${count}</span></div>`)
+        .join('');
+    
+    // Risk counts
+    const low = filteredProjects.filter(p => p.RiskLevel === 'Low').length;
+    const medium = filteredProjects.filter(p => p.RiskLevel === 'Medium').length;
+    const high = filteredProjects.filter(p => p.RiskLevel === 'High').length;
+    const critical = filteredProjects.filter(p => p.RiskLevel === 'Critical').length;
+    
+    document.getElementById('lowRiskCount').innerText = low;
+    document.getElementById('mediumRiskCount').innerText = medium;
+    document.getElementById('highRiskCount').innerText = high;
+    document.getElementById('highRiskCount2').innerText = high;
+    document.getElementById('criticalRiskCount').innerText = critical;
 }
 
 // ============================================
-// UPDATE ALL CHARTS
+// RENDER ALL CHARTS
 // ============================================
-function updateCharts() {
+function renderAllCharts() {
     if (filteredProjects.length === 0) return;
     
-    // Destroy existing charts
     Object.values(charts).forEach(chart => chart?.destroy());
     
-    renderBudgetChart();
-    renderProfitChart();
+    renderFinancialChart();
+    renderStatusChart();
     renderProgressChart();
-    renderHealthGauge();
-    renderPerformanceTrend();
-    renderRiskHeatMap();
+    renderRiskChart();
+    renderBudgetChart();
+    renderScheduleChart();
 }
 
 // ============================================
-// RENDER BUDGET CHART
+// FINANCIAL CHART
 // ============================================
-function renderBudgetChart() {
-    const ctx = document.getElementById('budgetChart').getContext('2d');
+function renderFinancialChart() {
+    const ctx = document.getElementById('financialChart').getContext('2d');
     
     const topProjects = filteredProjects
         .sort((a, b) => (b.TotalInvoiced || 0) - (a.TotalInvoiced || 0))
-        .slice(0, 10);
+        .slice(0, 8);
     
-    charts.budget = new Chart(ctx, {
+    charts.financial = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: topProjects.map(p => {
-                const name = p.ProjectName || 'Unnamed';
-                return name.length > 15 ? name.substring(0, 12) + '...' : name;
-            }),
+            labels: topProjects.map(p => p.ProjectName?.length > 15 ? p.ProjectName.substring(0,12)+'...' : p.ProjectName),
             datasets: [
                 {
-                    label: 'Budget',
+                    label: 'Income',
                     data: topProjects.map(p => (p.TotalInvoiced || 0) / 1000),
-                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
-                    borderRadius: 4,
-                    barPercentage: 0.6
+                    backgroundColor: '#1e4b8c',
+                    borderRadius: 4
                 },
                 {
-                    label: 'Actual',
+                    label: 'Cost',
                     data: topProjects.map(p => (p.TotalCosts || 0) / 1000),
-                    backgroundColor: 'rgba(67, 233, 123, 0.8)',
-                    borderRadius: 4,
-                    barPercentage: 0.6
+                    backgroundColor: '#ef4444',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Profit',
+                    data: topProjects.map(p => ((p.TotalInvoiced || 0) - (p.TotalCosts || 0)) / 1000),
+                    backgroundColor: '#10b981',
+                    borderRadius: 4
                 }
             ]
         },
@@ -1147,13 +1001,12 @@ function renderBudgetChart() {
                 legend: { position: 'bottom' },
                 tooltip: {
                     callbacks: {
-                        label: (ctx) => `${ctx.dataset.label}: R ${(ctx.raw * 1000).toLocaleString()}`
+                        label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.raw * 1000)}`
                     }
                 }
             },
             scales: {
                 y: {
-                    beginAtZero: true,
                     ticks: {
                         callback: (val) => 'R' + val + 'k'
                     }
@@ -1164,42 +1017,86 @@ function renderBudgetChart() {
 }
 
 // ============================================
-// RENDER PROFIT CHART
+// STATUS CHART
 // ============================================
-function renderProfitChart() {
-    const ctx = document.getElementById('profitChart').getContext('2d');
+function renderStatusChart() {
+    const ctx = document.getElementById('statusChart').getContext('2d');
     
-    const costCenterProfit = {};
+    const statusCounts = {};
     filteredProjects.forEach(p => {
-        const cc = p.CostCenter || 'Other';
-        if (!costCenterProfit[cc]) costCenterProfit[cc] = 0;
-        costCenterProfit[cc] += (p.TotalInvoiced || 0) - (p.TotalCosts || 0);
+        const status = p.Status || 'Unknown';
+        statusCounts[status] = (statusCounts[status] || 0) + 1;
     });
     
-    const sorted = Object.entries(costCenterProfit)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 8);
-    
-    charts.profit = new Chart(ctx, {
+    charts.status = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: sorted.map(([cc]) => cc),
+            labels: Object.keys(statusCounts),
             datasets: [{
-                data: sorted.map(([, profit]) => profit),
-                backgroundColor: [
-                    '#667eea', '#43e97b', '#fa709a', '#f59e0b',
-                    '#3c8ce7', '#8b5cf6', '#ec4899', '#14b8a6'
-                ]
+                data: Object.values(statusCounts),
+                backgroundColor: ['#1e4b8c', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                borderWidth: 0
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: true,
             plugins: {
-                legend: { position: 'bottom' },
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+// ============================================
+// PROGRESS CHART
+// ============================================
+function renderProgressChart() {
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    
+    const managerProgress = {};
+    filteredProjects.forEach(p => {
+        if (p.ProjectManager) {
+            if (!managerProgress[p.ProjectManager]) {
+                managerProgress[p.ProjectManager] = { sum: 0, count: 0 };
+            }
+            managerProgress[p.ProjectManager].sum += p.ProgressPercentage || 0;
+            managerProgress[p.ProjectManager].count++;
+        }
+    });
+    
+    const chartData = Object.entries(managerProgress)
+        .map(([name, d]) => ({ name, avg: d.sum / d.count }))
+        .sort((a, b) => b.avg - a.avg)
+        .slice(0, 8);
+    
+    charts.progress = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.map(d => d.name),
+            datasets: [{
+                data: chartData.map(d => d.avg),
+                backgroundColor: '#1e4b8c',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false },
                 tooltip: {
                     callbacks: {
-                        label: (ctx) => `${ctx.label}: ${formatCurrency(ctx.raw)}`
+                        label: (ctx) => `Avg Progress: ${ctx.raw.toFixed(1)}%`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    max: 100,
+                    ticks: {
+                        callback: (val) => val + '%'
                     }
                 }
             }
@@ -1208,35 +1105,24 @@ function renderProfitChart() {
 }
 
 // ============================================
-// RENDER PROGRESS CHART
+// RISK CHART
 // ============================================
-function renderProgressChart() {
-    const ctx = document.getElementById('progressChart').getContext('2d');
+function renderRiskChart() {
+    const ctx = document.getElementById('riskChart').getContext('2d');
     
-    const ranges = {
-        '0-25%': 0,
-        '26-50%': 0,
-        '51-75%': 0,
-        '76-99%': 0,
-        '100%': 0
-    };
-    
+    const riskCounts = { Low: 0, Medium: 0, High: 0, Critical: 0 };
     filteredProjects.forEach(p => {
-        const progress = p.ProgressPercentage || 0;
-        if (progress <= 25) ranges['0-25%']++;
-        else if (progress <= 50) ranges['26-50%']++;
-        else if (progress <= 75) ranges['51-75%']++;
-        else if (progress < 100) ranges['76-99%']++;
-        else ranges['100%']++;
+        const risk = p.RiskLevel || 'Low';
+        riskCounts[risk] = (riskCounts[risk] || 0) + 1;
     });
     
-    charts.progress = new Chart(ctx, {
+    charts.risk = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: Object.keys(ranges),
+            labels: Object.keys(riskCounts),
             datasets: [{
-                data: Object.values(ranges),
-                backgroundColor: ['#f59e0b', '#3b82f6', '#8b5cf6', '#ec4899', '#10b981'],
+                data: Object.values(riskCounts),
+                backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#7f1d1d'],
                 borderRadius: 4
             }]
         },
@@ -1257,301 +1143,185 @@ function renderProgressChart() {
 }
 
 // ============================================
-// RENDER HEALTH GAUGE (ApexCharts)
+// BUDGET CHART
 // ============================================
-function renderHealthGauge() {
-    const avgHealth = filteredProjects.reduce((sum, p) => sum + (p.HealthScore || 0), 0) / filteredProjects.length || 0;
+function renderBudgetChart() {
+    const ctx = document.getElementById('budgetChart').getContext('2d');
     
-    const options = {
-        series: [Math.round(avgHealth)],
-        chart: {
-            type: 'radialBar',
-            height: 250,
-            offsetY: -10
+    const overBudget = filteredProjects.filter(p => (p.BudgetUtilization || 0) > 100).length;
+    const withinBudget = filteredProjects.filter(p => (p.BudgetUtilization || 0) <= 100 && (p.BudgetUtilization || 0) > 0).length;
+    const underBudget = filteredProjects.filter(p => (p.BudgetUtilization || 0) === 0).length;
+    
+    charts.budget = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Over Budget', 'Within Budget', 'Under Budget'],
+            datasets: [{
+                data: [overBudget, withinBudget, underBudget],
+                backgroundColor: ['#ef4444', '#f59e0b', '#10b981'],
+                borderWidth: 0
+            }]
         },
-        plotOptions: {
-            radialBar: {
-                startAngle: -135,
-                endAngle: 135,
-                dataLabels: {
-                    name: {
-                        fontSize: '14px',
-                        color: '#888',
-                        offsetY: 80
-                    },
-                    value: {
-                        fontSize: '24px',
-                        color: '#333',
-                        offsetY: 50,
-                        formatter: (val) => val + '%'
-                    }
-                },
-                track: {
-                    background: '#e5e7eb',
-                    strokeWidth: '97%',
-                    margin: 5
-                }
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { position: 'bottom' }
             }
-        },
-        fill: {
-            colors: ['#667eea']
-        },
-        labels: ['Health Score'],
-        responsive: [{
-            breakpoint: 480,
-            options: {
-                chart: { height: 200 }
-            }
-        }]
-    };
-    
-    if (apexCharts.health) apexCharts.health.destroy();
-    apexCharts.health = new ApexCharts(document.querySelector("#healthGaugeChart"), options);
-    apexCharts.health.render();
-}
-
-// ============================================
-// RENDER PERFORMANCE TREND
-// ============================================
-function renderPerformanceTrend() {
-    let dates = [];
-    let profits = [];
-    
-    if (currentTimeView === 'daily') {
-        // Last 14 days
-        for (let i = 13; i >= 0; i--) {
-            const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
-            dates.push(moment(date).format('DD MMM'));
-            
-            const dailyProfit = filteredProjects
-                .filter(p => p.CurrentDate === date)
-                .reduce((sum, p) => sum + (p.DailyProfit || 0), 0);
-            profits.push(dailyProfit);
-        }
-    } else if (currentTimeView === 'weekly') {
-        // Last 12 weeks
-        for (let i = 11; i >= 0; i--) {
-            const weekStart = moment().subtract(i, 'weeks').startOf('week');
-            const weekEnd = moment().subtract(i, 'weeks').endOf('week');
-            dates.push(`W${weekStart.format('WW')}`);
-            
-            const weeklyProfit = filteredProjects
-                .filter(p => moment(p.CurrentDate).isBetween(weekStart, weekEnd, null, '[]'))
-                .reduce((sum, p) => sum + (p.DailyProfit || 0) * 7, 0);
-            profits.push(weeklyProfit);
-        }
-    } else {
-        // Last 12 months
-        for (let i = 11; i >= 0; i--) {
-            const month = moment().subtract(i, 'months');
-            dates.push(month.format('MMM YY'));
-            
-            const monthlyProfit = filteredProjects
-                .filter(p => moment(p.CurrentDate).isSame(month, 'month'))
-                .reduce((sum, p) => sum + (p.DailyProfit || 0) * 30, 0);
-            profits.push(monthlyProfit);
-        }
-    }
-    
-    const options = {
-        series: [{
-            name: 'Profit',
-            data: profits.map(p => p / 1000) // Convert to thousands
-        }],
-        chart: {
-            type: 'area',
-            height: 250,
-            toolbar: { show: false },
-            zoom: { enabled: false }
-        },
-        dataLabels: { enabled: false },
-        stroke: { curve: 'smooth', width: 2, colors: ['#667eea'] },
-        fill: {
-            type: 'gradient',
-            gradient: {
-                shadeIntensity: 1,
-                opacityFrom: 0.7,
-                opacityTo: 0.2,
-                stops: [0, 90, 100]
-            }
-        },
-        xaxis: {
-            categories: dates,
-            labels: { rotate: -45, rotateAlways: false, style: { fontSize: '10px' } }
-        },
-        yaxis: {
-            labels: {
-                formatter: (val) => 'R' + val + 'k'
-            }
-        },
-        tooltip: {
-            y: {
-                formatter: (val) => formatCurrency(val * 1000)
-            }
-        },
-        grid: { borderColor: '#f1f1f1' }
-    };
-    
-    if (apexCharts.trend) apexCharts.trend.destroy();
-    apexCharts.trend = new ApexCharts(document.querySelector("#performanceTrendChart"), options);
-    apexCharts.trend.render();
-}
-
-// ============================================
-// RENDER RISK HEAT MAP
-// ============================================
-function renderRiskHeatMap() {
-    const supervisorRisk = {};
-    
-    filteredProjects.forEach(p => {
-        if (!p.Supervisor) return;
-        
-        if (!supervisorRisk[p.Supervisor]) {
-            supervisorRisk[p.Supervisor] = { Low: 0, Medium: 0, High: 0, Critical: 0, total: 0 };
-        }
-        
-        supervisorRisk[p.Supervisor][p.RiskLevel || 'Low']++;
-        supervisorRisk[p.Supervisor].total++;
-    });
-    
-    let html = '<table class="min-w-full text-xs"><thead><tr><th>Supervisor</th><th>Low</th><th>Medium</th><th>High</th><th>Critical</th></tr></thead><tbody>';
-    
-    Object.entries(supervisorRisk).forEach(([name, risks]) => {
-        html += `<tr>
-            <td class="font-medium">${name}</td>
-            <td class="text-green-600 font-medium">${risks.Low}</td>
-            <td class="text-yellow-600 font-medium">${risks.Medium}</td>
-            <td class="text-orange-600 font-medium">${risks.High}</td>
-            <td class="text-red-600 font-medium">${risks.Critical}</td>
-        </tr>`;
-    });
-    
-    html += '</tbody></table>';
-    document.getElementById('riskHeatMap').innerHTML = html;
-}
-
-// ============================================
-// CHANGE TIME VIEW
-// ============================================
-function changeTimeView(view) {
-    currentTimeView = view;
-    
-    // Update button styles
-    ['daily', 'weekly', 'monthly'].forEach(v => {
-        const btn = document.getElementById(`btn${v.charAt(0).toUpperCase() + v.slice(1)}`);
-        if (btn) {
-            btn.className = v === view ? 
-                'px-3 py-1 text-xs rounded-lg bg-purple-100 text-purple-600' : 
-                'px-3 py-1 text-xs rounded-lg bg-gray-100 text-gray-600';
         }
     });
+}
+
+// ============================================
+// SCHEDULE CHART
+// ============================================
+function renderScheduleChart() {
+    const ctx = document.getElementById('scheduleChart').getContext('2d');
     
-    renderPerformanceTrend();
+    const ahead = filteredProjects.filter(p => (p.ScheduleVariance || 0) > 5).length;
+    const onTrack = filteredProjects.filter(p => Math.abs(p.ScheduleVariance || 0) <= 5).length;
+    const behind = filteredProjects.filter(p => (p.ScheduleVariance || 0) < -5).length;
+    
+    charts.schedule = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Ahead', 'On Track', 'Behind'],
+            datasets: [{
+                data: [ahead, onTrack, behind],
+                backgroundColor: ['#10b981', '#1e4b8c', '#ef4444'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
 }
 
 // ============================================
-// VIEW PROJECT DETAILS
+// UPDATE TABLE WITH PAGINATION
 // ============================================
-function viewProject(projectId) {
-    showNotification(`Viewing project: ${projectId}`, 'info');
-    // Implement detailed view modal here
-}
-
-// ============================================
-// EXPORT TO CSV
-// ============================================
-function exportToCSV() {
-    if (filteredProjects.length === 0) {
-        showNotification('No data to export', 'warning');
+function updateTable() {
+    const tbody = document.getElementById('tableBody');
+    const start = (currentPage - 1) * pageSize;
+    const end = Math.min(start + pageSize, filteredProjects.length);
+    const pageData = filteredProjects.slice(start, end);
+    
+    document.getElementById('rowCount').innerText = filteredProjects.length + ' projects';
+    document.getElementById('paginationInfo').innerText = `Showing ${start+1}-${end} of ${filteredProjects.length}`;
+    document.getElementById('currentPage').innerText = currentPage;
+    
+    const totalPages = Math.ceil(filteredProjects.length / pageSize);
+    document.getElementById('prevBtn').disabled = currentPage === 1;
+    document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
+    
+    if (pageData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="13" class="text-center py-8 text-gray-400">No projects found</td></tr>';
         return;
     }
     
-    const headers = ['Project ID', 'Project Name', 'Cost Center', 'Supervisor', 'Manager', 
-                     'Progress %', 'Total Value', 'Total Costs', 'Profit', 'ROI %', 'Status', 'Risk'];
+    let html = '';
+    pageData.forEach(p => {
+        const progress = p.ProgressPercentage || 0;
+        const profitClass = (p.TotalProfit || 0) >= 0 ? 'text-green-600' : 'text-red-600';
+        const statusClass = p.Status === 'Completed' ? 'status-completed' : 
+                           p.RiskLevel === 'High' || p.RiskLevel === 'Critical' ? 'status-risk' : 'status-active';
+        const riskClass = p.RiskLevel === 'Low' ? 'risk-low' :
+                         p.RiskLevel === 'Medium' ? 'risk-medium' :
+                         p.RiskLevel === 'High' ? 'risk-high' : 'risk-critical';
+        
+        html += `<tr class="hover:bg-gray-50">
+            <td class="font-mono text-xs">${p.ProjectID || '-'}</td>
+            <td class="font-medium">${p.ProjectName || '-'}</td>
+            <td>${p.ProjectManager || '-'}</td>
+            <td>${p.Supervisor || '-'}</td>
+            <td>${p.CostCenter || '-'}</td>
+            <td>${p.Location || '-'}</td>
+            <td>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs">${progress.toFixed(1)}%</span>
+                    <div class="progress-bar w-16">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                </div>
+            </td>
+            <td class="${profitClass}">${formatCurrency(p.DailyProfit || 0)}</td>
+            <td>${formatPercent(p.BudgetUtilization || 0)}</td>
+            <td class="${(p.ROI || 0) >= 15 ? 'text-green-600' : (p.ROI || 0) > 0 ? 'text-yellow-600' : 'text-red-600'}">
+                ${formatPercent(p.ROI || 0)}
+            </td>
+            <td><span class="status-badge ${statusClass}">${p.Status || 'Unknown'}</span></td>
+            <td><span class="status-badge ${riskClass}">${p.RiskLevel || 'Unknown'}</span></td>
+            <td>${p.DaysRemaining || 0}</td>
+        </tr>`;
+    });
     
-    const rows = filteredProjects.map(p => [
-        p.ProjectID,
-        p.ProjectName,
-        p.CostCenter,
-        p.Supervisor,
-        p.ProjectManager,
-        (p.ProgressPercentage || 0).toFixed(1),
-        (p.TotalInvoiced || 0).toFixed(2),
-        (p.TotalCosts || 0).toFixed(2),
-        ((p.TotalInvoiced || 0) - (p.TotalCosts || 0)).toFixed(2),
-        (p.ROI || 0).toFixed(1),
-        p.Status,
-        p.RiskLevel
-    ]);
-    
-    const csvContent = [headers, ...rows]
-        .map(row => row.map(cell => `"${cell || ''}"`).join(','))
-        .join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `projects_export_${moment().format('YYYY-MM-DD')}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    
-    showNotification('Export completed successfully', 'success');
+    tbody.innerHTML = html;
 }
 
 // ============================================
-// REFRESH DATA
+// PAGINATION FUNCTIONS
 // ============================================
-function refreshData() {
-    loadData();
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        updateTable();
+    }
+}
+
+function nextPage() {
+    const totalPages = Math.ceil(filteredProjects.length / pageSize);
+    if (currentPage < totalPages) {
+        currentPage++;
+        updateTable();
+    }
 }
 
 // ============================================
 // UTILITY FUNCTIONS
 // ============================================
-function formatCurrency(amount) {
-    if (amount === undefined || amount === null) return 'R 0';
-    return 'R ' + amount.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-}
-
-function getStatusClass(status) {
-    switch(status) {
-        case 'Active': return 'status-active';
-        case 'On Track': return 'status-ontrack';
-        case 'At Risk': return 'status-atrisk';
-        case 'Behind Schedule': return 'status-behind';
-        case 'Completed': return 'status-completed';
-        default: return 'status-active';
-    }
-}
-
-function getRiskClass(risk) {
-    switch(risk) {
-        case 'Low': return 'risk-low';
-        case 'Medium': return 'risk-medium';
-        case 'High': return 'risk-high';
-        case 'Critical': return 'risk-critical';
-        default: return 'risk-low';
-    }
-}
-
 function showLoading(show) {
-    document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
+    document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
 }
 
-// ============================================
-// MAKE FUNCTIONS GLOBAL
-// ============================================
+function updateStatus(status, message) {
+    const statusEl = document.getElementById('connectionStatus');
+    const textEl = document.getElementById('connectionText');
+    
+    statusEl.classList.remove('status-connected', 'status-disconnected', 'status-checking');
+    statusEl.classList.add(`status-${status}`);
+    textEl.innerText = message;
+}
+
+async function testConnection() {
+    updateStatus('checking', 'Testing...');
+    try {
+        const response = await fetch(`${CONFIG.SCRIPT_URL}?action=test&t=${Date.now()}`);
+        const data = await response.json();
+        if (data.success) {
+            updateStatus('connected', 'Connected');
+            showMessage('Connection successful', 'success');
+        } else {
+            throw new Error(data.error);
+        }
+    } catch (error) {
+        updateStatus('disconnected', 'Test failed');
+        showMessage('Connection failed: ' + error.message, 'error');
+    }
+}
+
+// Make functions global
 window.loadData = loadData;
 window.applyFilters = applyFilters;
 window.resetFilters = resetFilters;
 window.quickFilter = quickFilter;
-window.refreshData = refreshData;
-window.exportToCSV = exportToCSV;
+window.testConnection = testConnection;
 window.prevPage = prevPage;
 window.nextPage = nextPage;
-window.changeTimeView = changeTimeView;
-window.viewProject = viewProject;
 </script>
 </body>
 </html>
