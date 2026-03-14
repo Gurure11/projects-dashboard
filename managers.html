@@ -21,6 +21,31 @@
         .status-checking { background-color: #f59e0b; }
         .connection-status { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; animation: pulse 2s infinite; }
         @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+        
+        /* FIXED: Chart container styles */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            margin: 0 auto;
+        }
+        
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        /* FIXED: Card height adjustments */
+        .chart-card {
+            height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chart-card h3 {
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body class="bg-slate-50">
@@ -104,27 +129,35 @@
         </div>
     </div>
 
-    <!-- Charts Row 1 -->
+    <!-- Charts Row 1 - FIXED: Added chart-container divs -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-7 mb-8">
-        <div class="bg-white p-5 rounded-2xl shadow-sm border">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border chart-card">
             <h3 class="font-semibold text-gray-700 mb-3">Cumulative MTD</h3>
-            <canvas id="chartCumulative" height="200"></canvas>
+            <div class="chart-container">
+                <canvas id="chartCumulative"></canvas>
+            </div>
         </div>
-        <div class="bg-white p-5 rounded-2xl shadow-sm border">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border chart-card">
             <h3 class="font-semibold text-gray-700 mb-3">Variance Distribution</h3>
-            <canvas id="chartHistogram" height="200"></canvas>
+            <div class="chart-container">
+                <canvas id="chartHistogram"></canvas>
+            </div>
         </div>
     </div>
 
-    <!-- Charts Row 2 -->
+    <!-- Charts Row 2 - FIXED: Added chart-container divs -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-7 mb-8">
-        <div class="bg-white p-5 rounded-2xl shadow-sm border">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border chart-card">
             <h3 class="font-semibold text-gray-700 mb-3">Avg Variance by Manager</h3>
-            <canvas id="chartManagers" height="220"></canvas>
+            <div class="chart-container">
+                <canvas id="chartManagers"></canvas>
+            </div>
         </div>
-        <div class="bg-white p-5 rounded-2xl shadow-sm border">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border chart-card">
             <h3 class="font-semibold text-gray-700 mb-3">Avg Variance by Project</h3>
-            <canvas id="chartProjects" height="220"></canvas>
+            <div class="chart-container">
+                <canvas id="chartProjects"></canvas>
+            </div>
         </div>
     </div>
 
@@ -162,7 +195,7 @@
 
 <script>
 // ============================================
-// COMPLETE WORKING CODE - NO ERRORS
+// COMPLETE WORKING CODE - WITH FIXED CHARTS
 // ============================================
 
 // Configuration
@@ -415,7 +448,7 @@ function updateVarianceCards() {
 }
 
 // ============================================
-// RENDER ALL CHARTS
+// RENDER ALL CHARTS - FIXED: Better options for sizing
 // ============================================
 function renderAllCharts() {
     if (filteredData.length === 0) return;
@@ -430,7 +463,7 @@ function renderAllCharts() {
 }
 
 // ============================================
-// CUMULATIVE CHART
+// CUMULATIVE CHART - FIXED: Optimized options
 // ============================================
 function renderCumulativeChart() {
     const monthStart = moment().startOf('month').format('YYYY-MM-DD');
@@ -460,16 +493,61 @@ function renderCumulativeChart() {
         data: {
             labels: dates.map(d => moment(d).format('DD MMM')),
             datasets: [
-                { label: 'Income', data: incData, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 },
-                { label: 'Target', data: tarData, borderColor: '#1e4b8c', borderDash: [5,5], tension: 0.4 }
+                { 
+                    label: 'Income', 
+                    data: incData, 
+                    borderColor: '#10b981', 
+                    backgroundColor: 'rgba(16,185,129,0.1)', 
+                    fill: true, 
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 5
+                },
+                { 
+                    label: 'Target', 
+                    data: tarData, 
+                    borderColor: '#1e4b8c', 
+                    borderDash: [5,5], 
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 5
+                }
             ]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 11 } }
+                },
+                tooltip: { enabled: true }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: { font: { size: 10 } }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { 
+                        font: { size: 10 },
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            },
+            layout: {
+                padding: { top: 10, bottom: 10 }
+            }
+        }
     });
 }
 
 // ============================================
-// HISTOGRAM CHART
+// HISTOGRAM CHART - FIXED: Optimized options
 // ============================================
 function renderHistogramChart() {
     const buckets = { '< -20%': 0, '-20% to 0%': 0, '0% to 20%': 0, '> 20%': 0 };
@@ -488,19 +566,41 @@ function renderHistogramChart() {
             labels: Object.keys(buckets),
             datasets: [{
                 data: Object.values(buckets),
-                backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#1e4b8c']
+                backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#1e4b8c'],
+                borderRadius: 4,
+                barPercentage: 0.7
             }]
         },
         options: { 
             responsive: true, 
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
+            maintainAspectRatio: true,
+            plugins: { 
+                legend: { display: false },
+                tooltip: { enabled: true }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: { 
+                        font: { size: 10 },
+                        stepSize: 1
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 10 } }
+                }
+            },
+            layout: {
+                padding: { top: 10, bottom: 10 }
+            }
         }
     });
 }
 
 // ============================================
-// MANAGER CHART
+// MANAGER CHART - FIXED: Optimized options
 // ============================================
 function renderManagerChart() {
     const managerData = {};
@@ -523,20 +623,49 @@ function renderManagerChart() {
             labels: chartData.map(d => d.name),
             datasets: [{
                 data: chartData.map(d => d.avg),
-                backgroundColor: chartData.map(d => d.avg >= 0 ? '#10b981' : '#ef4444')
+                backgroundColor: chartData.map(d => d.avg >= 0 ? '#10b981' : '#ef4444'),
+                borderRadius: 4,
+                barPercentage: 0.7
             }]
         },
         options: {
             indexAxis: 'y',
             responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
+            maintainAspectRatio: true,
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Avg Variance: ${context.raw.toFixed(1)}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: { 
+                        font: { size: 10 },
+                        callback: function(value) {
+                            return value.toFixed(1) + '%';
+                        }
+                    }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { font: { size: 10 } }
+                }
+            },
+            layout: {
+                padding: { top: 10, bottom: 10 }
+            }
         }
     });
 }
 
 // ============================================
-// PROJECT CHART
+// PROJECT CHART - FIXED: Optimized options
 // ============================================
 function renderProjectChart() {
     const projectData = {};
@@ -556,17 +685,46 @@ function renderProjectChart() {
     charts.projects = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: chartData.map(d => d.name.length > 15 ? d.name.substr(0,15)+'...' : d.name),
+            labels: chartData.map(d => d.name.length > 12 ? d.name.substr(0,12)+'...' : d.name),
             datasets: [{
                 data: chartData.map(d => d.avg),
-                backgroundColor: chartData.map(d => d.avg >= 0 ? '#10b981' : '#ef4444')
+                backgroundColor: chartData.map(d => d.avg >= 0 ? '#10b981' : '#ef4444'),
+                borderRadius: 4,
+                barPercentage: 0.7
             }]
         },
         options: {
             indexAxis: 'y',
             responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
+            maintainAspectRatio: true,
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Avg Variance: ${context.raw.toFixed(1)}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: { 
+                        font: { size: 10 },
+                        callback: function(value) {
+                            return value.toFixed(1) + '%';
+                        }
+                    }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { font: { size: 10 } }
+                }
+            },
+            layout: {
+                padding: { top: 10, bottom: 10 }
+            }
         }
     });
 }
